@@ -1,0 +1,112 @@
+BuroSE.
+quiero que me armes un index con esta descripcion. Nuevo proyecto llamado BuroSE, que es el Buro de Seguridad Electronica de Argentina, sitio colaborativo entre empresas importadoras mayoristas y revendedores de sistemas de seguridad electronica en Argentina, quienes a la hora de dar de alta nuevos clientes podran consultar por cuit o dni si el mismo fuese denunciado anterioremente por algun colega de haber sido victima de accion de no pago, o haya dejado deuda comercial en otra empresa. Ya que si bien podemos consultar paginas como Nosis, Veraz, BCRA tal vez no llegaron a ser informados pero si hayan dejado algun saldo pendiente en empresas que no pierden tiempo ni les interesa generar una denuncia en entidades oficiales. Quienes aportan datos son personas / empresas reales quienes han sufrido daños economicos por el mal accionar de ese cuit denunciado. Tambien dejar claro en la web que este sistema valida la informacion antes de publicarla por personas humanas y no robots ni IA para evitar falsas denuncias. Toda la informacion recabada es real. Tambien añadir un texto de bases y condiciones amparando a BuroSE de toda accion legal que pudiera ocurrir, sitar la ley de proteccion de datos personales y dar una opcion de derecho a replica del damnificado. Aclarar que somos la primera empresa dedicada al 100% a la seguridad electronica y que nuestra informacion nace desde las empresas del gremio. Toda esta info armamela como presentacion usando tus palabras explicando que si un cuit no es denunciado en las webs oficiales como BCRA, Nosis, Veraz y sin embargo el sujeto deja cuentas sin pagar, un solo informe puede salvar a otra empresa de caer en la trampa, dejando a entender que el informe se paga solo.
+Confeccionar algún grafico llamativo para que la gente pueda observar, inventar datos dejando en claro que si consultan las bases de BuroSEG pueden evitar estafas.
+Aclarar que existe el derecho a replica.
+Aclarar que nos amparamos en las leyes de Argentina con respecto a resguardo de datos personales, etc.
+
+
+Quiero que lo actualices automáticamente: deploi, push, sync: en el repositorio de GitHub: https://github.com/vs-systems/BuroSE
+Quiero que hagas Acept All a todas las preguntas.
+
+
+Por ahora es solo un index informando de lo que se viene. En algún lugar tiene que decir BuroSE es un desarrollo de VS Sistemas - vecinoseguro.com
+
+Formulario de consultas / contacto: solicitar Nombre / Razon Social, Cuit, Whatsapp, Email, preferencia de contacto: teléfono, whatsapp, email. Rubro, Localidad.
+Formulario derecho a replica: Nombre / Cuit o DNI / Email / Descargo
+
+Armar base de datos, esto es para escalar y va relacionado al sistema VSYS que venimos desarrollando. No se si va dentro de la misma base de datos de VS System o en una nueva, esta va a ir dentro del web www.burose.com.ar alojado en Hostinger. 
+
+Evalua este otro texto para armar el prompt también:
+
+BuroSE – Buró de Seguridad Electrónica de Argentina
+
+BuroSE nace de una necesidad real del mercado.
+Una que todos en el rubro conocemos, pero pocos se animaron a ordenar y enfrentar.
+
+Somos el primer buró colaborativo 100% dedicado a la seguridad electrónica en Argentina, creado por y para empresas importadoras, mayoristas y revendedores del sector. Nuestro objetivo es simple y poderoso: evitar que una empresa vuelva a caer donde otra ya perdió.
+
+En el día a día, muchas operaciones comerciales no llegan a instancias formales de denuncia. No aparecen en BCRA, Nosis o Veraz, pero dejan algo muy concreto: deudas impagas, incumplimientos y pérdidas económicas reales.
+Tiempo perdido. Mercadería no cobrada. Confianza rota.
+
+BuroSE cubre ese vacío.
+
+¿Qué es BuroSE?
+
+BuroSE es una plataforma colaborativa de consulta preventiva, donde las empresas del gremio pueden:
+
+Consultar por CUIT o DNI antes de dar de alta un nuevo cliente
+
+Verificar si ese sujeto fue denunciado previamente por colegas del sector
+
+Acceder a información real, concreta y validada sobre antecedentes comerciales negativos
+
+No hablamos de rumores.
+Hablamos de experiencias reales sufridas por empresas reales.
+
+Un solo informe, a tiempo, puede evitar una pérdida mayor.
+Muchas veces, ese informe se paga solo.
+
+Información real, validada por personas
+
+En BuroSE no hay robots, ni denuncias automáticas, ni inteligencia artificial inventando historias.
+
+✔️ Toda la información es cargada por personas humanas y empresas reales
+✔️ Cada reporte es revisado y validado antes de publicarse
+✔️ No se aceptan denuncias anónimas ni falsas
+
+El sistema está diseñado para proteger al gremio, no para dañar injustamente.
+
+Colaboración que protege
+
+BuroSE se construye entre colegas.
+Empresas que entienden que compartir información protege a todo el ecosistema.
+
+Si un cliente deja una deuda y desaparece, probablemente lo intente nuevamente en otra empresa.
+BuroSE corta ese ciclo.
+
+Lo que hoy es una advertencia, mañana puede ser una empresa salvada.
+
+Marco legal y transparencia
+
+BuroSE opera bajo el respeto estricto de la Ley de Protección de Datos Personales (Ley 25.326) y normativas vigentes en la República Argentina.
+
+La información publicada tiene finalidad preventiva y comercial
+
+No constituye un registro financiero oficial
+
+No reemplaza informes de entidades como BCRA, Nosis o Veraz
+
+Actúa como herramienta complementaria de consulta
+
+Derecho a réplica
+
+Toda persona o empresa mencionada en un informe tiene el derecho a solicitar revisión, aclaración o réplica, conforme a la legislación vigente.
+BuroSE garantiza un canal formal para ejercer ese derecho.
+
+Bases y Condiciones – Limitación de responsabilidad
+
+BuroSE no es parte de las relaciones comerciales entre las empresas usuarias y sus clientes.
+La información publicada proviene de terceros identificables y es validada bajo criterios internos, pero:
+
+La decisión comercial final es exclusiva del usuario
+
+BuroSE no garantiza resultados comerciales
+
+No asume responsabilidad por acciones tomadas a partir de la información consultada
+
+No responde por conflictos derivados entre partes
+
+El uso de la plataforma implica la aceptación plena de estas condiciones.
+
+Una herramienta del gremio, para el gremio
+
+BuroSE no es una base de datos genérica.
+No es un buró financiero tradicional.
+No es una plataforma masiva sin contexto.
+
+Es la primera iniciativa pensada exclusivamente para la seguridad electrónica, con información que nace desde adentro del sector.
+
+Porque nadie entiende mejor el riesgo que quien ya lo pagó.
+
+BuroSE
+Cuando compartir información deja de ser opcional y pasa a ser una forma de cuidarnos entre todos.
