@@ -8,17 +8,12 @@ const Header = () => {
         <nav className="fixed w-full z-50 bg-brand-dark/90 backdrop-blur-md border-b border-brand-card">
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-center h-20">
-                    {/* Logo */}
-                    <div className="flex items-center space-x-2">
-                        <span className="text-brand-neon">
-                            <ShieldCheck size={32} strokeWidth={1.5} />
-                        </span>
-                        <div className="flex flex-col">
-                            <span className="text-2xl font-bold tracking-tight text-white">BuroSE</span>
-                            <span className="text-[10px] text-brand-muted uppercase tracking-wider">
-                                Powered by VS Sistemas
-                            </span>
-                        </div>
+                    <div className="flex items-center">
+                        <img
+                            src="/logo.png"
+                            alt="BuroSE Logo"
+                            className="h-12 md:h-14 w-auto object-contain"
+                        />
                     </div>
 
                     {/* Desktop Menu */}
