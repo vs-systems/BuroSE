@@ -45,7 +45,7 @@ const Footer = () => {
                 </div>
 
                 <div className="border-t border-brand-secondary pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-muted">
-                    <p>&copy; 2026 BuroSE. Todos los derechos reservados.</p>
+                    <p>&copy; 2026 BuroSE. Todos los derechos reservados. | <a href="mailto:burosearg@gmail.com" className="hover:text-brand-neon transition-colors">burosearg@gmail.com</a></p>
                     <p className="mt-2 md:mt-0">Hecho en Argentina 🇦🇷 | Última actualización: {new Date().toLocaleDateString()}</p>
                 </div>
             </div>
