@@ -46,7 +46,7 @@ const Footer = () => {
 
                 <div className="border-t border-brand-secondary pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-muted">
                     <p>&copy; 2026 BuroSE. Todos los derechos reservados.</p>
-                    <p className="mt-2 md:mt-0">Hecho en Argentina 🇦🇷</p>
+                    <p className="mt-2 md:mt-0">Hecho en Argentina 🇦🇷 | Última actualización: {new Date().toLocaleDateString()}</p>
                 </div>
             </div>
         </footer>
