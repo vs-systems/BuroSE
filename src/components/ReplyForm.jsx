@@ -13,23 +13,53 @@ const ReplyForm = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Derecho a Réplica Enviado:', formData);
-        alert('Solicitud enviada. El área de legales revisará su caso.');
+        try {
+            const response = await fetch('/api/forms.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    cuit: formData.id,
+                    email: formData.email,
+                    descargo: formData.message,
+                    type: 'replica'
+                }),
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Solicitud enviada. El área de legales revisará su caso.');
+                setFormData({
+                    name: '',
+                    id: '',
+                    email: '',
+                    message: ''
+                });
+            } else {
+                alert('Hubo un error: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error al enviar:', error);
+            alert('Error al conectar con el servidor.');
+        }
     };
 
     return (
         <div id="replica" className="bg-brand-dark border border-brand-secondary/50 rounded-2xl p-8 relative overflow-hidden group">
             {/* Próximamente Overlay */}
+            {/* 
             <div className="absolute inset-0 z-10 bg-brand-darker/70 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
                 <div className="border border-brand-alert/30 bg-brand-dark/40 p-6 rounded-xl backdrop-blur-md shadow-2xl">
                     <h4 className="text-brand-alert text-3xl font-bold tracking-tighter uppercase mb-2">Próximamente</h4>
                     <p className="text-brand-text/60 text-sm">El canal formal de descargo estará habilitado próximamente.</p>
                 </div>
             </div>
+            */}
 
-            <div className="opacity-20 grayscale pointer-events-none">
+            <div className="">
                 <div className="flex items-center space-x-2 mb-2">
                     <AlertOctagon className="text-brand-alert" size={24} />
                     <h3 className="text-2xl font-bold text-white">Derecho a Réplica</h3>

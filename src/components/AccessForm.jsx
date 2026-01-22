@@ -16,25 +16,52 @@ const AccessForm = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Solicitud de Acceso Enviada:', formData);
-        alert('Gracias. Hemos recibido tu solicitud de acceso.');
+        try {
+            const response = await fetch('/api/forms.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...formData, type: 'contact' }),
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Gracias. Hemos recibido tu solicitud de acceso.');
+                setFormData({
+                    name: '',
+                    cuit: '',
+                    whatsapp: '',
+                    email: '',
+                    contactPref: 'whatsapp',
+                    sector: 'Distribuidor',
+                    city: ''
+                });
+            } else {
+                alert('Hubo un error: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error al enviar:', error);
+            alert('Error al conectar con el servidor.');
+        }
     };
 
     return (
         <div className="bg-brand-card border border-brand-secondary rounded-2xl p-8 relative overflow-hidden group">
             {/* Próximamente Overlay */}
+            {/* 
             <div className="absolute inset-0 z-10 bg-brand-darker/70 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
                 <div className="border border-brand-neon/30 bg-brand-dark/40 p-6 rounded-xl backdrop-blur-md shadow-2xl">
                     <h4 className="text-brand-neon text-3xl font-bold tracking-tighter uppercase mb-2">Próximamente</h4>
                     <p className="text-brand-text/60 text-sm">Nuestro sistema de registro gremial estará disponible en breve.</p>
                 </div>
             </div>
+            */}
 
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-neon/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
-            <div className="opacity-20 grayscale pointer-events-none">
+            <div className="">
                 <h3 className="text-2xl font-bold text-white mb-2">Solicitar Acceso</h3>
                 <p className="text-brand-muted text-sm mb-8">
                     Únete a la red colaborativa. Exclusivo para empresas del gremio.
