@@ -61,6 +61,36 @@ const AdminPanel = () => {
         setData({ contacts: [], replicas: [] });
     };
 
+    const handleApprove = async (contact) => {
+        const pass = prompt(`Asignar contraseña para ${contact.nombre_social} (CUIT: ${contact.cuit}):`, contact.cuit);
+        if (pass === null) return; // Cancelado
+
+        try {
+            const resp = await fetch('/api/admin_approve.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cuit: contact.cuit,
+                    password: pass,
+                    name: contact.nombre_social,
+                    email: contact.email,
+                    whatsapp: contact.whatsapp,
+                    rubro: contact.rubro,
+                    localidad: contact.localidad
+                })
+            });
+            const res = await resp.json();
+            if (res.status === 'success') {
+                alert('¡Socio aprobado con éxito!');
+                fetchData();
+            } else {
+                alert('Error: ' + res.message);
+            }
+        } catch (e) {
+            alert('Error al conectar con la API');
+        }
+    };
+
     if (!isLogged) {
         return (
             <div className="min-h-screen bg-brand-darker flex items-center justify-center p-6">
@@ -183,7 +213,15 @@ const AdminPanel = () => {
                                         </div>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-brand-secondary/50 flex justify-between items-center">
-                                        <p className="text-xs text-brand-text/50 uppercase font-black tracking-widest">{c.rubro}</p>
+                                        <div className="flex items-center space-x-4">
+                                            <p className="text-xs text-brand-text/50 uppercase font-black tracking-widest">{c.rubro}</p>
+                                            <button
+                                                onClick={() => handleApprove(c)}
+                                                className="bg-brand-neon hover:bg-[#00cc7d] text-brand-darker text-[10px] font-black px-4 py-2 rounded-lg transition-all shadow-lg shadow-brand-neon/20 uppercase"
+                                            >
+                                                Aprobar como Socio
+                                            </button>
+                                        </div>
                                         <p className="text-xs text-brand-neon opacity-0 group-hover:opacity-100 transition-opacity">Preferencia: {c.preferencia_contacto}</p>
                                     </div>
                                 </div>
