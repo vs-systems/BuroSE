@@ -35,13 +35,13 @@ const LogosSlider = ({ theme }) => {
                             href={logo.website_url || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="h-20 min-w-[160px] px-8 py-4 bg-[#7e7e7e] hover:bg-[#999999] rounded-lg flex items-center justify-center transition-all duration-300 shadow-lg group"
+                            className="h-20 min-w-[180px] px-8 py-4 bg-[#7e7e7e] hover:bg-[#8e8e8e] rounded-sm flex items-center justify-center transition-all duration-300 shadow-lg group"
                         >
                             <img
                                 src={logo.logo_url}
                                 alt={logo.name}
                                 title={logo.name}
-                                className="max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                                className="max-h-12 w-auto object-contain brightness-0 transition-transform duration-300 group-hover:scale-105"
                             />
                         </a>
                     ))}
