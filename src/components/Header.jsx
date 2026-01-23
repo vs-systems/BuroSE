@@ -24,9 +24,8 @@ const Header = () => {
                         <a href="#how-it-works" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">
                             Cómo Funciona
                         </a>
-                        <a href="#risk-search" className="text-sm font-bold text-brand-neon hover:text-white transition-colors">
-                            Consultar Riesgo
-                        </a>
+                        <a href="/#/risk-dashboard" className="text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium transition-colors">Consultar Riesgo</a>
+                        <a href="/#/login" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-900/40 transition-all">Acceso Socios</a>
                         <a href="#legal" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">
                             Legal
                         </a>

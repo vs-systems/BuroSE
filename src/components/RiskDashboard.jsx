@@ -1,10 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle } from 'lucide-react';
 
 const RiskDashboard = () => {
     const [cuit, setCuit] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
+    const [error, setError] = useState('');
+    const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking, false = not logged in, true = logged in
+
+    useEffect(() => {
+        checkAuth();
+    }, []);
+
+    const checkAuth = async () => {
+        try {
+            const response = await fetch('api/check_session.php');
+            const data = await response.json();
+            setIsAuthenticated(data.authenticated);
+        } catch (err) {
+            console.error('Error checking auth:', err);
+            setIsAuthenticated(false);
+        }
+    };
+
+    if (isAuthenticated === null) {
+        return (
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    if (isAuthenticated === false) {
+        return (
+            <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
+                <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 max-w-md w-full text-center shadow-2xl">
+                    <div className="mb-6 flex justify-center">
+                        <div className="bg-blue-500/10 p-4 rounded-full">
+                            <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m13-3V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h8m6-1l-5-5m0 0l-5 5m5-5V3" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-4">Acceso Restringido</h2>
+                    <p className="text-slate-400 mb-8">
+                        La consulta de riesgo es exclusiva para socios de <strong>BuroSE</strong>. Por favor, inicia sesión para continuar.
+                    </p>
+                    <a
+                        href="/#/login"
+                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-900/20"
+                    >
+                        Iniciar Sesión
+                    </a>
+                    <p className="mt-6 text-sm text-slate-500">
+                        ¿No eres socio? <a href="/#access" className="text-blue-400 hover:underline">Solicita acceso aquí</a>
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     const handleSearch = async (e) => {
         e.preventDefault();
