@@ -18,6 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['sector'],
                 $data['city']
             ]);
+
+            // Notificar por mail
+            $to = "burosearg@gmail.com";
+            $subject = "Nueva Solicitud: Denunciantes / Acceso - " . $data['name'];
+            $body = "Nombre: " . $data['name'] . "\n" .
+                "CUIT: " . $data['cuit'] . "\n" .
+                "WhatsApp: " . $data['whatsapp'] . "\n" .
+                "Email: " . $data['email'] . "\n" .
+                "Rubro: " . $data['sector'] . "\n" .
+                "Localidad: " . $data['city'] . "\n" .
+                "Preferencia: " . $data['contactPref'];
+            $headers = "From: no-reply@burose.com.ar";
+            mail($to, $subject, $body, $headers);
+
             echo json_encode(["status" => "success", "message" => "Solicitud de contacto recibida"]);
         } elseif ($data['type'] === 'replica') {
             // Procesar derecho a réplica
@@ -28,6 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['email'],
                 $data['descargo']
             ]);
+
+            // Notificar por mail
+            $to = "burosearg@gmail.com";
+            $subject = "Solicitud de Derecho a Réplica - " . $data['name'];
+            $body = "Nombre: " . $data['name'] . "\n" .
+                "CUIT/DNI: " . $data['cuit'] . "\n" .
+                "Email: " . $data['email'] . "\n" .
+                "Mensaje: " . $data['descargo'];
+            $headers = "From: legales@vecinoseguro.com.ar";
+            mail($to, $subject, $body, $headers);
+
             echo json_encode(["status" => "success", "message" => "Solicitud de réplica recibida para revisión"]);
         }
     } else {

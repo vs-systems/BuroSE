@@ -62,9 +62,9 @@ const AccessForm = () => {
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-neon/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
             <div className="">
-                <h3 className="text-2xl font-bold text-white mb-2">Solicitar Acceso</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">Denunciantes / Acceso</h3>
                 <p className="text-brand-muted text-sm mb-8">
-                    Únete a la red colaborativa. Exclusivo para empresas del gremio.
+                    Únete a la red colaborativa. Exclusivo para empresas del gremio y denuncias comerciales.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
