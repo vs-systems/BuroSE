@@ -1,0 +1,15 @@
+
+> buro-se-landing@0.0.1 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 24 modules transformed.
+[31mx[39m Build failed in 33.26s
+[31merror during build:
+[31mCould not resolve "./ReportUpload" from "src/components/RiskDashboard.jsx"[31m
+file: [36mZ:/Buro SE/src/components/RiskDashboard.jsx[31m
+    at getRollupError (file:///Z:/Buro%20SE/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at error (file:///Z:/Buro%20SE/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+    at ModuleLoader.handleInvalidResolvedId (file:///Z:/Buro%20SE/node_modules/rollup/dist/es/shared/node-entry.js:21706:24)
+    at file:///Z:/Buro%20SE/node_modules/rollup/dist/es/shared/node-entry.js:21666:26[39m
