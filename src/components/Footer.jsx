@@ -27,9 +27,9 @@ const Footer = () => {
                     <div>
                         <h4 className="font-bold text-white mb-4">Legal</h4>
                         <ul className="space-y-2 text-sm text-brand-muted">
-                            <li><a href="#" className="hover:text-brand-neon transition-colors">Términos y Condiciones</a></li>
-                            <li><a href="#" className="hover:text-brand-neon transition-colors">Política de Privacidad</a></li>
-                            <li><a href="#replica" className="hover:text-brand-neon transition-colors">Derecho a Réplica</a></li>
+                            <li><a href="#legal" className="hover:text-brand-neon transition-colors">Términos y Condiciones</a></li>
+                            <li><a href="#legal" className="hover:text-brand-neon transition-colors">Política de Privacidad</a></li>
+                            <li><a href="#legal" className="hover:text-brand-neon transition-colors">Derecho a Réplica</a></li>
                         </ul>
                     </div>
 
@@ -45,8 +45,16 @@ const Footer = () => {
                 </div>
 
                 <div className="border-t border-brand-secondary pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-muted">
-                    <p>&copy; 2026 BuroSE. Todos los derechos reservados. | <a href="mailto:burosearg@gmail.com" className="hover:text-brand-neon transition-colors">burosearg@gmail.com</a></p>
-                    <p className="mt-2 md:mt-0">Hecho en Argentina 🇦🇷 | Última actualización: {new Date().toLocaleDateString()}</p>
+                    <p>&copy; 2026 BuroSE. Todos los derechos reservados.</p>
+                    <div className="flex space-x-6 mt-4 md:mt-0">
+                        <a href="mailto:legales@vecinoseguro.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
+                            Legal: legales@vecinoseguro.com.ar
+                        </a>
+                        <a href="mailto:burosearg@gmail.com" className="hover:text-brand-neon transition-colors">
+                            Contacto: burosearg@gmail.com
+                        </a>
+                    </div>
+                    <p className="mt-4 md:mt-0">Hecho en Argentina 🇦🇷 | Última actualización: {new Date().toLocaleDateString()}</p>
                 </div>
             </div>
         </footer>
