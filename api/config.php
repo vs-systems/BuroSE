@@ -21,7 +21,13 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    echo json_encode(["status" => "error", "message" => "Connection failed: " . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Error de conexión a la base de datos: " . $e->getMessage(),
+        "db_host" => $host,
+        "db_name" => $db_name
+    ]);
     exit();
 }
 ?>

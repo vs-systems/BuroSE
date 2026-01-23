@@ -8,21 +8,42 @@ const LogosManager = () => {
     useEffect(() => { fetchLogos(); }, []);
 
     const fetchLogos = async () => {
-        const res = await fetch('/api/admin_logos.php');
-        const data = await res.json();
-        if (data.status === 'success') setLogos(data.data);
+        try {
+            const res = await fetch('/api/admin_logos.php');
+            if (!res.ok) {
+                const text = await res.text();
+                console.error("Server Error:", text);
+                return;
+            }
+            const data = await res.json();
+            if (data.status === 'success') setLogos(data.data);
+        } catch (e) {
+            console.error("Error fetching logos:", e);
+        }
     };
 
     const handleAdd = async (e) => {
         e.preventDefault();
-        const res = await fetch('/api/admin_logos.php', {
-            method: 'POST',
-            body: JSON.stringify(newLogo),
-            headers: { 'Content-Type': 'application/json' }
-        });
-        if (res.ok) {
+        try {
+            const res = await fetch('/api/admin_logos.php', {
+                method: 'POST',
+                body: JSON.stringify(newLogo),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => null);
+                const msg = errorData?.message || "Error desconocido en el servidor";
+                const hint = errorData?.hint || "";
+                alert(`Error al agregar logo: ${msg}\n${hint}`);
+                return;
+            }
+
             setNewLogo({ name: '', logo_url: '', website_url: '' });
             fetchLogos();
+        } catch (e) {
+            console.error("Add Logo Error:", e);
+            alert("Error de conexión al agregar logo");
         }
     };
 
