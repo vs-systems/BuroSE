@@ -40,6 +40,21 @@ if ($cuit === "20111111112") {
     ];
     $bcra_data["deuda_total"] = 1200000;
     $bcra_data["max_situacion"] = 3;
+} elseif ($cuit === "20333333334") {
+    // Caso solicitado: Limpio en BCRA pero denunciado en el Gremio
+    $internal_reports = [
+        [
+            "monto" => 850000,
+            "fecha_denuncia" => date("Y-m-d H:i:s"),
+            "descripcion" => "Incumplimiento de pago en factura de cámaras y DVRs. Empresa: Biosegur SRL (Mayorista)",
+            "estado" => "validado"
+        ]
+    ];
+    $total_internal_debt = 850000;
+
+    $bcra_data["entidades"] = [
+        ["entidad" => "Banco Provincia", "periodo" => "01/24", "situacion" => 1, "monto" => 0]
+    ];
 }
 
 // 3. Resultado Unificado
