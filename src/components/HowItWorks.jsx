@@ -1,7 +1,7 @@
 import React from 'react';
 import { UserCheck, FileText, Database, Shield } from 'lucide-react';
 
-const HowItWorks = () => {
+const HowItWorks = ({ theme }) => {
     return (
         <section id="how-it-works" className="py-24 bg-brand-dark border-y border-brand-secondary">
             <div className="container mx-auto px-4">

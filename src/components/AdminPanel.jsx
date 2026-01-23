@@ -1,5 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock } from 'lucide-react';
+import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon } from 'lucide-react';
+
+const LogosManager = () => {
+    const [logos, setLogos] = useState([]);
+    const [newLogo, setNewLogo] = useState({ name: '', logo_url: '', website_url: '' });
+
+    useEffect(() => { fetchLogos(); }, []);
+
+    const fetchLogos = async () => {
+        const res = await fetch('/api/admin_logos.php');
+        const data = await res.json();
+        if (data.status === 'success') setLogos(data.data);
+    };
+
+    const handleAdd = async (e) => {
+        e.preventDefault();
+        const res = await fetch('/api/admin_logos.php', {
+            method: 'POST',
+            body: JSON.stringify(newLogo),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (res.ok) {
+            setNewLogo({ name: '', logo_url: '', website_url: '' });
+            fetchLogos();
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm('¿Eliminar este logo?')) return;
+        await fetch(`/api/admin_logos.php?id=${id}`, { method: 'DELETE' });
+        fetchLogos();
+    };
+
+    return (
+        <div className="space-y-8">
+            <form onSubmit={handleAdd} className="bg-brand-card border border-brand-secondary p-6 rounded-2xl grid md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label className="block text-xs font-bold text-brand-muted uppercase mb-2">Nombre Empresa</label>
+                    <input type="text" value={newLogo.name} onChange={e => setNewLogo({ ...newLogo, name: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white" placeholder="Ej: Seguridad X" required />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-brand-muted uppercase mb-2">URL del Logo</label>
+                    <input type="text" value={newLogo.logo_url} onChange={e => setNewLogo({ ...newLogo, logo_url: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white" placeholder="https://..." required />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-brand-muted uppercase mb-2">URL Sitio Web</label>
+                    <input type="text" value={newLogo.website_url} onChange={e => setNewLogo({ ...newLogo, website_url: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white" placeholder="https://..." />
+                </div>
+                <button type="submit" className="bg-brand-neon text-brand-darker font-bold py-2 rounded-lg flex items-center justify-center">
+                    <Plus size={18} className="mr-2" /> Agregar Logo
+                </button>
+            </form>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {logos.map(logo => (
+                    <div key={logo.id} className="bg-brand-card border border-brand-secondary p-4 rounded-xl relative group">
+                        <img src={logo.logo_url} alt={logo.name} className="h-12 w-full object-contain mb-4" />
+                        <h4 className="text-sm font-bold text-white text-center truncate">{logo.name}</h4>
+                        <div className="absolute inset-0 bg-brand-dark/90 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center space-x-4">
+                            <a href={logo.website_url} target="_blank" className="p-2 bg-white/10 rounded-full text-white hover:bg-brand-neon hover:text-brand-darker transition-all"><Globe size={18} /></a>
+                            <button onClick={() => handleDelete(logo.id)} className="p-2 bg-brand-alert/20 rounded-full text-brand-alert hover:bg-brand-alert hover:text-white transition-all"><Trash2 size={18} /></button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const AdminPanel = () => {
     const [isLogged, setIsLogged] = useState(false);
@@ -154,6 +221,13 @@ const AdminPanel = () => {
                         <MessageSquare size={18} />
                         <span>Derecho a Réplica</span>
                     </button>
+                    <button
+                        onClick={() => setActiveTab('logos')}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'logos' ? 'bg-brand-neon text-brand-darker font-bold' : 'text-brand-muted hover:bg-white/5'}`}
+                    >
+                        <RefreshCcw size={18} />
+                        <span>Gestión de Logos</span>
+                    </button>
                 </nav>
                 <div className="p-4 border-t border-brand-secondary">
                     <button
@@ -170,7 +244,7 @@ const AdminPanel = () => {
             <div className="flex-1 overflow-y-auto">
                 <header className="bg-brand-card/50 border-b border-brand-secondary p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10">
                     <h2 className="text-2xl font-bold text-white uppercase tracking-tighter">
-                        {activeTab === 'contacts' ? 'Empresas Interesadas / Denunciantes' : 'Solicitudes de Réplica'}
+                        {activeTab === 'contacts' ? 'Empresas Interesadas / Denunciantes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : 'Gestión de Logos de Confianza'}
                     </h2>
                     <button
                         onClick={fetchData} disabled={loading}

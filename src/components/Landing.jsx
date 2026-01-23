@@ -7,6 +7,8 @@ import RiskDashboard from './RiskDashboard';
 import Legal from './Legal';
 import AccessForm from './AccessForm';
 import ReplyForm from './ReplyForm';
+import LogosSlider from './LogosSlider';
+import Pricing from './Pricing';
 import Footer from './Footer';
 
 const Landing = ({ theme, setTheme }) => {
@@ -14,10 +16,12 @@ const Landing = ({ theme, setTheme }) => {
         <div className={`min-h-screen font-sans transition-colors duration-300 ${theme === 'dark' ? 'bg-brand-darker text-brand-text' : 'bg-slate-50 text-slate-900'}`}>
             <Header theme={theme} setTheme={setTheme} />
             <main>
-                <Hero />
+                <Hero theme={theme} />
+                <LogosSlider theme={theme} />
                 <ProblemChart />
-                <HowItWorks />
-                <RiskDashboard />
+                <HowItWorks theme={theme} />
+                <Pricing theme={theme} />
+                <RiskDashboard theme={theme} />
                 <Legal />
                 <div id="contact" className="container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12">
                     <AccessForm />

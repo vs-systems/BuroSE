@@ -2,25 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
+@layer base {
+  :root {
+    --bg-main: theme('colors.slate.50');
+    --text-main: theme('colors.slate.900');
+    --text-muted: theme('colors.slate.500');
+    --card-bg: theme('colors.white');
+    --card-border: theme('colors.slate.200');
+  }
+
+  .dark {
+    --bg-main: #050505;
+    --text-main: #e5e5e5;
+    --text-muted: #888888;
+    --card-bg: #0d0d0d;
+    --card-border: #1a1a1a;
+  }
+
+  body {
+    @apply transition-colors duration-300;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+  }
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #050505;
-  color: #e5e5e5;
+@layer components {
+  .brand-gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-brand-neon to-[#00cc7d];
+  }
 }
 
-/* Custom scrollbar for dark financial theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--bg-main);
 }
 
 ::-webkit-scrollbar-thumb {

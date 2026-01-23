@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
-const Hero = () => {
+const Hero = ({ theme }) => {
     return (
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
             {/* Background Elements */}
@@ -18,11 +18,11 @@ const Hero = () => {
                     </span>
                 </div>
 
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6 leading-tight max-w-5xl mx-auto">
-                    Cuando compartir información deja de ser opcional y pasa a ser <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-neon to-[#00cc7d]">una forma de cuidarnos entre todos.</span>
+                <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight max-w-5xl mx-auto transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                    Cuando compartir información deja de ser opcional y pasa a ser <span className="brand-gradient-text">una forma de cuidarnos entre todos.</span>
                 </h1>
 
-                <p className="text-lg md:text-xl text-brand-muted mb-10 max-w-2xl mx-auto leading-relaxed">
+                <p className={`text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed transition-colors ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
                     El primer buró colaborativo 100% dedicado a la seguridad electrónica en Argentina.
                     Detectamos deudas que no figuran en los sistemas tradicionales.
                 </p>
