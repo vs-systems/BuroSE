@@ -1,31 +1,17 @@
 import React from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import ProblemChart from './components/ProblemChart';
-import HowItWorks from './components/HowItWorks';
-import Legal from './components/Legal';
-import AccessForm from './components/AccessForm';
-import ReplyForm from './components/ReplyForm';
-import Footer from './components/Footer';
-import RiskDashboard from './components/RiskDashboard';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import Landing from './components/Landing';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
     return (
-        <div className="min-h-screen bg-brand-darker text-brand-text font-sans selection:bg-brand-neon selection:text-brand-darker">
-            <Header />
-            <main>
-                <Hero />
-                <ProblemChart />
-                <HowItWorks />
-                <RiskDashboard />
-                <Legal />
-                <div id="contact" className="container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12">
-                    <AccessForm />
-                    <ReplyForm />
-                </div>
-            </main>
-            <Footer />
-        </div>
+        <Router>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/config" element={<AdminPanel />} />
+            </Routes>
+        </Router>
     );
 }
 

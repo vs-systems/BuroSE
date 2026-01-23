@@ -38,7 +38,7 @@ const RiskDashboard = () => {
             <div className="container mx-auto px-4 max-w-6xl">
                 {/* Header / Search */}
                 <div className="mb-12 text-center">
-                    <h2 className="text-3xl font-bold text-white mb-6 uppercase tracking-tighter">Consulta de Riesgo Gremial</h2>
+                    <h2 className="text-3xl font-bold text-white mb-6 uppercase tracking-tighter">Consulta Riesgo Gremio Seguridad Argentina</h2>
                     <form onSubmit={handleSearch} className="relative max-w-xl mx-auto group">
                         <input
                             type="text"
@@ -54,7 +54,9 @@ const RiskDashboard = () => {
                             <Search size={24} />
                         </button>
                     </form>
-                    <p className="mt-4 text-brand-muted text-sm">Pruebe con: 20111111112 (Limpio) o 30222222223 (Deudor)</p>
+                    <p className="mt-4 text-brand-muted text-sm group-hover:text-brand-text/50 transition-colors">
+                        Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | Reporte Gremio Biosegur)
+                    </p>
                 </div>
 
                 {loading && (
