@@ -302,33 +302,14 @@ const AdminPanel = () => {
                             ))}
                             {data.contacts.length === 0 && <p className="text-center py-20 text-brand-muted italic">No hay registros de contacto todavía.</p>}
                         </div>
-                    ) : (
-                        <div className="grid gap-4">
-                            {data.replicas.map((r, idx) => (
-                                <div key={idx} className="bg-brand-card border border-brand-secondary p-6 rounded-2xl border-l-4 border-l-brand-alert">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div>
-                                            <h3 className="text-lg font-bold text-white mb-1">{r.nombre_sujeto}</h3>
-                                            <p className="text-sm text-brand-muted">CUIT/DNI: {r.cuit_dni}</p>
-                                        </div>
-                                        <span className="bg-brand-alert/10 text-brand-alert text-[10px] font-bold px-3 py-1 rounded-full border border-brand-alert/20 uppercase">Urgente</span>
-                                    </div>
-                                    <div className="bg-brand-dark/50 p-4 rounded-xl border border-brand-secondary/50">
-                                        <p className="text-xs font-bold text-brand-muted uppercase mb-2">Mensaje / Descargo</p>
-                                        <p className="text-sm text-brand-text italic leading-relaxed">"{r.descargo}"</p>
-                                    </div>
-                                    <div className="mt-4 flex justify-between items-center text-xs">
-                                        <p className="text-brand-muted">Email: <span className="text-white">{r.email}</span></p>
-                                        <p className="text-brand-muted">{new Date(r.created_at).toLocaleString()}</p>
-                                    </div>
-                                </div>
-                            ))}
-                            {data.replicas.length === 0 && <p className="text-center py-20 text-brand-muted italic">No hay solicitudes de réplica de momento.</p>}
-                        </div>
-                    )}
-                </main>
+                             {data.replicas.length === 0 && <p className="text-center py-20 text-brand-muted italic">No hay solicitudes de réplica de momento.</p>}
             </div>
-        </div>
+            ) : (
+            <LogosManager />
+                    )}
+        </main>
+            </div >
+        </div >
     );
 };
 

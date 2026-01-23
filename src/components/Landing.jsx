@@ -21,6 +21,7 @@ const Landing = ({ theme, setTheme }) => {
                 <ProblemChart />
                 <HowItWorks theme={theme} />
                 <Pricing theme={theme} />
+                <Manuals theme={theme} />
                 <RiskDashboard theme={theme} />
                 <Legal />
                 <div id="contact" className="container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12">
