@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle } from 'lucide-react';
+import ReportUpload from './ReportUpload';
 
 const RiskDashboard = ({ theme, setTheme }) => {
     const [cuit, setCuit] = useState('');
@@ -250,6 +251,9 @@ const RiskDashboard = ({ theme, setTheme }) => {
                         </div>
                     </div>
                 )}
+
+                {/* Upload Section for Members */}
+                <ReportUpload theme={theme} />
             </div>
         </div>
     );

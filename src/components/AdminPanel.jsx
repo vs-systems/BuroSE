@@ -37,32 +37,33 @@ const LogosManager = () => {
             <form onSubmit={handleAdd} className="bg-brand-card border border-brand-secondary p-6 rounded-2xl grid md:grid-cols-4 gap-4 items-end">
                 <div>
                     <label className="block text-xs font-bold text-brand-muted uppercase mb-2">Nombre Empresa</label>
-                    <input type="text" value={newLogo.name} onChange={e => setNewLogo({ ...newLogo, name: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white" placeholder="Ej: Seguridad X" required />
+                    <input type="text" value={newLogo.name} onChange={e => setNewLogo({ ...newLogo, name: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white outline-none focus:border-brand-neon transition-all" placeholder="Ej: Seguridad X" required />
                 </div>
                 <div>
                     <label className="block text-xs font-bold text-brand-muted uppercase mb-2">URL del Logo</label>
-                    <input type="text" value={newLogo.logo_url} onChange={e => setNewLogo({ ...newLogo, logo_url: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white" placeholder="https://..." required />
+                    <input type="text" value={newLogo.logo_url} onChange={e => setNewLogo({ ...newLogo, logo_url: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white outline-none focus:border-brand-neon transition-all" placeholder="https://..." required />
                 </div>
                 <div>
                     <label className="block text-xs font-bold text-brand-muted uppercase mb-2">URL Sitio Web</label>
-                    <input type="text" value={newLogo.website_url} onChange={e => setNewLogo({ ...newLogo, website_url: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white" placeholder="https://..." />
+                    <input type="text" value={newLogo.website_url} onChange={e => setNewLogo({ ...newLogo, website_url: e.target.value })} className="w-full bg-brand-dark border border-brand-secondary rounded-lg px-4 py-2 text-white outline-none focus:border-brand-neon transition-all" placeholder="https://..." />
                 </div>
-                <button type="submit" className="bg-brand-neon text-brand-darker font-bold py-2 rounded-lg flex items-center justify-center">
+                <button type="submit" className="bg-brand-neon text-brand-darker font-black py-2 rounded-lg flex items-center justify-center hover:scale-[1.02] transition-transform shadow-lg shadow-brand-neon/20 uppercase text-xs">
                     <Plus size={18} className="mr-2" /> Agregar Logo
                 </button>
             </form>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 {logos.map(logo => (
-                    <div key={logo.id} className="bg-brand-card border border-brand-secondary p-4 rounded-xl relative group">
+                    <div key={logo.id} className="bg-brand-card border border-brand-secondary p-4 rounded-xl relative group overflow-hidden">
                         <img src={logo.logo_url} alt={logo.name} className="h-12 w-full object-contain mb-4" />
                         <h4 className="text-sm font-bold text-white text-center truncate">{logo.name}</h4>
-                        <div className="absolute inset-0 bg-brand-dark/90 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center space-x-4">
-                            <a href={logo.website_url} target="_blank" className="p-2 bg-white/10 rounded-full text-white hover:bg-brand-neon hover:text-brand-darker transition-all"><Globe size={18} /></a>
+                        <div className="absolute inset-0 bg-brand-dark/95 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center space-x-4">
+                            <a href={logo.website_url} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full text-white hover:bg-brand-neon hover:text-brand-darker transition-all"><Globe size={18} /></a>
                             <button onClick={() => handleDelete(logo.id)} className="p-2 bg-brand-alert/20 rounded-full text-brand-alert hover:bg-brand-alert hover:text-white transition-all"><Trash2 size={18} /></button>
                         </div>
                     </div>
                 ))}
+                {logos.length === 0 && <p className="col-span-full text-center py-10 text-brand-muted italic">No hay logos cargados.</p>}
             </div>
         </div>
     );
@@ -82,9 +83,9 @@ const AdminPanel = () => {
 
     const checkSession = async () => {
         try {
-            const resp = await fetch('/api/admin_login.php');
+            const resp = await fetch('/api/check_session.php');
             const res = await resp.json();
-            if (res.logged) {
+            if (res.authenticated && res.role === 'admin') {
                 setIsLogged(true);
                 fetchData();
             }
@@ -100,7 +101,8 @@ const AdminPanel = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user, pass })
             });
-            if (resp.ok) {
+            const res = await resp.json();
+            if (res.status === 'success') {
                 setIsLogged(true);
                 fetchData();
             } else {
@@ -130,7 +132,7 @@ const AdminPanel = () => {
 
     const handleApprove = async (contact) => {
         const pass = prompt(`Asignar contraseña para ${contact.nombre_social} (CUIT: ${contact.cuit}):`, contact.cuit);
-        if (pass === null) return; // Cancelado
+        if (pass === null) return;
 
         try {
             const resp = await fetch('/api/admin_approve.php', {
@@ -167,7 +169,7 @@ const AdminPanel = () => {
                             <LogIn className="text-brand-neon" size={32} />
                         </div>
                         <h2 className="text-2xl font-bold text-white uppercase tracking-tighter">BuroSE Admin</h2>
-                        <p className="text-brand-muted text-sm">Ingrese sus credenciales para continuar</p>
+                        <p className="text-brand-muted text-sm">Ingrese sus credenciales de administrador</p>
                     </div>
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div>
@@ -175,7 +177,7 @@ const AdminPanel = () => {
                             <input
                                 type="text" value={user} onChange={e => setUser(e.target.value)}
                                 className="w-full bg-brand-dark border border-brand-secondary rounded-xl px-4 py-3 text-white focus:border-brand-neon focus:outline-none transition-all"
-                                placeholder="Usuario" required
+                                placeholder="Admin ID" required
                             />
                         </div>
                         <div>
@@ -188,9 +190,9 @@ const AdminPanel = () => {
                         </div>
                         <button
                             type="submit" disabled={loading}
-                            className="w-full bg-brand-neon text-brand-darker font-black py-4 rounded-xl hover:scale-[1.02] transition-transform flex items-center justify-center"
+                            className="w-full bg-brand-neon text-brand-darker font-black py-4 rounded-xl hover:scale-[1.02] transition-transform flex items-center justify-center shadow-lg shadow-brand-neon/20 uppercase tracking-widest"
                         >
-                            {loading ? 'Ingresando...' : 'Acceder al Panel'}
+                            {loading ? 'Validando...' : 'Acceder al Panel'}
                         </button>
                     </form>
                 </div>
@@ -201,38 +203,38 @@ const AdminPanel = () => {
     return (
         <div className="min-h-screen bg-brand-darker text-brand-text flex">
             {/* Sidebar */}
-            <div className="w-64 bg-brand-card border-r border-brand-secondary flex flex-col">
+            <div className="w-64 bg-brand-card border-r border-brand-secondary flex flex-col sticky top-0 h-screen">
                 <div className="p-6 border-b border-brand-secondary">
-                    <h1 className="text-xl font-black text-white tracking-widest uppercase italic">BuroSE</h1>
-                    <p className="text-[10px] text-brand-neon font-bold tracking-tighter uppercase mt-1">Control Hub</p>
+                    <h1 className="text-xl font-black text-white tracking-widest uppercase italic bg-gradient-to-r from-white to-brand-muted bg-clip-text text-transparent">BuroSE</h1>
+                    <p className="text-[10px] text-brand-neon font-bold tracking-widest uppercase mt-1">Control Hub</p>
                 </div>
                 <nav className="flex-1 p-4 space-y-2">
                     <button
                         onClick={() => setActiveTab('contacts')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'contacts' ? 'bg-brand-neon text-brand-darker font-bold' : 'text-brand-muted hover:bg-white/5'}`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'contacts' ? 'bg-brand-neon text-brand-darker font-bold shadow-lg shadow-brand-neon/20' : 'text-brand-muted hover:bg-white/5'}`}
                     >
                         <Users size={18} />
-                        <span>Denunciantes / Acceso</span>
+                        <span>Leads/Accesos</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('replicas')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'replicas' ? 'bg-brand-neon text-brand-darker font-bold' : 'text-brand-muted hover:bg-white/5'}`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'replicas' ? 'bg-brand-neon text-brand-darker font-bold shadow-lg shadow-brand-neon/20' : 'text-brand-muted hover:bg-white/5'}`}
                     >
                         <MessageSquare size={18} />
-                        <span>Derecho a Réplica</span>
+                        <span>Réplicas</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('logos')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'logos' ? 'bg-brand-neon text-brand-darker font-bold' : 'text-brand-muted hover:bg-white/5'}`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'logos' ? 'bg-brand-neon text-brand-darker font-bold shadow-lg shadow-brand-neon/20' : 'text-brand-muted hover:bg-white/5'}`}
                     >
-                        <RefreshCcw size={18} />
-                        <span>Gestión de Logos</span>
+                        <ImageIcon size={18} />
+                        <span>Logos</span>
                     </button>
                 </nav>
                 <div className="p-4 border-t border-brand-secondary">
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-brand-alert hover:bg-brand-alert/10 rounded-xl transition-all font-bold"
+                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-brand-alert hover:bg-brand-alert/10 rounded-xl transition-all font-bold uppercase text-xs tracking-widest"
                     >
                         <LogOut size={18} />
                         <span>Cerrar Sesión</span>
@@ -241,10 +243,10 @@ const AdminPanel = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 overflow-y-auto">
-                <header className="bg-brand-card/50 border-b border-brand-secondary p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10">
+            <div className="flex-1">
+                <header className="bg-brand-card/50 border-b border-brand-secondary p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10 w-full">
                     <h2 className="text-2xl font-bold text-white uppercase tracking-tighter">
-                        {activeTab === 'contacts' ? 'Empresas Interesadas / Denunciantes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : 'Gestión de Logos de Confianza'}
+                        {activeTab === 'contacts' ? 'Empresas Interesadas' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : 'Gestión de Logos'}
                     </h2>
                     <button
                         onClick={fetchData} disabled={loading}
@@ -261,7 +263,7 @@ const AdminPanel = () => {
                                 <div key={idx} className="bg-brand-card border border-brand-secondary p-6 rounded-2xl hover:border-brand-neon/30 transition-all group">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-lg font-bold text-white mb-1">{c.nombre_social}</h3>
+                                            <h3 className="text-lg font-bold text-white mb-1 uppercase tracking-tight">{c.nombre_social}</h3>
                                             <p className="text-sm text-brand-muted flex items-center">
                                                 <Clock size={12} className="mr-1" /> {new Date(c.created_at).toLocaleString()}
                                             </p>
@@ -274,7 +276,7 @@ const AdminPanel = () => {
                                             <p className="text-white font-medium">{c.cuit}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-brand-muted uppercase mb-1">WhatsApp / Cel</p>
+                                            <p className="text-xs font-bold text-brand-muted uppercase mb-1">WhatsApp</p>
                                             <p className="text-white font-medium">{c.whatsapp}</p>
                                         </div>
                                         <div>
@@ -302,14 +304,35 @@ const AdminPanel = () => {
                             ))}
                             {data.contacts.length === 0 && <p className="text-center py-20 text-brand-muted italic">No hay registros de contacto todavía.</p>}
                         </div>
-                             {data.replicas.length === 0 && <p className="text-center py-20 text-brand-muted italic">No hay solicitudes de réplica de momento.</p>}
-            </div>
-            ) : (
-            <LogosManager />
+                    ) : activeTab === 'replicas' ? (
+                        <div className="grid gap-4">
+                            {data.replicas.map((r, idx) => (
+                                <div key={idx} className="bg-brand-card border border-brand-secondary p-6 rounded-2xl border-l-4 border-l-brand-alert">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white mb-1 uppercase tracking-tight">{r.nombre_sujeto}</h3>
+                                            <p className="text-sm text-brand-muted">CUIT/DNI: {r.cuit_dni}</p>
+                                        </div>
+                                        <span className="bg-brand-alert/10 text-brand-alert text-[10px] font-bold px-3 py-1 rounded-full border border-brand-alert/20 uppercase tracking-widest">Réplica</span>
+                                    </div>
+                                    <div className="bg-brand-dark/50 p-4 rounded-xl border border-brand-secondary/50">
+                                        <p className="text-xs font-bold text-brand-muted uppercase mb-2">Mensaje / Descargo</p>
+                                        <p className="text-sm text-brand-text italic leading-relaxed">"{r.descargo}"</p>
+                                    </div>
+                                    <div className="mt-4 flex justify-between items-center text-xs">
+                                        <p className="text-brand-muted">Email: <span className="text-white">{r.email}</span></p>
+                                        <p className="text-brand-muted">{new Date(r.created_at).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            ))}
+                            {data.replicas.length === 0 && <p className="text-center py-20 text-brand-muted italic">No hay solicitudes de réplica de momento.</p>}
+                        </div>
+                    ) : (
+                        <LogosManager />
                     )}
-        </main>
-            </div >
-        </div >
+                </main>
+            </div>
+        </div>
     );
 };
 
