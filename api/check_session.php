@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'config.php';
 
 /**
@@ -11,7 +12,7 @@ $response = [
     'user_data' => null
 ];
 
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+if (isset($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true) {
     $response['authenticated'] = true;
     $response['user_type'] = 'admin';
 } elseif (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true) {
