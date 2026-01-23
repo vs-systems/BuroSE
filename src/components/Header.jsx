@@ -24,6 +24,9 @@ const Header = () => {
                         <a href="#how-it-works" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">
                             Cómo Funciona
                         </a>
+                        <a href="#risk-search" className="text-sm font-bold text-brand-neon hover:text-white transition-colors">
+                            Consultar Riesgo
+                        </a>
                         <a href="#legal" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">
                             Legal
                         </a>
@@ -58,6 +61,7 @@ const Header = () => {
                         <div className="flex flex-col space-y-4">
                             <a href="#problem" className="px-4 py-2 text-brand-muted hover:text-white hover:bg-brand-card" onClick={() => setIsOpen(false)}>Problemática</a>
                             <a href="#how-it-works" className="px-4 py-2 text-brand-muted hover:text-white hover:bg-brand-card" onClick={() => setIsOpen(false)}>Cómo Funciona</a>
+                            <a href="#risk-search" className="px-4 py-2 text-brand-neon font-bold hover:bg-brand-card" onClick={() => setIsOpen(false)}>Consultar Riesgo</a>
                             <a href="#legal" className="px-4 py-2 text-brand-muted hover:text-white hover:bg-brand-card" onClick={() => setIsOpen(false)}>Legal</a>
                             <a href="#replica" className="px-4 py-2 text-brand-alert hover:text-red-400 hover:bg-brand-card" onClick={() => setIsOpen(false)}>Derecho a Réplica</a>
                             <a href="#contact" className="px-4 py-2 text-brand-neon font-bold hover:bg-brand-card" onClick={() => setIsOpen(false)}>Solicitar Acceso</a>

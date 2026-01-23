@@ -7,6 +7,7 @@ import Legal from './components/Legal';
 import AccessForm from './components/AccessForm';
 import ReplyForm from './components/ReplyForm';
 import Footer from './components/Footer';
+import RiskDashboard from './components/RiskDashboard';
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Hero />
                 <ProblemChart />
                 <HowItWorks />
+                <RiskDashboard />
                 <Legal />
                 <div id="contact" className="container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12">
                     <AccessForm />
