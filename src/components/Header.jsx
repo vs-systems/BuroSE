@@ -22,11 +22,11 @@ const Header = ({ theme, setTheme }) => {
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center space-x-6">
-                        <a href="#problem" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">Problemática</a>
-                        <a href="#how-it-works" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">Cómo Funciona</a>
+                        <button onClick={() => document.getElementById('problem').scrollIntoView({ behavior: 'smooth' })} className="text-sm font-medium text-brand-muted hover:text-white transition-colors">Problemática</button>
+                        <button onClick={() => document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })} className="text-sm font-medium text-brand-muted hover:text-white transition-colors">Cómo Funciona</button>
                         <a href="/#/risk-dashboard" className="text-sm font-medium text-brand-neon hover:text-white transition-colors">Consultar Riesgo</a>
                         <a href="/#/login" className="bg-blue-600/10 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">Acceso Socios</a>
-                        <a href="#legal" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">Legal</a>
+                        <button onClick={() => document.getElementById('legal').scrollIntoView({ behavior: 'smooth' })} className="text-sm font-medium text-brand-muted hover:text-white transition-colors">Legal</button>
 
                         <div className="h-6 w-px bg-slate-800 mx-2"></div>
 
@@ -65,12 +65,12 @@ const Header = ({ theme, setTheme }) => {
                 {isOpen && (
                     <div className="md:hidden py-4 border-t border-brand-card bg-brand-dark/95 backdrop-blur-xl animate-in slide-in-from-top duration-300">
                         <div className="flex flex-col space-y-2 px-4">
-                            <a href="#problem" className="px-4 py-3 text-brand-muted hover:text-white hover:bg-white/5 rounded-xl transition-colors" onClick={() => setIsOpen(false)}>Problemática</a>
-                            <a href="#how-it-works" className="px-4 py-3 text-brand-muted hover:text-white hover:bg-white/5 rounded-xl transition-colors" onClick={() => setIsOpen(false)}>Cómo Funciona</a>
+                            <button onClick={() => { setIsOpen(false); document.getElementById('problem').scrollIntoView({ behavior: 'smooth' }); }} className="px-4 py-3 text-left text-brand-muted hover:text-white hover:bg-white/5 rounded-xl transition-colors">Problemática</button>
+                            <button onClick={() => { setIsOpen(false); document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' }); }} className="px-4 py-3 text-left text-brand-muted hover:text-white hover:bg-white/5 rounded-xl transition-colors">Cómo Funciona</button>
                             <a href="/#/risk-dashboard" className="px-4 py-3 text-brand-neon font-bold hover:bg-white/5 rounded-xl transition-colors" onClick={() => setIsOpen(false)}>Consultar Riesgo</a>
                             <a href="/#/login" className="px-4 py-3 text-blue-400 font-bold hover:bg-white/5 rounded-xl transition-colors" onClick={() => setIsOpen(false)}>Acceso Socios</a>
-                            <a href="#legal" className="px-4 py-3 text-brand-muted hover:text-white hover:bg-white/5 rounded-xl transition-colors" onClick={() => setIsOpen(false)}>Legal</a>
-                            <a href="#replica" className="px-4 py-3 text-brand-alert hover:text-red-400 hover:bg-white/5 rounded-xl transition-colors" onClick={() => setIsOpen(false)}>Derecho a Réplica</a>
+                            <button onClick={() => { setIsOpen(false); document.getElementById('legal').scrollIntoView({ behavior: 'smooth' }); }} className="px-4 py-3 text-left text-brand-muted hover:text-white hover:bg-white/5 rounded-xl transition-colors">Legal</button>
+                            <button onClick={() => { setIsOpen(false); document.getElementById('replica').scrollIntoView({ behavior: 'smooth' }); }} className="px-4 py-3 text-left text-brand-alert hover:text-red-400 hover:bg-white/5 rounded-xl transition-colors">Derecho a Réplica</button>
 
                             <div className="pt-4 mt-2 border-t border-brand-card flex flex-col gap-3">
                                 <button

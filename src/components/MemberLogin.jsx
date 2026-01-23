@@ -95,7 +95,7 @@ const MemberLogin = ({ theme, setTheme }) => {
                 <div className="mt-8 pt-8 border-t border-slate-700 text-center">
                     <p className="text-slate-500 text-sm">
                         ¿Olvidaste tu contraseña o necesitas una cuenta?<br />
-                        <a href="mailto:admin@burose.com.ar" className="text-blue-400 hover:underline">Contactar soporte</a>
+                        <a href="mailto:burosearg@gmail.com" className="text-blue-400 hover:underline">Contactar soporte</a>
                     </p>
                 </div>
             </div>

@@ -81,12 +81,13 @@ const ReplyForm = () => {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-brand-muted uppercase mb-1">DNI o CUIT</label>
+                        <label className="block text-xs font-bold text-brand-muted uppercase mb-1">DNI o CUIT (Solo números)</label>
                         <input
                             type="text" name="id" required
+                            value={formData.id}
                             className="w-full bg-brand-card border border-brand-secondary rounded px-4 py-3 text-white focus:border-brand-alert focus:outline-none transition-colors"
-                            placeholder="Documento de Identidad"
-                            onChange={handleChange}
+                            placeholder="Ej: 20123456789"
+                            onChange={(e) => setFormData({ ...formData, id: e.target.value.replace(/\D/g, '') })}
                         />
                     </div>
 

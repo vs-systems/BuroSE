@@ -13,18 +13,45 @@ const AccessForm = () => {
     });
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        let value = e.target.value;
+        if (e.target.name === 'cuit') {
+            value = value.replace(/\D/g, ''); // Solo números
+        }
+        if (e.target.name === 'whatsapp') {
+            // Si el usuario borra todo, dejamos vacío
+            if (value === '') {
+                setFormData({ ...formData, [e.target.name]: '' });
+                return;
+            }
+            // Asegurar que empiece con +54 9
+            let digits = value.replace(/\D/g, '');
+            if (digits.startsWith('549')) {
+                // Ya tiene el prefijo
+            } else {
+                digits = '549' + digits;
+            }
+            value = '+' + digits.slice(0, 2) + ' ' + digits.slice(2, 3) + ' ' + digits.slice(3);
+        }
+        setFormData({ ...formData, [e.target.name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Antes de enviar, limpiamos guiones y espacios extras por si acaso
+        const cleanData = {
+            ...formData,
+            cuit: formData.cuit.replace(/\D/g, ''),
+            whatsapp: formData.whatsapp.replace(/\D/g, ''),
+            type: 'contact'
+        };
+
         try {
             const response = await fetch('/api/forms.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...formData, type: 'contact' }),
+                body: JSON.stringify(cleanData),
             });
             const result = await response.json();
             if (result.status === 'success') {
@@ -80,18 +107,20 @@ const AccessForm = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-bold text-brand-muted uppercase mb-1">CUIT</label>
+                            <label className="block text-xs font-bold text-brand-muted uppercase mb-1">CUIT (Solo números)</label>
                             <input
                                 type="text" name="cuit" required
+                                value={formData.cuit}
                                 className="w-full bg-brand-dark border border-brand-secondary rounded px-4 py-3 text-white focus:border-brand-neon focus:outline-none transition-colors"
-                                placeholder="30-12345678-9"
+                                placeholder="Ej: 30123456789"
                                 onChange={handleChange}
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-brand-muted uppercase mb-1">WhatsApp</label>
+                            <label className="block text-xs font-bold text-brand-muted uppercase mb-1">WhatsApp (Sin 0 ni 15)</label>
                             <input
                                 type="tel" name="whatsapp" required
+                                value={formData.whatsapp}
                                 className="w-full bg-brand-dark border border-brand-secondary rounded px-4 py-3 text-white focus:border-brand-neon focus:outline-none transition-colors"
                                 placeholder="+54 9 11..."
                                 onChange={handleChange}
