@@ -26,9 +26,7 @@ const LogosSlider = ({ theme }) => {
     return (
         <section className={`py-12 border-y transition-colors ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary' : 'bg-slate-100 border-slate-200'}`}>
             <div className="container mx-auto px-4">
-                <p className="text-center text-xs font-bold text-brand-muted uppercase tracking-widest mb-10">
-                    Más de 12 empresas de Seguridad e Informática ya confían en BuroSE
-                </p>
+
 
                 <div className="flex flex-wrap justify-center items-center gap-12 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
                     {displayLogos.map((logo, idx) => (
