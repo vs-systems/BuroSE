@@ -28,10 +28,21 @@ const LogosSlider = ({ theme }) => {
             <div className="container mx-auto px-4">
 
 
-                <div className="flex flex-wrap justify-center items-center gap-12 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                <div className="flex flex-wrap justify-center items-center gap-6 py-4">
                     {displayLogos.map((logo, idx) => (
-                        <a key={idx} href={logo.website_url || "#"} target="_blank" rel="noopener noreferrer" className="h-12 w-auto flex items-center justify-center">
-                            <img src={logo.logo_url} alt={logo.name} title={logo.name} className="max-h-full w-auto object-contain" />
+                        <a
+                            key={idx}
+                            href={logo.website_url || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="h-20 min-w-[160px] px-8 py-4 bg-[#7e7e7e] hover:bg-[#999999] rounded-lg flex items-center justify-center transition-all duration-300 shadow-lg group"
+                        >
+                            <img
+                                src={logo.logo_url}
+                                alt={logo.name}
+                                title={logo.name}
+                                className="max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                            />
                         </a>
                     ))}
                 </div>
