@@ -9,6 +9,7 @@ import AccessForm from './AccessForm';
 import ReplyForm from './ReplyForm';
 import LogosSlider from './LogosSlider';
 import Pricing from './Pricing';
+import Manuals from './Manuals';
 import Footer from './Footer';
 
 const Landing = ({ theme, setTheme }) => {
