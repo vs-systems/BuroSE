@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const MemberLogin = () => {
+const MemberLogin = ({ theme, setTheme }) => {
     const [cuit, setCuit] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -36,8 +36,8 @@ const MemberLogin = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4">
-            <div className="max-w-md w-full bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl p-8">
+        <div className={`min-h-screen flex items-center justify-center px-4 transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+            <div className={`max-w-md w-full rounded-3xl border shadow-2xl p-8 transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg shadow-blue-900/20">
                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

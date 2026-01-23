@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, X, ShieldCheck } from 'lucide-react';
+import { Menu, X, ShieldCheck, Sun, Moon } from 'lucide-react';
 
-const Header = () => {
+const Header = ({ theme, setTheme }) => {
     const [isOpen, setIsOpen] = useState(false);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'dark' ? 'light' : 'dark');
+    };
 
     return (
         <nav className="fixed w-full z-50 bg-brand-dark/90 backdrop-blur-md border-b border-brand-card">
@@ -25,6 +29,15 @@ const Header = () => {
                         <a href="#legal" className="text-sm font-medium text-brand-muted hover:text-white transition-colors">Legal</a>
 
                         <div className="h-6 w-px bg-slate-800 mx-2"></div>
+
+                        {/* Theme Toggle Button */}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 text-slate-400 hover:text-white transition-colors flex items-center justify-center"
+                            title={theme === 'dark' ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
+                        >
+                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
 
                         <a href="/#/admin" title="Administración" className="p-2 text-slate-500 hover:text-white transition-colors">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

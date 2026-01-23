@@ -9,10 +9,10 @@ import AccessForm from './AccessForm';
 import ReplyForm from './ReplyForm';
 import Footer from './Footer';
 
-const Landing = () => {
+const Landing = ({ theme, setTheme }) => {
     return (
-        <div className="min-h-screen bg-brand-darker text-brand-text font-sans selection:bg-brand-neon selection:text-brand-darker">
-            <Header />
+        <div className={`min-h-screen font-sans transition-colors duration-300 ${theme === 'dark' ? 'bg-brand-darker text-brand-text' : 'bg-slate-50 text-slate-900'}`}>
+            <Header theme={theme} setTheme={setTheme} />
             <main>
                 <Hero />
                 <ProblemChart />

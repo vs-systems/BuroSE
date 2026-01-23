@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle } from 'lucide-react';
 
-const RiskDashboard = () => {
+const RiskDashboard = ({ theme, setTheme }) => {
     const [cuit, setCuit] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
