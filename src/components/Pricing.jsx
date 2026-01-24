@@ -113,7 +113,7 @@ const Pricing = ({ theme }) => {
                             </p>
                         </div>
                         <button
-                            onClick={() => window.location.href = 'mailto:burosearg@gmail.com?subject=Interés API BuroSE'}
+                            onClick={() => window.location.href = 'mailto:somos@burose.com.ar?subject=Interés API BuroSE'}
                             className="w-full md:w-auto px-8 py-5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-600/20 whitespace-nowrap"
                         >
                             Solicitar API

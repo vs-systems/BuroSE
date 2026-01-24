@@ -53,7 +53,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                         Iniciar Sesión
                     </a>
                     <p className={`mt-8 text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
-                        ¿No eres socio? <a href="/#access" className="text-brand-neon hover:underline inline-block ml-1">Solicita acceso aquí</a>
+                        ¿No eres socio? <a href="/#contact" className="text-brand-neon hover:underline inline-block ml-1">Solicita acceso aquí</a>
                     </p>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-const Footer = ({ theme }) => {
+const Footer = ({ theme, openModal, legalDocs }) => {
     return (
         <footer className={`transition-colors duration-500 py-16 border-t ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]'
             }`}>
@@ -20,8 +20,8 @@ const Footer = ({ theme }) => {
                     <div className="text-center sm:text-left">
                         <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Plataforma</h4>
                         <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                            <li><a href="#" className="hover:text-brand-neon transition-colors">Solicitar Registro</a></li>
-                            <li><a href="#" className="hover:text-brand-neon transition-colors">Consulta de Riesgo</a></li>
+                            <li><a href="#contact" className="hover:text-brand-neon transition-colors">Solicitar Registro</a></li>
+                            <li><a href="/#/risk-dashboard" className="hover:text-brand-neon transition-colors">Consulta de Riesgo</a></li>
                             <li><a href="/#/login" className="hover:text-brand-neon transition-colors">Panel de Socios</a></li>
                         </ul>
                     </div>
@@ -29,9 +29,9 @@ const Footer = ({ theme }) => {
                     <div className="text-center sm:text-left">
                         <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Marco Legal</h4>
                         <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                            <li><button onClick={() => window.location.hash = '#legal'} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Términos y Condiciones</button></li>
-                            <li><button onClick={() => window.location.hash = '#legal'} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Política de Privacidad</button></li>
-                            <li><button onClick={() => window.location.hash = '#replica'} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Derecho a Réplica</button></li>
+                            <li><button onClick={() => openModal(legalDocs.tyc.title, legalDocs.tyc.content)} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Términos y Condiciones</button></li>
+                            <li><button onClick={() => openModal(legalDocs.privacy.title, legalDocs.privacy.content)} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Política de Privacidad</button></li>
+                            <li><button onClick={() => openModal(legalDocs.replica.title, legalDocs.replica.content)} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Derecho a Réplica</button></li>
                         </ul>
                     </div>
 
@@ -55,8 +55,8 @@ const Footer = ({ theme }) => {
                         <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
                             Legales: legales@burose.com.ar
                         </a>
-                        <a href="mailto:burosearg@gmail.com" className="hover:text-brand-neon transition-colors flex items-center">
-                            Soporte: burosearg@gmail.com
+                        <a href="mailto:somos@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
+                            Soporte: somos@burose.com.ar
                         </a>
                     </div>
                     <p className="flex items-center">
