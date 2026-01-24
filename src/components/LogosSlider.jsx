@@ -24,24 +24,23 @@ const LogosSlider = ({ theme }) => {
     ];
 
     return (
-        <section className={`py-12 border-y transition-colors ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary' : 'bg-slate-100 border-slate-200'}`}>
-            <div className="container mx-auto px-4">
-
-
-                <div className="flex flex-wrap justify-center items-center gap-6 py-4">
+        <section className={`py-12 border-y transition-colors bg-white border-slate-200`}>
+            <div className="container mx-auto px-4 text-center">
+                <h3 className="text-slate-500 font-medium mb-8 text-sm uppercase tracking-widest">Empresas que confían en nosotros</h3>
+                <div className="flex flex-wrap justify-center items-center gap-8 py-4">
                     {displayLogos.map((logo, idx) => (
                         <a
                             key={idx}
                             href={logo.website_url || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="h-20 min-w-[180px] px-8 py-4 bg-[#7e7e7e] hover:bg-[#8e8e8e] rounded-sm flex items-center justify-center transition-all duration-300 shadow-lg group"
+                            className="h-20 min-w-[180px] px-8 py-4 bg-white border border-slate-100 hover:border-slate-300 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-md group"
                         >
                             <img
                                 src={logo.logo_url}
                                 alt={logo.name}
                                 title={logo.name}
-                                className="max-h-12 w-auto object-contain brightness-0 transition-transform duration-300 group-hover:scale-105"
+                                className="max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
                             />
                         </a>
                     ))}
