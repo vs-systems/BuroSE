@@ -28,36 +28,36 @@ const HowItWorks = ({ theme }) => {
 
                     {/* Step 1 */}
                     <div className="relative z-10 flex flex-col items-center text-center group">
-                        <div className={`w-24 h-24 rounded-2xl border flex items-center justify-center mb-6 shadow-lg group-hover:border-brand-neon transition-all duration-300 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 hover:shadow-xl'
+                        <div className={`w-24 h-24 rounded-3xl border flex items-center justify-center mb-6 shadow-lg group-hover:border-brand-neon group-hover:scale-105 transition-all duration-300 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 hover:shadow-xl'
                             }`}>
-                            <FileText className={`${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'} group-hover:text-brand-neon transition-colors`} size={40} />
+                            <FileText className={`${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'} group-hover:text-brand-neon transition-colors`} size={40} />
                         </div>
-                        <h3 className={`text-xl font-bold mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>1. Reporte</h3>
-                        <p className={`text-sm leading-relaxed max-w-xs ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
+                        <h3 className={`text-xl font-black uppercase tracking-tighter mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>1. Reporte</h3>
+                        <p className={`text-sm leading-relaxed max-w-xs font-medium ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
                             El suscriptor envía la documentación respaldatoria de la deuda (Facturas, Remitos firmados).
                         </p>
                     </div>
 
                     {/* Step 2 */}
                     <div className="relative z-10 flex flex-col items-center text-center group">
-                        <div className={`w-24 h-24 rounded-2xl border flex items-center justify-center mb-6 shadow-lg group-hover:border-brand-neon transition-all duration-300 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 hover:shadow-xl'
+                        <div className={`w-24 h-24 rounded-3xl border flex items-center justify-center mb-6 shadow-lg group-hover:border-brand-neon group-hover:scale-105 transition-all duration-300 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 hover:shadow-xl'
                             }`}>
-                            <Shield className={`${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'} group-hover:text-brand-neon transition-colors`} size={40} />
+                            <Shield className={`${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'} group-hover:text-brand-neon transition-colors`} size={40} />
                         </div>
-                        <h3 className={`text-xl font-bold mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>2. Compliance</h3>
-                        <p className={`text-sm leading-relaxed max-w-xs ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
-                            Nuestro equipo revisa manualmente la validez legal de la documentación. <span className="text-brand-neon font-bold">No aceptamos reportes anónimos.</span>
+                        <h3 className={`text-xl font-black uppercase tracking-tighter mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>2. Compliance</h3>
+                        <p className={`text-sm leading-relaxed max-w-xs font-medium ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
+                            Nuestro equipo revisa manualmente la validez legal de la documentación. <span className="text-brand-neon font-black underline underline-offset-4">No aceptamos reportes anónimos.</span>
                         </p>
                     </div>
 
                     {/* Step 3 */}
                     <div className="relative z-10 flex flex-col items-center text-center group sm:col-span-2 md:col-span-1">
-                        <div className={`w-24 h-24 rounded-2xl border flex items-center justify-center mb-6 shadow-lg group-hover:border-brand-neon transition-all duration-300 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 hover:shadow-xl'
+                        <div className={`w-24 h-24 rounded-3xl border flex items-center justify-center mb-6 shadow-lg group-hover:border-brand-neon group-hover:scale-105 transition-all duration-300 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 hover:shadow-xl'
                             }`}>
-                            <Database className={`${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'} group-hover:text-brand-neon transition-colors`} size={40} />
+                            <Database className={`${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'} group-hover:text-brand-neon transition-colors`} size={40} />
                         </div>
-                        <h3 className={`text-xl font-bold mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>3. Publicación</h3>
-                        <p className={`text-sm leading-relaxed max-w-xs ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
+                        <h3 className={`text-xl font-black uppercase tracking-tighter mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>3. Publicación</h3>
+                        <p className={`text-sm leading-relaxed max-w-xs font-medium ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
                             La deuda se impacta en el buró y es visible para toda la red de mayoristas e importadores.
                         </p>
                     </div>

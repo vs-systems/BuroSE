@@ -24,10 +24,11 @@ const LogosSlider = ({ theme }) => {
     ];
 
     return (
-        <section className={`py-12 border-y transition-colors bg-white border-slate-200`}>
+        <section className={`py-12 border-y transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker border-white/10' : 'bg-white border-slate-200'
+            }`}>
             <div className="container mx-auto px-4 text-center">
                 <h3 className={`font-bold mb-8 text-lg md:text-xl transition-colors ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Estas empresas ya estan confiando sus bases de deudores en <span className="text-brand-neon">BuroSE</span>.
+                    Estas empresas ya estan confiando sus bases de deudores en <span className="text-brand-neon">BuroSE</span>..
                 </h3>
                 <div className="flex flex-wrap justify-center items-center gap-8 py-4">
                     {displayLogos.map((logo, idx) => (
@@ -36,13 +37,14 @@ const LogosSlider = ({ theme }) => {
                             href={logo.website_url || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="h-20 min-w-[180px] px-8 py-4 bg-white border border-slate-100 hover:border-slate-300 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-md group"
+                            className={`h-20 min-w-[180px] px-8 py-4 border rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-md group ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-brand-neon' : 'bg-white border-slate-100 hover:border-slate-300'
+                                }`}
                         >
                             <img
                                 src={logo.logo_url}
                                 alt={logo.name}
                                 title={logo.name}
-                                className="max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
+                                className={`max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-110 ${theme === 'dark' ? 'brightness-110' : ''}`}
                             />
                         </a>
                     ))}

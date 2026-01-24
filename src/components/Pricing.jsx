@@ -2,32 +2,33 @@ const Pricing = ({ theme }) => {
     const plans = [
         {
             name: "Consulta Individual",
-            price: "Gratis*",
-            period: "",
+            price: "Gratis",
+            period: "*",
+            promo: "¡Próximamente!",
             desc: "Para personas físicas que deseen consultar su estado básico.",
             features: ["Acceso a Score BuroSE", "Validación de DNI/CUIT", "1 Consulta gratuita semanal"],
-            cta: "Consultar Ahora",
+            cta: "Explorar",
             color: "border-slate-200"
         },
         {
             name: "Socio BuroSE",
-            price: "$15.000",
-            period: "/mes + IVA",
-            promo: "¡1 mes gratis pagando anual!",
+            price: "$0",
+            period: "/mes",
+            promo: "¡Próximamente!",
             desc: "Para empresas de seguridad electrónica y tecnología.",
             features: ["Consultas ilimitadas", "Acceso a Reportes de Gremiros", "Carga de Deudores Propios", "Soporte Prioritario"],
-            cta: "Ser Socio",
+            cta: "Unirse ahora",
             popular: true,
             color: "border-brand-neon"
         },
         {
             name: "Empresa & API",
-            price: "$50.000",
-            period: "/mes + IVA",
-            promo: "¡1 mes gratis pagando anual!",
+            price: "$0",
+            period: "/mes",
+            promo: "¡Próximamente!",
             desc: "Enlaza nuestra base de datos con tu propio sistema.",
             features: ["Acceso por API REST", "Documentación Técnica", "Tokens ilimitados", "Update en tiempo real"],
-            cta: "Obtener API Key",
+            cta: "Ver Docs",
             color: "border-blue-500"
         }
     ];
@@ -85,8 +86,8 @@ const Pricing = ({ theme }) => {
                             <button
                                 onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
                                 className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${plan.popular
-                                        ? 'bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20'
-                                        : (theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')
+                                    ? 'bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20'
+                                    : (theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')
                                     }`}
                             >
                                 {plan.cta}

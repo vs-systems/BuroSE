@@ -1,60 +1,67 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-const Footer = () => {
+const Footer = ({ theme }) => {
     return (
-        <footer className="bg-brand-card border-t border-brand-secondary py-12">
+        <footer className={`transition-colors duration-500 py-16 border-t ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]'
+            }`}>
             <div className="container mx-auto px-4">
-                <div className="grid md:grid-cols-4 gap-8 mb-12">
-                    <div className="col-span-1 md:col-span-1">
-                        <div className="flex items-center space-x-2 mb-4">
-                            <ShieldCheck className="text-brand-neon" size={24} />
-                            <span className="text-xl font-bold text-white">BuroSE</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                    <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+                        <div className="flex items-center space-x-2 mb-6">
+                            <ShieldCheck className="text-brand-neon" size={28} />
+                            <span className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>BuroSE</span>
                         </div>
-                        <p className="text-sm text-brand-muted leading-relaxed">
-                            El primer buró de crédito colaborativo para el gremio de la seguridad electrónica.
+                        <p className={`text-sm leading-relaxed max-w-xs font-medium ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                            El primer buró de crédito colaborativo para el gremio de la seguridad electrónica en Argentina.
                         </p>
                     </div>
 
-                    <div>
-                        <h4 className="font-bold text-white mb-4">Plataforma</h4>
-                        <ul className="space-y-2 text-sm text-brand-muted">
-                            <li><a href="#" className="hover:text-brand-neon transition-colors">Acceso Clientes</a></li>
-                            <li><a href="#" className="hover:text-brand-neon transition-colors">Solicitar Demo</a></li>
+                    <div className="text-center sm:text-left">
+                        <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Plataforma</h4>
+                        <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                            <li><a href="#" className="hover:text-brand-neon transition-colors">Solicitar Registro</a></li>
+                            <li><a href="#" className="hover:text-brand-neon transition-colors">Consulta de Riesgo</a></li>
+                            <li><a href="/#/login" className="hover:text-brand-neon transition-colors">Panel de Socios</a></li>
                         </ul>
                     </div>
 
-                    <div>
-                        <h4 className="font-bold text-white mb-4">Legal</h4>
-                        <ul className="space-y-2 text-sm text-brand-muted">
-                            <li><a href="#legal" className="hover:text-brand-neon transition-colors">Términos y Condiciones</a></li>
-                            <li><a href="#legal" className="hover:text-brand-neon transition-colors">Política de Privacidad</a></li>
-                            <li><a href="#legal" className="hover:text-brand-neon transition-colors">Derecho a Réplica</a></li>
+                    <div className="text-center sm:text-left">
+                        <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Marco Legal</h4>
+                        <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                            <li><button onClick={() => window.location.hash = '#legal'} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Términos y Condiciones</button></li>
+                            <li><button onClick={() => window.location.hash = '#legal'} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Política de Privacidad</button></li>
+                            <li><button onClick={() => window.location.hash = '#replica'} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Derecho a Réplica</button></li>
                         </ul>
                     </div>
 
-                    <div>
-                        <h4 className="font-bold text-white mb-4">Desarrollo</h4>
-                        <p className="text-sm text-brand-muted mb-2">
-                            Una iniciativa tecnológica de:
+                    <div className="text-center sm:text-left">
+                        <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Desarrollo</h4>
+                        <p className={`text-xs uppercase tracking-widest font-black mb-3 ${theme === 'dark' ? 'text-brand-muted/50' : 'text-slate-400'}`}>
+                            Una iniciativa de:
                         </p>
-                        <a href="https://vecinoseguro.com" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline">
-                            VS Sistemas
+                        <a href="https://vecinoseguro.com" target="_blank" rel="noopener noreferrer" className="inline-block group">
+                            <span className={`text-lg font-black italic transition-colors ${theme === 'dark' ? 'text-brand-primary group-hover:text-brand-neon' : 'text-blue-600 group-hover:text-blue-800'}`}>
+                                VS Sistemas
+                            </span>
                         </a>
                     </div>
                 </div>
 
-                <div className="border-t border-brand-secondary pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-muted">
-                    <p>&copy; 2026 BuroSE. Todos los derechos reservados.</p>
-                    <div className="flex space-x-6 mt-4 md:mt-0">
-                        <a href="mailto:legales@vecinoseguro.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
-                            Legal: legales@vecinoseguro.com.ar
+                <div className={`border-t pt-10 flex flex-col lg:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-widest transition-colors ${theme === 'dark' ? 'border-brand-secondary text-brand-muted/60' : 'border-slate-100 text-slate-400'
+                    }`}>
+                    <p className="text-center lg:text-left">&copy; {new Date().getFullYear()} BuroSE. Todos los derechos reservados.</p>
+                    <div className="flex flex-wrap justify-center gap-8">
+                        <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
+                            Legales: legales@burose.com.ar
                         </a>
-                        <a href="mailto:burosearg@gmail.com" className="hover:text-brand-neon transition-colors">
-                            Contacto: burosearg@gmail.com
+                        <a href="mailto:burosearg@gmail.com" className="hover:text-brand-neon transition-colors flex items-center">
+                            Soporte: burosearg@gmail.com
                         </a>
                     </div>
-                    <p className="mt-4 md:mt-0">Hecho en Argentina 🇦🇷 | Última actualización: {new Date().toLocaleDateString()}</p>
+                    <p className="flex items-center">
+                        Hecho en Argentina <span className="ml-2 text-base">🇦🇷</span>
+                    </p>
                 </div>
             </div>
         </footer>

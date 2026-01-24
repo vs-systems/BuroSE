@@ -36,45 +36,47 @@ const MemberLogin = ({ theme, setTheme }) => {
     };
 
     return (
-        <div className={`min-h-screen flex items-center justify-center px-4 transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
-            <div className={`max-w-md w-full rounded-3xl border shadow-2xl p-8 transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
-                <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg shadow-blue-900/20">
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className={`min-h-screen flex items-center justify-center px-4 transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker' : 'bg-slate-50'}`}>
+            <div className={`max-w-md w-full rounded-3xl border shadow-2xl p-10 transition-all duration-500 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+                <div className="text-center mb-12">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-brand-neon rounded-2xl mb-6 shadow-xl shadow-brand-neon/20 transform hover:rotate-3 transition-transform">
+                        <svg className="w-10 h-10 text-brand-darker" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-3.04l.592.813a4.89 4.89 0 003.868 1.917c2.707 0 4.892-2.188 4.892-4.892V11c0-1.31-.413-2.52-1.108-3.517M12 11V3m0 8l4-4m-4 4l-4-4" />
                         </svg>
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Acceso Clientes</h1>
-                    <p className="text-slate-400">Ingresa a la plataforma BuroSE</p>
+                    <h1 className={`text-4xl font-black uppercase tracking-tighter mb-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Acceso Socios</h1>
+                    <p className={`text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>Bienvenido a la red <span className="text-brand-neon">BuroSE</span></p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div>
-                        <label className="block text-slate-300 text-sm font-semibold mb-2">CUIT de la Empresa</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT de la Empresa</label>
                         <input
                             type="text"
                             value={cuit}
                             onChange={(e) => setCuit(e.target.value.replace(/\D/g, ''))}
                             placeholder="Ej: 30112223334"
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                            className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-brand-neon/20 transition-all font-mono text-lg ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                                }`}
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-slate-300 text-sm font-semibold mb-2">Contraseña</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Contraseña</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                            className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-brand-neon/20 transition-all text-lg ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                                }`}
                             required
                         />
                     </div>
 
                     {error && (
-                        <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-xl text-sm">
+                        <div className="bg-brand-alert/10 border border-brand-alert/20 text-brand-alert p-4 rounded-xl text-xs font-bold uppercase tracking-tight text-center">
                             {error}
                         </div>
                     )}
@@ -82,20 +84,20 @@ const MemberLogin = ({ theme, setTheme }) => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center ${loading ? 'opacity-70' : ''}`}
+                        className={`w-full bg-brand-neon text-brand-darker font-black py-5 rounded-xl transition-all shadow-xl shadow-brand-neon/20 flex items-center justify-center uppercase tracking-widest hover:brightness-110 active:scale-95 ${loading ? 'opacity-70' : ''}`}
                     >
                         {loading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <div className="w-6 h-6 border-4 border-brand-darker/30 border-t-brand-darker rounded-full animate-spin"></div>
                         ) : (
                             'Ingresar al Sistema'
                         )}
                     </button>
                 </form>
 
-                <div className="mt-8 pt-8 border-t border-slate-700 text-center">
-                    <p className="text-slate-500 text-sm">
+                <div className={`mt-10 pt-8 border-t text-center ${theme === 'dark' ? 'border-brand-secondary' : 'border-slate-100'}`}>
+                    <p className={`text-[10px] uppercase font-black tracking-widest leading-relaxed ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
                         ¿Olvidaste tu contraseña o necesitas una cuenta?<br />
-                        <a href="mailto:burosearg@gmail.com" className="text-blue-400 hover:underline">Contactar soporte</a>
+                        <a href="mailto:burosearg@gmail.com" className={`mt-2 inline-block font-black underline decoration-2 underline-offset-4 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>Contactar soporte</a>
                     </p>
                 </div>
             </div>
