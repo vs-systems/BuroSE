@@ -20,7 +20,7 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                     <div className="text-center sm:text-left">
                         <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Plataforma</h4>
                         <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                            <li><a href="#contact" className="hover:text-brand-neon transition-colors">Solicitar Registro</a></li>
+                            <li><a href="/#contact" className="hover:text-brand-neon transition-colors">Solicitar Registro</a></li>
                             <li><a href="/#/risk-dashboard" className="hover:text-brand-neon transition-colors">Consulta de Riesgo</a></li>
                             <li><a href="/#/login" className="hover:text-brand-neon transition-colors">Panel de Socios</a></li>
                         </ul>

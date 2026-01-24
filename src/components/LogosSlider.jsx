@@ -45,6 +45,13 @@ const LogosSlider = ({ theme }) => {
                                 alt={logo.name}
                                 title={logo.name}
                                 className={`max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-110 ${theme === 'dark' ? 'brightness-110' : ''}`}
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    const span = document.createElement('span');
+                                    span.className = `text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`;
+                                    span.innerText = logo.name;
+                                    e.target.parentElement.appendChild(span);
+                                }}
                             />
                         </a>
                     ))}

@@ -11,7 +11,6 @@ import LogosSlider from './LogosSlider';
 import Pricing from './Pricing';
 import Manuals from './Manuals';
 import Footer from './Footer';
-import LegalModal from './LegalModal';
 
 const Landing = ({ theme, setTheme }) => {
     return (
