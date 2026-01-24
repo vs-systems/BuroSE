@@ -8,6 +8,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking, false = not logged in, true = logged in
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         checkAuth();
@@ -18,6 +19,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
             const response = await fetch('/api/check_session.php');
             const data = await response.json();
             setIsAuthenticated(data.authenticated);
+            setUser(data.user);
         } catch (err) {
             console.error('Error checking auth:', err);
             setIsAuthenticated(false);
@@ -127,6 +129,25 @@ const RiskDashboard = ({ theme, setTheme }) => {
             </header>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Banner de Bienvenida para Socios */}
+                {isAuthenticated && (
+                    <div className="mb-12 p-6 rounded-3xl bg-brand-neon/5 border border-brand-neon/20 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-brand-neon p-3 rounded-2xl">
+                                <ShieldCheck className="text-brand-darker" size={24} />
+                            </div>
+                            <div>
+                                <h3 className={`text-xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                                    Bienvenido, {user?.name}
+                                </h3>
+                                <p className={`text-xs font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                                    SESIÓN DE SOCIO ACTIVA • CUIT {user?.cuit}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Header / Search */}
                 <div className="mb-16 text-center">
                     <h2 className={`text-3xl md:text-4xl font-black mb-8 uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
@@ -270,8 +291,17 @@ const RiskDashboard = ({ theme, setTheme }) => {
                     </div>
                 )}
 
-                {/* Upload Section for Members */}
-                <ReportUpload theme={theme} />
+                {/* Secciones adicionales para socios */}
+                {isAuthenticated && (
+                    <>
+                        <ReportUpload theme={theme} />
+                        <div className="mt-12 text-center">
+                            <p className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                                Historial de Reportes disponible próximamente
+                            </p>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
