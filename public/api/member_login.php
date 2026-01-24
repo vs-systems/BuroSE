@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode($json, true);
 
     // Fallback a $_POST si no es JSON (FormData)
-    $cuit = $data['cuit'] ?? ($_POST['cuit'] ?? '');
-    $password = $data['password'] ?? ($_POST['password'] ?? '');
+    $cuit = trim($data['cuit'] ?? ($_POST['cuit'] ?? ''));
+    $password = trim($data['password'] ?? ($_POST['password'] ?? ''));
 
     if (empty($cuit) || empty($password)) {
         echo json_encode(['success' => false, 'message' => 'CUIT y contraseña son requeridos']);

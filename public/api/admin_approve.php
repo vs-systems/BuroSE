@@ -11,8 +11,8 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
-$cuit = $data['cuit'] ?? '';
-$password = $data['password'] ?? '';
+$cuit = trim($data['cuit'] ?? '');
+$password = trim($data['password'] ?? '');
 $name = $data['name'] ?? '';
 $email = $data['email'] ?? '';
 $whatsapp = $data['whatsapp'] ?? '';

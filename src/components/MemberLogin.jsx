@@ -12,13 +12,10 @@ const MemberLogin = ({ theme, setTheme }) => {
         setError('');
 
         try {
-            const formData = new FormData();
-            formData.append('cuit', cuit);
-            formData.append('password', password);
-
             const response = await fetch('api/member_login.php', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cuit, password })
             });
 
             const data = await response.json();
