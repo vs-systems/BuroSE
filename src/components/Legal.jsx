@@ -141,7 +141,7 @@ const Legal = ({ theme }) => {
                         Toda la información publicada en BuroSE es previamente revisada por nuestro equipo de abogados especializados. Este proceso garantiza que cada reporte cumpla con los estándares legales necesarios, protegiendo tanto la integridad del sitio como los derechos de las personas reportadas, minimizando cualquier riesgo legal para el gremio.
                     </p>
                     <p className="mt-6 text-brand-neon font-bold">
-                        Contacto Legal: <a href="mailto:legales@vecinoseguro.com.ar" className="hover:underline">legales@vecinoseguro.com.ar</a>
+                        Contacto Legal: <a href="mailto:legales@burose.com.ar" className="hover:underline">legales@burose.com.ar</a>
                     </p>
                 </div>
 
