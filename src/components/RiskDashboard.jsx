@@ -15,7 +15,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
 
     const checkAuth = async () => {
         try {
-            const response = await fetch('api/check_session.php');
+            const response = await fetch('/api/check_session.php');
             const data = await response.json();
             setIsAuthenticated(data.authenticated);
         } catch (err) {
