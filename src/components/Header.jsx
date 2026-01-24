@@ -10,14 +10,14 @@ const Header = ({ theme, setTheme }) => {
 
     return (
         <nav className={`fixed w-full z-50 transition-all duration-300 border-b ${theme === 'dark'
-                ? 'bg-brand-dark/90 backdrop-blur-md border-brand-card'
-                : 'bg-white/90 backdrop-blur-md border-slate-200 shadow-sm'
+            ? 'bg-brand-dark/90 backdrop-blur-md border-brand-card'
+            : 'bg-white/90 backdrop-blur-md border-slate-200 shadow-sm'
             }`}>
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-center h-20">
                     <div className="flex items-center">
                         <img
-                            src="/logo.png"
+                            src="logo.png"
                             alt="BuroSE Logo"
                             className={`h-12 md:h-14 w-auto object-contain transition-all duration-300 ${theme === 'light' ? 'brightness-90 contrast-125' : ''}`}
                         />
@@ -39,8 +39,8 @@ const Header = ({ theme, setTheme }) => {
                         </button>
                         <a href="/#/risk-dashboard" className="text-sm font-medium text-brand-neon hover:opacity-80 transition-colors">Consultar Riesgo</a>
                         <a href="/#/login" className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${theme === 'dark'
-                                ? 'bg-blue-600/10 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white'
-                                : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white'
+                            ? 'bg-blue-600/10 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white'
+                            : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white'
                             }`}>
                             Acceso Socios
                         </a>

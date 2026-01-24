@@ -1,3 +1,6 @@
+import React from 'react';
+import { Check, Cpu } from 'lucide-react';
+
 const Pricing = ({ theme }) => {
     const plans = [
         {
