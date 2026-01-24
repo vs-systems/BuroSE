@@ -113,7 +113,7 @@ const AdminPanel = () => {
 
     const checkSession = async () => {
         try {
-            const resp = await fetch('/api/check_session.php');
+            const resp = await fetch('/api/check_session.php', { credentials: 'include' });
             const res = await resp.json();
             if (res.authenticated && res.role === 'admin') {
                 setIsLogged(true);
@@ -129,7 +129,8 @@ const AdminPanel = () => {
             const resp = await fetch('/api/admin_login.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user, pass })
+                body: JSON.stringify({ user, pass }),
+                credentials: 'include'
             });
             const res = await resp.json();
             if (res.status === 'success') {
@@ -145,7 +146,7 @@ const AdminPanel = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const resp = await fetch('/api/admin_data.php');
+            const resp = await fetch('/api/admin_data.php', { credentials: 'include' });
             const res = await resp.json();
             if (res.status === 'success') {
                 setData(res.data);

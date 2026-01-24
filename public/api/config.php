@@ -7,11 +7,15 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Content-Type: application/json; charset=UTF-8");
 
 // Configuración de sesión para persistencia en Hostinger
-ini_set('session.cookie_path', '/');
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-// Si usas HTTPS (recomendado), descomenta la siguiente línea:
-// ini_set('session.cookie_secure', 1);
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'domain' => '', // Dejar vacío para dominio actual
+    'secure' => false, // Cambiar a true si usas HTTPS obligatorio
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);

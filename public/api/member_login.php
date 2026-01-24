@@ -1,10 +1,10 @@
 <?php
 // member_login.php
-session_start();
 require_once 'config.php';
 
 // Habilitar CORS
 header('Content-Type: application/json');
+header('Access-Control-Allow-Credentials: true');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Intentar leer JSON

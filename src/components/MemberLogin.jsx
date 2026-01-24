@@ -15,7 +15,8 @@ const MemberLogin = ({ theme, setTheme }) => {
             const response = await fetch('/api/member_login.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cuit, password })
+                body: JSON.stringify({ cuit, password }),
+                credentials: 'include'
             });
 
             const data = await response.json();

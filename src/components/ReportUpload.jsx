@@ -41,7 +41,8 @@ const ReportUpload = ({ theme }) => {
         try {
             const response = await fetch('/api/upload_report.php', {
                 method: 'POST',
-                body: data
+                body: data,
+                credentials: 'include'
             });
             const result = await response.json();
 
