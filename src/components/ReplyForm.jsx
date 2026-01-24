@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertOctagon } from 'lucide-react';
 
-const ReplyForm = () => {
+const ReplyForm = ({ theme }) => {
     const [formData, setFormData] = useState({
         name: '',
         id: '', // CUIT/DNI
@@ -48,77 +48,75 @@ const ReplyForm = () => {
     };
 
     return (
-        <div id="replica" className="bg-brand-dark border border-brand-secondary/50 rounded-2xl p-8 relative overflow-hidden group">
-            {/* Próximamente Overlay */}
-            {/* 
-            <div className="absolute inset-0 z-10 bg-brand-darker/70 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
-                <div className="border border-brand-alert/30 bg-brand-dark/40 p-6 rounded-xl backdrop-blur-md shadow-2xl">
-                    <h4 className="text-brand-alert text-3xl font-bold tracking-tighter uppercase mb-2">Próximamente</h4>
-                    <p className="text-brand-text/60 text-sm">El canal formal de descargo estará habilitado próximamente.</p>
-                </div>
-            </div>
-            */}
-
+        <div id="replica" className={`border transition-all duration-500 rounded-3xl p-8 relative overflow-hidden group ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary/50' : 'bg-white border-slate-200 shadow-xl'
+            }`}>
             <div className="">
-                <div className="flex items-center space-x-2 mb-2">
-                    <AlertOctagon className="text-brand-alert" size={24} />
-                    <h3 className="text-2xl font-bold text-white">Derecho a Réplica</h3>
+                <div className="flex items-center space-x-3 mb-2">
+                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-brand-alert/10' : 'bg-red-50'}`}>
+                        <AlertOctagon className="text-brand-alert" size={24} />
+                    </div>
+                    <h3 className={`text-2xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Derecho a Réplica</h3>
                 </div>
 
-                <p className="text-brand-muted text-sm mb-8">
+                <p className={`text-sm mb-8 font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
                     Si considera que existe información errónea sobre su perfil comercial, utilice este canal formal.
                 </p>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-xs font-bold text-brand-muted uppercase mb-1">Nombre Completo</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Nombre Completo</label>
                         <input
-                            type="text" name="name" required
-                            className="w-full bg-brand-card border border-brand-secondary rounded px-4 py-3 text-white focus:border-brand-alert focus:outline-none transition-colors"
+                            type="text" name="name" required value={formData.name}
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-alert focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
+                                }`}
                             placeholder="Su Nombre"
                             onChange={handleChange}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-brand-muted uppercase mb-1">DNI o CUIT (Solo números)</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>DNI o CUIT (Solo números)</label>
                         <input
                             type="text" name="id" required
                             value={formData.id}
-                            className="w-full bg-brand-card border border-brand-secondary rounded px-4 py-3 text-white focus:border-brand-alert focus:outline-none transition-colors"
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-alert focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
+                                }`}
                             placeholder="Ej: 20123456789"
                             onChange={(e) => setFormData({ ...formData, id: e.target.value.replace(/\D/g, '') })}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-brand-muted uppercase mb-1">Email de Contacto</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Email de Contacto</label>
                         <input
-                            type="email" name="email" required
-                            className="w-full bg-brand-card border border-brand-secondary rounded px-4 py-3 text-white focus:border-brand-alert focus:outline-none transition-colors"
+                            type="email" name="email" required value={formData.email}
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-alert focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
+                                }`}
                             placeholder="email@ejemplo.com"
                             onChange={handleChange}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-brand-muted uppercase mb-1">Descargo / Solicitud</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Descargo / Solicitud</label>
                         <textarea
-                            name="message" required
+                            name="message" required value={formData.message}
                             rows="4"
-                            className="w-full bg-brand-card border border-brand-secondary rounded px-4 py-3 text-white focus:border-brand-alert focus:outline-none transition-colors resize-none"
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-alert focus:outline-none transition-all resize-none ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
+                                }`}
                             placeholder="Detalle aquí su reclamo o solicitud de revisión..."
                             onChange={handleChange}
                         ></textarea>
                     </div>
 
-                    <div className="text-[10px] text-brand-muted bg-brand-card p-3 rounded border border-brand-secondary">
-                        <strong>Aviso Legal:</strong> BuroSE garantiza este canal formal para ejercer su derecho conforme a la legislación vigente (Ley 25.326). La información proporcionada será analizada por nuestro equipo de compliance.
+                    <div className={`text-[10px] font-bold p-4 rounded-xl border transition-colors ${theme === 'dark' ? 'text-brand-muted bg-brand-card border-brand-secondary' : 'text-slate-500 bg-slate-50 border-slate-200'
+                        }`}>
+                        <strong className={theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}>Aviso Legal:</strong> BuroSE garantiza este canal formal para ejercer su derecho conforme a la legislación vigente (Ley 25.326). La información proporcionada será analizada por nuestro equipo de compliance.
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full mt-2 border border-brand-text/20 text-brand-text font-medium py-4 rounded hover:bg-brand-card hover:text-white transition-colors"
+                        className={`w-full mt-2 border border-brand-alert text-brand-alert font-black py-4 rounded-xl hover:bg-brand-alert hover:text-white transition-all uppercase tracking-widest active:scale-95 transform`}
                     >
                         Enviar Descargo Formal
                     </button>

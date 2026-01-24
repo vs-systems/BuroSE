@@ -37,33 +37,38 @@ const Manuals = ({ theme }) => {
     };
 
     return (
-        <section id="manuals" className="py-24 relative">
+        <section id="manuals" className={`py-24 relative transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker' : 'bg-slate-50'
+            }`}>
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
-                    <h2 className={`text-4xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Centro de <span className="brand-gradient-text">Ayuda y Manuales</span></h2>
-                    <p className="text-brand-muted">Todo lo que necesitas saber sobre el uso de la plataforma y el marco legal de BuroSE.</p>
+                    <h2 className={`text-4xl font-black mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Centro de <span className="brand-gradient-text">Ayuda y Manuales</span></h2>
+                    <p className={`text-lg transition-colors ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>Todo lo que necesitas saber sobre el uso de la plataforma y el marco legal de BuroSE.</p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
                     {/* Selector de Manuales */}
-                    <div className="md:w-1/3 space-y-4">
+                    <div className="md:w-1/3 grid sm:grid-cols-3 md:grid-cols-1 gap-4">
                         {Object.entries(manuals).map(([key, man]) => (
                             <button
                                 key={key}
                                 onClick={() => setActiveManual(key)}
-                                className={`w-full flex items-center p-6 rounded-2xl border-2 transition-all text-left ${activeManual === key ? 'border-brand-neon bg-brand-neon/5 scale-105' : 'border-transparent bg-brand-card/30 hover:bg-brand-card'}`}
+                                className={`w-full flex items-center p-6 rounded-2xl border-2 transition-all text-left ${activeManual === key
+                                        ? 'border-brand-neon bg-brand-neon/5 scale-105'
+                                        : (theme === 'dark' ? 'border-transparent bg-brand-card/30 hover:bg-brand-card' : 'border-transparent bg-white hover:bg-slate-100 shadow-sm')
+                                    }`}
                             >
-                                <div className="p-3 bg-brand-dark rounded-xl mr-4">{man.icon}</div>
+                                <div className={`p-3 rounded-xl mr-4 ${theme === 'dark' ? 'bg-brand-dark' : 'bg-slate-50'}`}>{man.icon}</div>
                                 <div>
                                     <h4 className={`font-bold text-sm ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{man.title}</h4>
-                                    <span className="text-[10px] text-brand-muted uppercase tracking-widest">Guía paso a paso</span>
+                                    <span className={`text-[10px] uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Guía paso a paso</span>
                                 </div>
                             </button>
                         ))}
                     </div>
 
                     {/* Contenido del Manual */}
-                    <div className={`md:w-2/3 p-10 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-2xl'}`}>
+                    <div className={`md:w-2/3 p-10 rounded-3xl border transition-all duration-500 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-2xl'
+                        }`}>
                         <div className="flex justify-between items-center mb-10">
                             <h3 className={`text-2xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{manuals[activeManual].title}</h3>
                             <BookOpen className="text-brand-neon opacity-20" size={40} />
@@ -72,16 +77,17 @@ const Manuals = ({ theme }) => {
                         <div className="grid gap-8">
                             {manuals[activeManual].content.map((item, idx) => (
                                 <div key={idx} className="relative pl-8">
-                                    <div className="absolute left-0 top-1 w-2 h-2 rounded-full bg-brand-neon"></div>
-                                    <h5 className={`font-bold mb-2 uppercase text-xs tracking-widest ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>{item.h}</h5>
+                                    <div className="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-neon"></div>
+                                    <h5 className={`font-black mb-2 uppercase text-xs tracking-widest ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>{item.h}</h5>
                                     <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-brand-text' : 'text-slate-700'}`}>{item.p}</p>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-brand-secondary/50 flex justify-between items-center">
-                            <p className="text-[10px] text-brand-muted uppercase font-bold tracking-tighter">BuroSE | Framework de Riesgo 2.0</p>
-                            <button className="flex items-center text-xs font-bold text-brand-neon hover:underline">
+                        <div className={`mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4 ${theme === 'dark' ? 'border-brand-secondary/50' : 'border-slate-100'
+                            }`}>
+                            <p className={`text-[10px] uppercase font-bold tracking-tighter ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>BuroSE | Framework de Riesgo 2.1</p>
+                            <button className="flex items-center text-xs font-black text-brand-neon hover:scale-105 transition-transform">
                                 Descargar Versión PDF <Download size={14} className="ml-2" />
                             </button>
                         </div>

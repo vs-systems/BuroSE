@@ -19,15 +19,15 @@ const Landing = ({ theme, setTheme }) => {
             <main>
                 <Hero theme={theme} />
                 <LogosSlider theme={theme} />
-                <ProblemChart />
+                <ProblemChart theme={theme} />
                 <HowItWorks theme={theme} />
                 <Pricing theme={theme} />
                 <Manuals theme={theme} />
                 <RiskDashboard theme={theme} />
-                <Legal />
-                <div id="contact" className="container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12">
-                    <AccessForm />
-                    <ReplyForm />
+                <Legal theme={theme} />
+                <div id="contact" className={`container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 transition-colors ${theme === 'dark' ? 'bg-transparent' : 'bg-slate-50'}`}>
+                    <AccessForm theme={theme} />
+                    <ReplyForm theme={theme} />
                 </div>
             </main>
             <Footer />

@@ -26,7 +26,9 @@ const LogosSlider = ({ theme }) => {
     return (
         <section className={`py-12 border-y transition-colors bg-white border-slate-200`}>
             <div className="container mx-auto px-4 text-center">
-                <h3 className="text-slate-500 font-medium mb-8 text-sm uppercase tracking-widest">Empresas que confían en nosotros</h3>
+                <h3 className={`font-bold mb-8 text-lg md:text-xl transition-colors ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Estas empresas ya estan confiando sus bases de deudores en <span className="text-brand-neon">BuroSE</span>.
+                </h3>
                 <div className="flex flex-wrap justify-center items-center gap-8 py-4">
                     {displayLogos.map((logo, idx) => (
                         <a
