@@ -29,9 +29,9 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                     <div className="text-center sm:text-left">
                         <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Marco Legal</h4>
                         <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                            <li><button onClick={() => openModal(legalDocs.tyc.title, legalDocs.tyc.content)} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Términos y Condiciones</button></li>
-                            <li><button onClick={() => openModal(legalDocs.privacy.title, legalDocs.privacy.content)} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Política de Privacidad</button></li>
-                            <li><button onClick={() => openModal(legalDocs.replica.title, legalDocs.replica.content)} className="hover:text-brand-neon transition-colors uppercase tracking-tight">Derecho a Réplica</button></li>
+                            <li><a href="/#/terms" target="_blank" rel="noopener noreferrer" className="hover:text-brand-neon transition-colors uppercase tracking-tight">Términos y Condiciones</a></li>
+                            <li><a href="/#/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-brand-neon transition-colors uppercase tracking-tight">Política de Privacidad</a></li>
+                            <li><a href="/#/replica" target="_blank" rel="noopener noreferrer" className="hover:text-brand-neon transition-colors uppercase tracking-tight">Derecho a Réplica</a></li>
                         </ul>
                     </div>
 

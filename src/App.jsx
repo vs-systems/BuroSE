@@ -4,6 +4,9 @@ import Landing from './components/Landing';
 import AdminPanel from './components/AdminPanel';
 import RiskDashboard from './components/RiskDashboard';
 import MemberLogin from './components/MemberLogin';
+import Terms from './components/legal/Terms';
+import Privacy from './components/legal/Privacy';
+import Replica from './components/legal/Replica';
 
 function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -27,6 +30,9 @@ function App() {
                 <Route path="/admin" element={<AdminPanel theme={theme} setTheme={setTheme} />} />
                 <Route path="/config" element={<AdminPanel theme={theme} setTheme={setTheme} />} />
                 <Route path="/login" element={<MemberLogin theme={theme} setTheme={setTheme} />} />
+                <Route path="/terms" element={<Terms theme={theme} setTheme={setTheme} />} />
+                <Route path="/privacy" element={<Privacy theme={theme} setTheme={setTheme} />} />
+                <Route path="/replica" element={<Replica theme={theme} setTheme={setTheme} />} />
             </Routes>
         </Router>
     );
