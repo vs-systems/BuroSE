@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon } from 'lucide-react';
+import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon } from 'lucide-react';
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
@@ -260,8 +260,8 @@ const AdminPanel = () => {
                     <button
                         onClick={() => setActiveTab('contacts')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'contacts'
-                                ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                                : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
                             }`}
                     >
                         <Users size={18} />
@@ -270,8 +270,8 @@ const AdminPanel = () => {
                     <button
                         onClick={() => setActiveTab('replicas')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'replicas'
-                                ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                                : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
                             }`}
                     >
                         <MessageSquare size={18} />
@@ -280,8 +280,8 @@ const AdminPanel = () => {
                     <button
                         onClick={() => setActiveTab('logos')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'logos'
-                                ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                                : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
                             }`}
                     >
                         <ImageIcon size={18} />
@@ -329,8 +329,8 @@ const AdminPanel = () => {
                         <div className="grid gap-6">
                             {data.contacts.map((c, idx) => (
                                 <div key={idx} className={`border p-6 rounded-3xl transition-all group ${theme === 'dark'
-                                        ? 'bg-brand-card border-brand-secondary hover:border-brand-neon/30'
-                                        : 'bg-white border-slate-100 shadow-md hover:shadow-xl'
+                                    ? 'bg-brand-card border-brand-secondary hover:border-brand-neon/30'
+                                    : 'bg-white border-slate-100 shadow-md hover:shadow-xl'
                                     }`}>
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -380,8 +380,8 @@ const AdminPanel = () => {
                         <div className="grid gap-6">
                             {data.replicas.map((r, idx) => (
                                 <div key={idx} className={`border p-8 rounded-3xl border-l-4 transition-all ${theme === 'dark'
-                                        ? 'bg-brand-card border-brand-secondary border-l-brand-alert'
-                                        : 'bg-white border-slate-100 border-l-red-500 shadow-lg'
+                                    ? 'bg-brand-card border-brand-secondary border-l-brand-alert'
+                                    : 'bg-white border-slate-100 border-l-red-500 shadow-lg'
                                     }`}>
                                     <div className="flex justify-between items-start mb-8">
                                         <div>
