@@ -1,9 +1,17 @@
 <?php
 // config.php - Configuración de conexión a la base de datos
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: https://www.burose.com.ar");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Content-Type: application/json; charset=UTF-8");
+
+// Configuración de sesión para persistencia en Hostinger
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+// Si usas HTTPS (recomendado), descomenta la siguiente línea:
+// ini_set('session.cookie_secure', 1);
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
