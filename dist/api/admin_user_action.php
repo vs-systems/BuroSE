@@ -1,7 +1,6 @@
 <?php
 // admin_user_action.php
 require_once 'config.php';
-session_start();
 
 // Solo admin puede realizar estas acciones
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {

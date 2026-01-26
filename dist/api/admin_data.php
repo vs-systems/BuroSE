@@ -1,7 +1,6 @@
 <?php
 // admin_data.php
 require_once 'config.php';
-session_start();
 
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
     http_response_code(403);
