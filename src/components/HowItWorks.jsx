@@ -58,7 +58,7 @@ const HowItWorks = ({ theme }) => {
                         </div>
                         <h3 className={`text-xl font-black uppercase tracking-tighter mb-3 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>3. Publicación</h3>
                         <p className={`text-sm leading-relaxed max-w-xs font-medium ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
-                            La deuda se impacta en el buró y es visible para toda la red de mayoristas e importadores.
+                            La deuda impacta en el buró y es visible para toda la red de mayoristas, importadores y prestadores IT de Argentina.
                         </p>
                     </div>
                 </div>

@@ -18,7 +18,7 @@ const Pricing = ({ theme }) => {
             price: "$15.000",
             period: "/mes",
             promo: "¡Ya Disponible!",
-            desc: "Para empresas de seguridad electrónica y tecnología.",
+            desc: "Ideal para empresas de Seguridad, Informática y Servicios IT.",
             features: ["Consultas ilimitadas", "Acceso a Reportes de Gremios", "Carga de Deudores Propios", "Soporte Prioritario"],
             cta: "Unirse ahora",
             popular: true,

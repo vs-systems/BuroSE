@@ -45,9 +45,33 @@ try {
         echo json_encode(["status" => "success", "message" => "Solicitud/Lead eliminada correctamente"]);
     } elseif ($action === 'make_vip') {
         // Convertir SOCIO normal en VIP
-        $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 1, expiry_date = NULL WHERE cuit = ?");
-        $stmt->execute([$cuit]);
-        echo json_encode(["status" => "success", "message" => "Socio convertido a VIP correctamente. Ahora es perpetuo."]);
+        // Primero obtenemos el email para notificar
+        $stmtEmail = $conn->prepare("SELECT email, razon_social FROM membership_companies WHERE cuit = ?");
+        $stmtEmail->execute([$cuit]);
+        $member = $stmtEmail->fetch();
+
+        if ($member) {
+            $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 1, expiry_date = NULL WHERE cuit = ?");
+            $stmt->execute([$cuit]);
+
+            // Enviar Mail de Notificación
+            $to = $member['email'];
+            $subject = "¡Premio VIP BuroSE - Acceso de por vida!";
+            $body = "Hola " . $member['razon_social'] . ",\n\n";
+            $body .= "Usted fue premiado con una cuenta vip, sin cargo de por vida en BuroSE.\n";
+            $body .= "Gracias por confiar en nosotros.\n\n";
+            $body .= "Javier Gozzi - VS Sistemas";
+
+            $headers = "From: info@burose.com.ar\r\n";
+            $headers .= "Reply-To: info@burose.com.ar\r\n";
+            $headers .= "X-Mailer: PHP/" . phpversion();
+
+            @mail($to, $subject, $body, $headers);
+
+            echo json_encode(["status" => "success", "message" => "Socio convertido a VIP y notificado por email correctamente."]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Socio no encontrado"]);
+        }
     } else {
         echo json_encode(["status" => "error", "message" => "Acción no válida"]);
     }

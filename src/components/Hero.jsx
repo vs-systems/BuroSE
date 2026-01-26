@@ -26,8 +26,8 @@ const Hero = ({ theme }) => {
 
                 <p className={`text-lg md:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed transition-colors duration-500 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'
                     }`}>
-                    El primer buró colaborativo 100% dedicado a la seguridad electrónica en Argentina.
-                    Detectamos deudas que no figuran en los sistemas tradicionales.
+                    El buró colaborativo especializado para Seguridad e Informática en Argentina.
+                    Un apoyo estratégico único, fuera de las bases de datos convencionales.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -45,8 +45,8 @@ const Hero = ({ theme }) => {
                     <button
                         onClick={() => document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })}
                         className={`w-full sm:w-auto px-8 py-5 font-bold rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${theme === 'dark'
-                                ? 'bg-transparent border-brand-card text-brand-text hover:bg-brand-card'
-                                : 'bg-white border-slate-200 text-slate-700 hover:border-slate-800'
+                            ? 'bg-transparent border-brand-card text-brand-text hover:bg-brand-card'
+                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-800'
                             }`}
                     >
                         Ver cómo funciona
