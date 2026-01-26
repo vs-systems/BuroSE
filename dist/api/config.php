@@ -64,6 +64,23 @@ try {
         if ($check_token && $check_token->rowCount() == 0) {
             $conn->exec("ALTER TABLE membership_companies ADD COLUMN api_token VARCHAR(255) DEFAULT NULL");
         }
+
+        // Nuevos campos para reportes (Enriquecimiento de datos)
+        $new_report_cols = [
+            'intencion_pago' => 'TINYINT DEFAULT 0',
+            'instancia_judicial' => 'TINYINT DEFAULT 0',
+            'domicilio_particular' => 'VARCHAR(255) DEFAULT NULL',
+            'domicilio_comercial' => 'VARCHAR(255) DEFAULT NULL',
+            'celular_contacto' => 'VARCHAR(50) DEFAULT NULL',
+            'provincia' => 'VARCHAR(100) DEFAULT NULL',
+            'localidad' => 'VARCHAR(100) DEFAULT NULL'
+        ];
+        foreach ($new_report_cols as $col => $type) {
+            $check = $conn->query("SHOW COLUMNS FROM reports LIKE '$col'");
+            if ($check && $check->rowCount() == 0) {
+                $conn->exec("ALTER TABLE reports ADD COLUMN $col $type");
+            }
+        }
     } catch (Exception $e_schema) {
         // Ignorar
     }

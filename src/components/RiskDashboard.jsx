@@ -36,44 +36,17 @@ const RiskDashboard = ({ theme, setTheme }) => {
         );
     }
 
-    if (isAuthenticated === false) {
-        return (
-            <div className={`min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker' : 'bg-slate-50'}`}>
-                <div className={`p-10 rounded-3xl border max-w-md w-full text-center shadow-2xl transition-all duration-500 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'
-                    }`}>
-                    <div className="mb-8 flex justify-center">
-                        <div className="bg-brand-neon/10 p-5 rounded-3xl">
-                            <ShieldAlert className="w-12 h-12 text-brand-neon" />
-                        </div>
-                    </div>
-                    <h2 className={`text-3xl font-black uppercase tracking-tighter mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Acceso Restringido</h2>
-                    <p className={`text-sm font-bold mb-10 leading-relaxed ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                        La consulta de riesgo es exclusiva para socios verificados de <span className="text-brand-neon font-black underline underline-offset-4">BuroSE</span>. Por favor, inicia sesión para continuar.
-                    </p>
-                    <a
-                        href="/#/login"
-                        className="block w-full bg-brand-neon text-brand-darker font-black py-5 rounded-xl transition-all shadow-xl shadow-brand-neon/20 uppercase tracking-widest hover:brightness-110 active:scale-95 transform"
-                    >
-                        Iniciar Sesión
-                    </a>
-                    <p className={`mt-8 text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
-                        ¿No eres socio? <a href="/#contact" className="text-brand-neon hover:underline inline-block ml-1">Solicita acceso aquí</a>
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
     const handleSearch = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setLoading(true);
+        setError('');
         try {
             const response = await fetch(`/api/search.php?cuit=${cuit}`, { credentials: 'include' });
             const data = await response.json();
             setResult(data);
         } catch (error) {
             console.error('Error searching:', error);
-            alert('Error al realizar la búsqueda.');
+            setError('Error de conexión con el servidor.');
         } finally {
             setLoading(false);
         }
@@ -293,112 +266,133 @@ const RiskDashboard = ({ theme, setTheme }) => {
 
                 {result && !loading && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* Summary Score Card */}
+                        {/* Status Card (Always shown) */}
                         <div className={`border-2 rounded-3xl p-10 mb-10 flex flex-col md:flex-row items-center justify-between shadow-2xl transition-all duration-500 ${getRiskColor(result.alert_level)}`}>
                             <div className="flex items-center space-x-8 mb-8 md:mb-0">
                                 {result.alert_level === 'GREEN' ? <ShieldCheck size={100} strokeWidth={1} /> :
                                     result.alert_level === 'YELLOW' ? <ShieldAlert size={100} strokeWidth={1} /> : <ShieldX size={100} strokeWidth={1} />}
                                 <div>
-                                    <h3 className="text-xs font-black uppercase tracking-widest opacity-60 mb-2">Resultado Unificado</h3>
-                                    <p className="text-4xl md:text-5xl font-black tracking-tighter leading-none mb-2">
-                                        {result.alert_level === 'GREEN' ? 'SIN RIESGO' : 'RIESGO DETECTADO'}
+                                    <h3 className="text-xs font-black uppercase tracking-widest opacity-60 mb-2">Estado del CUIT</h3>
+                                    <p className="text-4xl md:text-6xl font-black tracking-tighter leading-none mb-4">
+                                        {result.alert_level === 'GREEN' ? 'SIN RIESGO' : 'REPORTA RIESGO'}
                                     </p>
-                                    <p className="text-lg font-bold opacity-80 uppercase">{result.name}</p>
-                                    <p className="text-xs font-black opacity-60 uppercase tracking-widest mt-1">CUIT: {result.cuit}</p>
+                                    {result.name && (
+                                        <p className="text-xl font-bold opacity-80 uppercase leading-none">{result.name}</p>
+                                    )}
+                                    <p className="text-xs font-black opacity-60 uppercase tracking-widest mt-2 px-3 py-1 bg-white/10 rounded-full inline-block">CUIT: {result.cuit}</p>
                                 </div>
                             </div>
-                            <div className="text-center md:text-right">
-                                <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-2">Deuda Total Consolidada</p>
-                                <p className="text-5xl md:text-6xl font-black leading-tight tracking-tighter">
-                                    <span className="text-2xl mr-1">$</span>
-                                    {parseFloat(result.total_risk_debt).toLocaleString('es-AR')}
-                                </p>
-                            </div>
+
+                            {/* Info for Authenticated Users */}
+                            {result.authenticated ? (
+                                <div className="text-center md:text-right">
+                                    <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-2">Deuda Total Consolidada</p>
+                                    <p className="text-5xl md:text-6xl font-black leading-tight tracking-tighter">
+                                        <span className="text-2xl mr-1">$</span>
+                                        {parseFloat(result.total_risk_debt).toLocaleString('es-AR')}
+                                    </p>
+                                </div>
+                            ) : (
+                                /* CTA for Guests */
+                                <div className="bg-white/10 p-6 rounded-2xl max-w-sm border border-white/20 backdrop-blur-sm">
+                                    <p className="text-xs font-black uppercase tracking-widest mb-4 opacity-80 leading-relaxed">
+                                        Información detallada bloqueada por motivos de seguridad legal.
+                                    </p>
+                                    <button
+                                        onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                                        className="w-full bg-brand-neon text-brand-darker font-black py-4 rounded-xl text-xs uppercase tracking-widest hover:brightness-110 shadow-lg shadow-brand-neon/20 transition-all font-sans"
+                                    >
+                                        Registrarse para ver el Reporte
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Split Detail Panels */}
-                        <div className="grid lg:grid-cols-2 gap-10">
-                            {/* Guild Reports (Left) */}
-                            <div className={`border rounded-3xl p-10 shadow-xl transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100'
-                                }`}>
-                                <div className="flex items-center space-x-4 mb-10">
-                                    <div className="p-3 bg-brand-neon/10 rounded-xl">
-                                        <TrendingUp className="text-brand-neon" size={28} />
+                        {/* Detailed Panels (Only for Authenticated) */}
+                        {result.authenticated && (
+                            <div className="grid lg:grid-cols-2 gap-10">
+                                {/* Guild Reports (Left) */}
+                                <div className={`border rounded-3xl p-10 shadow-xl transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100'
+                                    }`}>
+                                    <div className="flex items-center space-x-4 mb-10">
+                                        <div className="p-3 bg-brand-neon/10 rounded-xl">
+                                            <TrendingUp className="text-brand-neon" size={28} />
+                                        </div>
+                                        <h4 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Reportes del Gremio</h4>
                                     </div>
-                                    <h4 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Reportes del Gremio</h4>
-                                </div>
 
-                                {result.internal.count > 0 ? (
-                                    <div className="space-y-6">
-                                        {result.internal.reports.map((report, idx) => (
-                                            <div key={idx} className={`border rounded-2xl p-6 transition-all ${theme === 'dark' ? 'bg-brand-dark/50 border-brand-secondary/50' : 'bg-slate-50 border-slate-100'
-                                                }`}>
-                                                <div className="flex justify-between items-start mb-4">
-                                                    <div>
-                                                        <p className="text-2xl font-black text-brand-neon tracking-tighter">$ {parseFloat(report.monto).toLocaleString('es-AR')}</p>
-                                                        <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>{new Date(report.fecha_denuncia).toLocaleDateString()}</p>
+                                    {result.internal.count > 0 ? (
+                                        <div className="space-y-6">
+                                            {result.internal.reports.map((report, idx) => (
+                                                <div key={idx} className={`border rounded-2xl p-6 transition-all ${theme === 'dark' ? 'bg-brand-dark/50 border-brand-secondary/50' : 'bg-slate-50 border-slate-100'
+                                                    }`}>
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div>
+                                                            <p className="text-2xl font-black text-brand-neon tracking-tighter">$ {parseFloat(report.monto).toLocaleString('es-AR')}</p>
+                                                            <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>{new Date(report.fecha_denuncia).toLocaleDateString()}</p>
+                                                        </div>
+                                                        <span className="bg-brand-alert/10 text-brand-alert text-[10px] font-black px-3 py-1.5 rounded-full border border-brand-alert/20 uppercase tracking-widest">Validado</span>
                                                     </div>
-                                                    <span className="bg-brand-alert/10 text-brand-alert text-[10px] font-black px-3 py-1.5 rounded-full border border-brand-alert/20 uppercase tracking-widest">Validado</span>
-                                                </div>
-                                                <p className={`text-sm leading-relaxed font-medium italic ${theme === 'dark' ? 'text-brand-text/80' : 'text-slate-600'}`}>"{report.descripcion}"</p>
-                                                <div className={`mt-6 pt-4 border-t flex items-center text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'border-white/5 text-brand-muted' : 'border-slate-200 text-slate-400'}`}>
-                                                    <FileText size={14} className="mr-2" /> Evidencia Adjunta: Verificada
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className={`text-center py-16 border-2 border-dashed rounded-3xl ${theme === 'dark' ? 'border-brand-secondary/50' : 'border-slate-100'}`}>
-                                        <p className={`text-sm font-bold italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Sin antecedentes reportados por colegas.</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* BCRA Reports (Right) */}
-                            <div className={`border rounded-3xl p-10 shadow-xl transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100'
-                                }`}>
-                                <div className="flex items-center space-x-4 mb-10">
-                                    <div className="p-3 bg-blue-600/10 rounded-xl">
-                                        <Landmark className="text-blue-500" size={28} />
-                                    </div>
-                                    <h4 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Situación Oficial (BCRA)</h4>
-                                </div>
-
-                                <div className="space-y-4">
-                                    {result.bcra.entidades.length > 0 ? (
-                                        result.bcra.entidades.map((entidad, idx) => (
-                                            <div key={idx} className={`flex items-center justify-between p-6 border rounded-2xl transition-all ${theme === 'dark' ? 'bg-brand-dark/30 border-brand-secondary/30' : 'bg-slate-50 border-slate-100'
-                                                }`}>
-                                                <div>
-                                                    <p className={`font-black uppercase text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{entidad.entidad}</p>
-                                                    <p className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Periodo: {entidad.periodo}</p>
-                                                </div>
-                                                <div className="flex flex-col items-end">
-                                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black text-brand-darker mb-2 uppercase tracking-widest shadow-lg ${getStatusColor(entidad.situacion)} shadow-brand-neon/10`}>
-                                                        SIT. {entidad.situacion}
+                                                    <p className={`text-sm leading-relaxed font-medium italic ${theme === 'dark' ? 'text-brand-text/80' : 'text-slate-600'}`}>"{report.descripcion}"</p>
+                                                    <div className={`mt-6 pt-4 border-t flex items-center text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'border-white/5 text-brand-muted' : 'border-slate-200 text-slate-400'}`}>
+                                                        <FileText size={14} className="mr-2" /> Evidencia Adjunta: Verificada
                                                     </div>
-                                                    <p className={`text-lg font-black tracking-tighter ${theme === 'dark' ? 'text-brand-text' : 'text-slate-800'}`}>$ {parseFloat(entidad.monto).toLocaleString('es-AR')}</p>
                                                 </div>
-                                            </div>
-                                        ))
+                                            ))}
+                                        </div>
                                     ) : (
-                                        <div className="flex flex-col items-center justify-center py-16 opacity-30 grayscale gap-4">
-                                            <Landmark size={64} strokeWidth={1} />
-                                            <p className="font-bold italic text-sm">No se registran deudas bancarias oficiales.</p>
-                                        </div>
-                                    )}
-
-                                    {result.bcra.max_situacion > 2 && (
-                                        <div className="mt-8 flex items-start space-x-4 p-5 bg-brand-alert/10 border border-brand-alert/20 rounded-2xl shadow-lg shadow-brand-alert/5">
-                                            <AlertTriangle className="text-brand-alert flex-shrink-0" size={24} />
-                                            <p className="text-xs text-brand-alert font-bold leading-relaxed uppercase tracking-tight">
-                                                <strong>Alerta Crítica:</strong> El sujeto presenta riesgo financiero real en entidades bancarias. Se recomienda suspender créditos comerciales de inmediato.
-                                            </p>
+                                        <div className={`text-center py-16 border-2 border-dashed rounded-3xl ${theme === 'dark' ? 'border-brand-secondary/50' : 'border-slate-100'}`}>
+                                            <p className={`text-sm font-bold italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Sin antecedentes reportados por colegas.</p>
                                         </div>
                                     )}
                                 </div>
+
+                                {/* BCRA Reports (Right) */}
+                                <div className={`border rounded-3xl p-10 shadow-xl transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100'
+                                    }`}>
+                                    <div className="flex items-center space-x-4 mb-10">
+                                        <div className="p-3 bg-blue-600/10 rounded-xl">
+                                            <Landmark className="text-blue-500" size={28} />
+                                        </div>
+                                        <h4 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Situación Oficial (BCRA)</h4>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {result.bcra.entidades.length > 0 ? (
+                                            result.bcra.entidades.map((entidad, idx) => (
+                                                <div key={idx} className={`flex items-center justify-between p-6 border rounded-2xl transition-all ${theme === 'dark' ? 'bg-brand-dark/30 border-brand-secondary/30' : 'bg-slate-50 border-slate-100'
+                                                    }`}>
+                                                    <div>
+                                                        <p className={`font-black uppercase text-sm tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{entidad.entidad}</p>
+                                                        <p className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Periodo: {entidad.periodo}</p>
+                                                    </div>
+                                                    <div className="flex flex-col items-end">
+                                                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black text-brand-darker mb-2 uppercase tracking-widest shadow-lg ${getStatusColor(entidad.situacion)} shadow-brand-neon/10`}>
+                                                            SIT. {entidad.situacion}
+                                                        </div>
+                                                        <p className={`text-lg font-black tracking-tighter ${theme === 'dark' ? 'text-brand-text' : 'text-slate-800'}`}>$ {parseFloat(entidad.monto).toLocaleString('es-AR')}</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-16 opacity-30 grayscale gap-4">
+                                                <Landmark size={64} strokeWidth={1} />
+                                                <p className="font-bold italic text-sm">No se registran deudas bancarias oficiales.</p>
+                                            </div>
+                                        )}
+
+                                        {result.bcra.max_situacion > 2 && (
+                                            <div className="mt-8 flex items-start space-x-4 p-5 bg-brand-alert/10 border border-brand-alert/20 rounded-2xl shadow-lg shadow-brand-alert/5">
+                                                <AlertTriangle className="text-brand-alert flex-shrink-0" size={24} />
+                                                <p className="text-xs text-brand-alert font-bold leading-relaxed uppercase tracking-tight">
+                                                    <strong>Alerta Crítica:</strong> El sujeto presenta riesgo financiero real en entidades bancarias. Se recomienda suspender créditos comerciales de inmediato.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
 

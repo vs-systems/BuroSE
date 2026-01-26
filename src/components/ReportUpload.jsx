@@ -7,10 +7,37 @@ const ReportUpload = ({ theme }) => {
         debtor_name: '',
         debtor_cuit: '',
         debt_amount: '',
-        description: ''
+        description: '',
+        intencion_pago: false,
+        instancia_judicial: false,
+        domicilio_particular: '',
+        domicilio_comercial: '',
+        celular_contacto: '',
+        provincia: '',
+        localidad: ''
     });
+    const [localidades, setLocalidades] = useState([]);
+    const [searchingLocalidad, setSearchingLocalidad] = useState(false);
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '' });
+
+    const provincias = [
+        "Buenos Aires", "Capital Federal", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
+    ];
+
+    const fetchLocalidades = async (query) => {
+        if (!formData.provincia || query.length < 3) {
+            setLocalidades([]);
+            return;
+        }
+        setSearchingLocalidad(true);
+        try {
+            const resp = await fetch(`https://apis.datos.gob.ar/georef/api/localidades?provincia=${formData.provincia}&nombre=${query}&max=5`);
+            const data = await resp.json();
+            setLocalidades(data.localidades || []);
+        } catch (e) { console.error(e); }
+        setSearchingLocalidad(false);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -37,6 +64,13 @@ const ReportUpload = ({ theme }) => {
         data.append('debtor_cuit', formData.debtor_cuit);
         data.append('debt_amount', formData.debt_amount);
         data.append('description', formData.description);
+        data.append('intencion_pago', formData.intencion_pago ? 1 : 0);
+        data.append('instancia_judicial', formData.instancia_judicial ? 1 : 0);
+        data.append('domicilio_particular', formData.domicilio_particular);
+        data.append('domicilio_comercial', formData.domicilio_comercial);
+        data.append('celular_contacto', formData.celular_contacto);
+        data.append('provincia', formData.provincia);
+        data.append('localidad', formData.localidad);
 
         try {
             const response = await fetch('/api/upload_report.php', {
@@ -49,7 +83,12 @@ const ReportUpload = ({ theme }) => {
             if (result.status === 'success') {
                 setStatus({ type: 'success', message: 'Reporte enviado con éxito para validación legal.' });
                 setFile(null);
-                setFormData({ debtor_name: '', debtor_cuit: '', debt_amount: '', description: '' });
+                setFormData({
+                    debtor_name: '', debtor_cuit: '', debt_amount: '', description: '',
+                    intencion_pago: false, instancia_judicial: false,
+                    domicilio_particular: '', domicilio_comercial: '', celular_contacto: '',
+                    provincia: '', localidad: ''
+                });
                 e.target.reset();
             } else {
                 setStatus({ type: 'error', message: result.message || 'Error al subir el reporte.' });
@@ -111,6 +150,96 @@ const ReportUpload = ({ theme }) => {
                                 className={`w-full border rounded-xl px-4 py-2.5 text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:uppercase file:bg-brand-neon file:text-brand-darker cursor-pointer ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-brand-muted' : 'bg-slate-50 border-slate-100 text-slate-500'}`}
                             />
                         </div>
+                    </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8 py-4 border-y border-brand-secondary/20">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-6 h-6 rounded border-2 transition-all flex items-center justify-center ${formData.intencion_pago ? 'bg-brand-neon border-brand-neon' : 'bg-transparent border-slate-400'}`}>
+                            {formData.intencion_pago && <CheckCircle size={14} className="text-brand-darker" />}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={formData.intencion_pago} onChange={e => setFormData({ ...formData, intencion_pago: e.target.checked })} />
+                        <div>
+                            <span className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>¿Hubo intención de pago?</span>
+                            <p className="text-[10px] text-brand-muted">Marcar si el deudor intentó regularizar sin éxito.</p>
+                        </div>
+                    </label>
+
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-6 h-6 rounded border-2 transition-all flex items-center justify-center ${formData.instancia_judicial ? 'bg-brand-alert border-brand-alert' : 'bg-transparent border-slate-400'}`}>
+                            {formData.instancia_judicial && <CheckCircle size={14} className="text-white" />}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={formData.instancia_judicial} onChange={e => setFormData({ ...formData, instancia_judicial: e.target.checked })} />
+                        <div>
+                            <span className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>¿En instancia judicial?</span>
+                            <p className="text-[10px] text-brand-muted">Indicar si ya existe un proceso legal abierto.</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Último Domicilio Particular</label>
+                        <input
+                            type="text" name="domicilio_particular" value={formData.domicilio_particular} onChange={handleChange}
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'}`}
+                            placeholder="Calle, Nro, Depto"
+                        />
+                    </div>
+                    <div>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Último Domicilio Comercial</label>
+                        <input
+                            type="text" name="domicilio_comercial" value={formData.domicilio_comercial} onChange={handleChange}
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'}`}
+                            placeholder="Empresa o Local"
+                        />
+                    </div>
+                    <div>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Último Celular Conocido</label>
+                        <input
+                            type="text" name="celular_contacto" value={formData.celular_contacto} onChange={handleChange}
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'}`}
+                            placeholder="Ej: 11 1234 5678"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6 pb-6 border-b border-brand-secondary/20">
+                    <div>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Provincia</label>
+                        <select
+                            name="provincia" value={formData.provincia} onChange={handleChange}
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'}`}
+                        >
+                            <option value="">Seleccione Provincia</option>
+                            {provincias.map(p => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                    </div>
+                    <div className="relative">
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Localidad (Buscar)</label>
+                        <input
+                            type="text" placeholder="Escriba para buscar..." autoComplete="off"
+                            className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'}`}
+                            onChange={e => {
+                                setFormData({ ...formData, localidad: e.target.value });
+                                fetchLocalidades(e.target.value);
+                            }}
+                            value={formData.localidad}
+                        />
+                        {localidades.length > 0 && (
+                            <div className={`absolute z-50 w-full mt-1 border rounded-xl overflow-hidden shadow-2xl ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary' : 'bg-white border-slate-200'}`}>
+                                {localidades.map(l => (
+                                    <button
+                                        key={l.id} type="button"
+                                        onClick={() => { setFormData({ ...formData, localidad: l.nombre }); setLocalidades([]); }}
+                                        className={`w-full text-left px-4 py-2 text-xs font-bold uppercase hover:bg-brand-neon hover:text-brand-darker transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
+                                    >
+                                        {l.nombre}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        {searchingLocalidad && <div className="absolute right-3 top-10 w-4 h-4 border-2 border-brand-neon border-t-transparent rounded-full animate-spin"></div>}
                     </div>
                 </div>
 

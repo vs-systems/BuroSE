@@ -18,6 +18,15 @@ $debtor_cuit = $_POST['debtor_cuit'] ?? '';
 $debt_amount = $_POST['debt_amount'] ?? 0;
 $description = $_POST['description'] ?? '';
 
+// Nuevos campos enriquecidos
+$intencion_pago = isset($_POST['intencion_pago']) ? (int) $_POST['intencion_pago'] : 0;
+$instancia_judicial = isset($_POST['instancia_judicial']) ? (int) $_POST['instancia_judicial'] : 0;
+$domicilio_particular = $_POST['domicilio_particular'] ?? NULL;
+$domicilio_comercial = $_POST['domicilio_comercial'] ?? NULL;
+$celular_contacto = $_POST['celular_contacto'] ?? NULL;
+$provincia = $_POST['provincia'] ?? NULL;
+$localidad = $_POST['localidad'] ?? NULL;
+
 if (empty($debtor_name) || empty($debtor_cuit) || empty($debt_amount)) {
     echo json_encode(["status" => "error", "message" => "Faltan datos obligatorios"]);
     exit();
@@ -45,14 +54,21 @@ if (in_array($fileExt, $allowedExts)) {
     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
         try {
             // Insertar en la tabla 'reports'
-            $stmt = $conn->prepare("INSERT INTO reports (reporter_id, cuit_denunciado, nombre_denunciado, monto, descripcion, evidencia_url, estado) VALUES (?, ?, ?, ?, ?, ?, 'pendiente')");
+            $stmt = $conn->prepare("INSERT INTO reports (reporter_id, cuit_denunciado, nombre_denunciado, monto, descripcion, evidencia_url, estado, intencion_pago, instancia_judicial, domicilio_particular, domicilio_comercial, celular_contacto, provincia, localidad) VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $reporter_id,
                 $debtor_cuit,
                 $debtor_name,
                 $debt_amount,
                 $description,
-                'api/uploads/reports/' . $fileName
+                'api/uploads/reports/' . $fileName,
+                $intencion_pago,
+                $instancia_judicial,
+                $domicilio_particular,
+                $domicilio_comercial,
+                $celular_contacto,
+                $provincia,
+                $localidad
             ]);
 
             // Opcional: Notificar por mail (puedes mantenerlo o quitarlo para no saturar)

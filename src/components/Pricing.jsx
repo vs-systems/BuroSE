@@ -86,15 +86,35 @@ const Pricing = ({ theme }) => {
                                 ))}
                             </ul>
 
-                            <button
-                                onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
-                                className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${plan.popular
-                                    ? 'bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20'
-                                    : (theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')
-                                    }`}
-                            >
-                                {plan.cta}
-                            </button>
+                            {plan.period === "/mes" ? (
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                                        className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 border-2 ${theme === 'dark' ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-white border-slate-200 text-slate-900 hover:border-slate-400'}`}
+                                    >
+                                        Membresía Mensual
+                                    </button>
+                                    <button
+                                        onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                                        className="w-full py-4 rounded-xl font-black transition-all transform active:scale-95 bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20"
+                                    >
+                                        Pago Anual ({plan.name === 'Socio BuroSE' ? '1 Mes Bonificado' : '2 Meses Bonificados'})
+                                    </button>
+                                    <p className={`text-[10px] text-center font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                                        Ahorra ${(plan.name === 'Socio BuroSE' ? 15000 : 90000).toLocaleString('es-AR')} al año
+                                    </p>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                                    className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${plan.popular
+                                        ? 'bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20'
+                                        : (theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')
+                                        }`}
+                                >
+                                    {plan.cta}
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
