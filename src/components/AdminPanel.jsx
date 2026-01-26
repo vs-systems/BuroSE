@@ -77,22 +77,18 @@ const LogosManager = ({ theme }) => {
                 </button>
             </form>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 p-6 rounded-2xl ${theme === 'dark' ? 'bg-white' : 'bg-white border border-slate-100'}`}>
                 {logos.map(logo => (
-                    <div key={logo.id} className={`border p-4 rounded-xl relative group overflow-hidden transition-colors ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-sm'
-                        }`}>
+                    <div key={logo.id} className="border p-4 rounded-xl relative group overflow-hidden transition-all bg-white border-slate-100 shadow-sm">
                         <img src={logo.logo_url} alt={logo.name} className="h-12 w-full object-contain mb-4" />
-                        <h4 className={`text-sm font-bold text-center truncate ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{logo.name}</h4>
-                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center space-x-4 ${theme === 'dark' ? 'bg-brand-dark/95' : 'bg-white/95'
-                            }`}>
-                            <a href={logo.website_url} target="_blank" rel="noopener noreferrer" className={`p-2 rounded-full transition-all ${theme === 'dark' ? 'bg-white/10 text-white hover:bg-brand-neon hover:text-brand-darker' : 'bg-slate-100 text-slate-600 hover:bg-brand-neon hover:text-brand-darker'
-                                }`}><Globe size={18} /></a>
-                            <button onClick={() => handleDelete(logo.id)} className={`p-2 rounded-full transition-all ${theme === 'dark' ? 'bg-brand-alert/20 text-brand-alert hover:bg-brand-alert hover:text-white' : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'
-                                }`}><Trash2 size={18} /></button>
+                        <h4 className="text-sm font-bold text-center truncate text-slate-900">{logo.name}</h4>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center space-x-4 bg-white/95">
+                            <a href={logo.website_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full transition-all bg-slate-100 text-slate-600 hover:bg-brand-neon hover:text-brand-darker"><Globe size={18} /></a>
+                            <button onClick={() => handleDelete(logo.id)} className="p-2 rounded-full transition-all bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"><Trash2 size={18} /></button>
                         </div>
                     </div>
                 ))}
-                {logos.length === 0 && <p className={`col-span-full text-center py-10 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay logos cargados.</p>}
+                {logos.length === 0 && <p className="col-span-full text-center py-10 italic text-slate-400">No hay logos cargados.</p>}
             </div>
         </div>
     );
@@ -102,9 +98,10 @@ const AdminPanel = () => {
     const [isLogged, setIsLogged] = useState(false);
     const [user, setUser] = useState('');
     const [pass, setPass] = useState('');
-    const [data, setData] = useState({ contacts: [], replicas: [] });
+    const [data, setData] = useState({ contacts: [], replicas: [], socios: [] });
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('contacts');
+    const [socioFilter, setSocioFilter] = useState('all'); // 'all', 'validado', 'bloqueado'
     const [theme, setTheme] = useState('dark');
 
     useEffect(() => {
@@ -324,6 +321,16 @@ const AdminPanel = () => {
                         <Users size={18} />
                         <span>Socios Activos</span>
                     </button>
+                    <button
+                        onClick={() => setActiveTab('stats')}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'stats'
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            }`}
+                    >
+                        <RefreshCcw size={18} />
+                        <span>Estadísticas</span>
+                    </button>
                 </nav>
                 <div className={`p-4 border-t ${theme === 'dark' ? 'border-brand-secondary' : 'border-slate-100'}`}>
                     <button
@@ -350,7 +357,7 @@ const AdminPanel = () => {
                 <header className={`border-b p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10 w-full transition-colors ${theme === 'dark' ? 'bg-brand-dark/80 border-brand-secondary' : 'bg-white/80 border-slate-100 shadow-sm'
                     }`}>
                     <h2 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : 'Gestión de Logos'}
+                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'stats' ? 'Panel de Control' : 'Gestión de Logos'}
                     </h2>
                     <button
                         onClick={fetchData} disabled={loading}
@@ -406,6 +413,12 @@ const AdminPanel = () => {
                                             >
                                                 Aprobar como Socio
                                             </button>
+                                            <button
+                                                onClick={() => handleUserAction(c.cuit, 'delete_lead')}
+                                                className={`text-[10px] font-black px-4 py-2.5 rounded-xl transition-all uppercase border ${theme === 'dark' ? 'border-brand-alert/30 text-brand-alert hover:bg-brand-alert hover:text-white' : 'border-red-100 text-red-500 hover:bg-red-500 hover:text-white'}`}
+                                            >
+                                                Borrar Lead
+                                            </button>
                                         </div>
                                         <p className="text-[10px] font-bold text-brand-neon opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Preferencia: {c.preferencia_contacto}</p>
                                     </div>
@@ -441,39 +454,98 @@ const AdminPanel = () => {
                             {data.replicas.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay solicitudes de réplica de momento.</p>}
                         </div>
                     ) : activeTab === 'socios' ? (
-                        <div className="grid gap-6">
-                            {data.socios.map((s, idx) => (
-                                <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
-                                    ? 'bg-brand-card border-brand-secondary'
-                                    : 'bg-white border-slate-100 shadow-md'
-                                    } ${s.estado === 'bloqueado' ? 'opacity-60 border-brand-alert' : ''}`}>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleUserAction(s.cuit, 'block')}
-                                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${s.estado === 'bloqueado'
-                                                    ? 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white'
-                                                    : 'bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white'}`}
-                                            >
-                                                {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
-                                            </button>
-                                            <button
-                                                onClick={() => handleUserAction(s.cuit, 'delete')}
-                                                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-                                            >
-                                                Eliminar
-                                            </button>
+                        <div className="space-y-6">
+                            <div className="flex gap-4 mb-6">
+                                {['all', 'validado', 'bloqueado'].map(f => (
+                                    <button
+                                        key={f}
+                                        onClick={() => setSocioFilter(f)}
+                                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${socioFilter === f
+                                            ? 'bg-brand-neon text-brand-darker shadow-lg'
+                                            : (theme === 'dark' ? 'bg-brand-secondary text-brand-muted hover:bg-brand-secondary/80' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')
+                                            }`}
+                                    >
+                                        {f === 'all' ? 'Todos' : f === 'validado' ? 'Activos' : 'Bloqueados'}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="grid gap-6">
+                                {data.socios
+                                    .filter(s => socioFilter === 'all' || s.estado === socioFilter)
+                                    .map((s, idx) => (
+                                        <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
+                                            ? 'bg-brand-card border-brand-secondary'
+                                            : 'bg-white border-slate-100 shadow-md'
+                                            } ${s.estado === 'bloqueado' ? 'opacity-60 border-brand-alert' : ''}`}>
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleUserAction(s.cuit, 'block')}
+                                                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${s.estado === 'bloqueado'
+                                                            ? 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white'
+                                                            : 'bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white'}`}
+                                                    >
+                                                        {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleUserAction(s.cuit, 'delete')}
+                                                        className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado: <span className={s.estado === 'bloqueado' ? 'text-brand-alert' : 'text-green-500'}>{s.estado.toUpperCase()}</span></p>
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.expiry_date || 'N/A'}</span></p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
-                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
-                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
-                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado: <span className={s.estado === 'bloqueado' ? 'text-brand-alert' : 'text-green-500'}>{s.estado.toUpperCase()}</span></p>
-                                    </div>
+                                    ))}
+                                {data.socios.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios registrados.</p>}
+                            </div>
+                        </div>
+                    ) : activeTab === 'stats' ? (
+                        <div className="grid md:grid-cols-3 gap-8">
+                            <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
+                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Total Socios</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>{data.socios.length}</p>
+                            </div>
+                            <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
+                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Leads Pendientes</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-alert' : 'text-red-500'}`}>{data.contacts.length}</p>
+                            </div>
+                            <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
+                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Socios Bloqueados</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{data.socios.filter(s => s.estado === 'bloqueado').length}</p>
+                            </div>
+
+                            <div className={`md:col-span-3 p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>
+                                <h3 className={`text-xl font-black uppercase mb-8 tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Calendario de Vencimientos</h3>
+                                <div className="space-y-4">
+                                    {data.socios
+                                        .filter(s => s.expiry_date) // Only show socios with an expiry date
+                                        .sort((a, b) => new Date(a.expiry_date) - new Date(b.expiry_date))
+                                        .slice(0, 10)
+                                        .map((s, idx) => (
+                                            <div key={idx} className={`flex justify-between items-center p-4 rounded-xl ${theme === 'dark' ? 'bg-white/5' : 'bg-slate-50'}`}>
+                                                <div>
+                                                    <p className={`font-black uppercase text-sm ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{s.razon_social}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400">CUIT: {s.cuit}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className={`text-xs font-black uppercase ${new Date(s.expiry_date) < new Date() ? 'text-brand-alert' : 'text-brand-neon'}`}>
+                                                        {new Date(s.expiry_date) < new Date() ? 'Vencido' : 'Próximo'}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-slate-400">{s.expiry_date}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    {data.socios.filter(s => s.expiry_date).length === 0 && <p className="italic text-slate-400">No hay datos de vencimientos.</p>}
                                 </div>
-                            ))}
-                            {data.socios.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios registrados.</p>}
+                            </div>
                         </div>
                     ) : (
                         <LogosManager theme={theme} />

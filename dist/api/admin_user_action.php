@@ -35,10 +35,15 @@ try {
             echo json_encode(["status" => "error", "message" => "Socio no encontrado"]);
         }
     } elseif ($action === 'delete') {
-        // Eliminar definitivamente
+        // Eliminar definitivamente un SOCIO
         $stmt = $conn->prepare("DELETE FROM membership_companies WHERE cuit = ?");
         $stmt->execute([$cuit]);
         echo json_encode(["status" => "success", "message" => "Socio eliminado correctamente"]);
+    } elseif ($action === 'delete_lead') {
+        // Eliminar definitivamente un LEAD (Solicitud)
+        $stmt = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
+        $stmt->execute([$cuit]);
+        echo json_encode(["status" => "success", "message" => "Solicitud/Lead eliminada correctamente"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Acción no válida"]);
     }

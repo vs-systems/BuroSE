@@ -25,20 +25,16 @@ if (empty($cuit) || empty($password)) {
 }
 
 try {
-    // 1. Insertar o actualizar en membership_companies
-    // Usamos ON DUPLICATE KEY UPDATE por si ya existía el CUIT
-    $sql = "INSERT INTO membership_companies (razon_social, cuit, email, whatsapp, rubro, localidad, password, estado) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'validado')
-            ON DUPLICATE KEY UPDATE 
-            razon_social = VALUES(razon_social),
-            password = VALUES(password),
-            email = VALUES(email),
-            estado = 'validado'";
+    // Calcular fecha de vencimiento (30 días desde hoy) - Rolling Billing
+    $expiry_date = date('Y-m-d', strtotime('+30 days'));
 
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([$name, $cuit, $email, $whatsapp, $rubro, $localidad, $password]);
-
-    echo json_encode(["status" => "success", "message" => "Socio aprobado y activado"]);
+    $stmt = $conn->prepare("INSERT INTO membership_companies (cuit, password, razon_social, email, whatsapp, localidad, rubro, estado, expiry_date) VALUES (?, ?, ?, ?, ?, ?, ?, 'validado', ?)");
+    if ($stmt->execute([$cuit, $password, $name, $email, $whatsapp, $localidad, $rubro, $expiry_date])) {
+        // Eliminar de solicitudes tras aprobar
+        $stmtDel = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
+        $stmtDel->execute([$cuit]);
+        echo json_encode(["status" => "success", "message" => "Socio aprobado correctamente. Vencimiento: " . $expiry_date]);
+    }
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }

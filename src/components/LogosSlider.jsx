@@ -24,10 +24,9 @@ const LogosSlider = ({ theme }) => {
     ];
 
     return (
-        <section className={`py-12 border-y transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker border-white/10' : 'bg-white border-slate-200'
-            }`}>
+        <section className="py-12 border-y bg-white border-slate-100">
             <div className="container mx-auto px-4 text-center">
-                <h3 className={`font-bold mb-8 text-lg md:text-xl transition-colors ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                <h3 className="font-bold mb-8 text-lg md:text-xl text-slate-600">
                     Estas empresas ya estan confiando sus bases de deudores en <span className="text-brand-neon">BuroSE</span>..
                 </h3>
                 <div className="flex flex-wrap justify-center items-center gap-8 py-4">
@@ -37,18 +36,17 @@ const LogosSlider = ({ theme }) => {
                             href={logo.website_url || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`h-20 min-w-[180px] px-8 py-4 border rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-md group ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-brand-neon' : 'bg-white border-slate-100 hover:border-slate-300'
-                                }`}
+                            className="h-20 min-w-[180px] px-8 py-4 border rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-md group bg-white border-slate-50 hover:border-brand-neon/40 hover:scale-105"
                         >
                             <img
                                 src={logo.logo_url}
                                 alt={logo.name}
                                 title={logo.name}
-                                className={`max-h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-110 ${theme === 'dark' ? 'brightness-110' : ''}`}
+                                className="max-h-12 w-auto object-contain transition-transform duration-300"
                                 onError={(e) => {
                                     e.target.style.display = 'none';
                                     const span = document.createElement('span');
-                                    span.className = `text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`;
+                                    span.className = "text-xs font-black uppercase tracking-widest text-slate-400";
                                     span.innerText = logo.name;
                                     e.target.parentElement.appendChild(span);
                                 }}

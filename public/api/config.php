@@ -17,6 +17,24 @@ session_set_cookie_params([
 ]);
 session_start();
 
+// Inicialización de esquema (si no existe)
+try {
+    // Agregar columna de vencimiento si no existe
+    $conn->exec("ALTER TABLE membership_companies ADD COLUMN IF NOT EXISTS expiry_date DATE DEFAULT NULL");
+
+    // Asegurar tabla de logos
+    $conn->exec("CREATE TABLE IF NOT EXISTS brand_logos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        logo_url VARCHAR(255) NOT NULL,
+        website_url VARCHAR(255),
+        display_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+} catch (Exception $e) {
+    // Silencioso si falla por permisos o si ya existe
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
