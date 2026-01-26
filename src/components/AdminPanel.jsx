@@ -196,6 +196,7 @@ const AdminPanel = () => {
         await fetch('/api/logout.php');
         setIsLogged(false);
         setData({ contacts: [], replicas: [], socios: [] });
+        window.location.href = '/';
     };
 
     const handleApprove = async (contact) => {

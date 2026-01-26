@@ -67,7 +67,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
     const handleLogout = async () => {
         try {
             await fetch('api/logout.php');
-            window.location.href = '/#/login';
+            window.location.href = '/';
         } catch (err) {
             console.error('Logout error:', err);
         }
