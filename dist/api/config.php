@@ -54,6 +54,16 @@ try {
         if ($check && $check->rowCount() == 0) {
             $conn->exec("ALTER TABLE membership_companies ADD COLUMN expiry_date DATE DEFAULT NULL");
         }
+
+        $check_vip = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'is_vip'");
+        if ($check_vip && $check_vip->rowCount() == 0) {
+            $conn->exec("ALTER TABLE membership_companies ADD COLUMN is_vip TINYINT DEFAULT 0");
+        }
+
+        $check_token = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'api_token'");
+        if ($check_token && $check_token->rowCount() == 0) {
+            $conn->exec("ALTER TABLE membership_companies ADD COLUMN api_token VARCHAR(255) DEFAULT NULL");
+        }
     } catch (Exception $e_schema) {
         // Ignorar
     }

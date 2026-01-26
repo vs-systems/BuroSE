@@ -15,8 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $razon_social = $data['razon_social'] ?? '';
     $cuit = $data['cuit'] ?? '';
     $email = $data['email'] ?? '';
-    $pass = $data['pass'] ?? 'burose2026'; // Password por defecto
-    $expiry_days = $data['expiry_days'] ?? 365; // 1 año por defecto para cuentas gratis
+    $pass = $data['pass'] ?? 'burose2026';
+    $expiry_days = $data['expiry_days'] ?? 365;
+    $is_vip = isset($data['is_vip']) ? (int) $data['is_vip'] : 0;
 
     if (!$razon_social || !$cuit || !$email) {
         echo json_encode(["status" => "error", "message" => "Faltan datos obligatorios"]);
@@ -32,15 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        $expiry_date = date('Y-m-d', strtotime("+$expiry_days days"));
+        $expiry_date = ($is_vip) ? NULL : date('Y-m-d', strtotime("+$expiry_days days"));
 
-        $stmt = $conn->prepare("INSERT INTO membership_companies (razon_social, cuit, email, password, estado, expiry_date) VALUES (?, ?, ?, ?, 'validado', ?)");
+        $stmt = $conn->prepare("INSERT INTO membership_companies (razon_social, cuit, email, password, estado, expiry_date, is_vip) VALUES (?, ?, ?, ?, 'validado', ?, ?)");
         $stmt->execute([
             $razon_social,
             $cuit,
             $email,
             password_hash($pass, PASSWORD_DEFAULT),
-            $expiry_date
+            $expiry_date,
+            $is_vip
         ]);
 
         echo json_encode([

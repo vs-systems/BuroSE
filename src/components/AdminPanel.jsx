@@ -140,6 +140,20 @@ const AdminPanel = () => {
         } catch (e) { alert('Error de conexión'); }
     };
 
+    const handleApiAction = async (cuit, action) => {
+        try {
+            const resp = await fetch('/api/admin_api_action.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cuit, action }),
+                credentials: 'include'
+            });
+            const res = await resp.json();
+            alert(res.message);
+            fetchData();
+        } catch (e) { alert('Error de conexión'); }
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -322,6 +336,16 @@ const AdminPanel = () => {
                         <span>Socios Activos</span>
                     </button>
                     <button
+                        onClick={() => setActiveTab('vip')}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'vip'
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            }`}
+                    >
+                        <ShieldCheck size={18} />
+                        <span>Socios VIP</span>
+                    </button>
+                    <button
                         onClick={() => setActiveTab('stats')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'stats'
                             ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
@@ -357,7 +381,7 @@ const AdminPanel = () => {
                 <header className={`border-b p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10 w-full transition-colors ${theme === 'dark' ? 'bg-brand-dark/80 border-brand-secondary' : 'bg-white/80 border-slate-100 shadow-sm'
                     }`}>
                     <h2 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'stats' ? 'Panel de Control' : 'Gestión de Logos'}
+                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'vip' ? 'Socios VIP (Perpetuos)' : activeTab === 'stats' ? 'Panel de Control' : 'Gestión de Logos'}
                     </h2>
                     <button
                         onClick={fetchData} disabled={loading}
@@ -497,7 +521,7 @@ const AdminPanel = () => {
                             </div>
                             <div className="grid gap-6">
                                 {data.socios
-                                    .filter(s => socioFilter === 'all' || s.estado === socioFilter)
+                                    .filter(s => s.is_vip != 1 && (socioFilter === 'all' || s.estado === socioFilter))
                                     .map((s, idx) => (
                                         <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
                                             ? 'bg-brand-card border-brand-secondary'
@@ -506,6 +530,12 @@ const AdminPanel = () => {
                                             <div className="flex justify-between items-center mb-4">
                                                 <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
                                                 <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleApiAction(s.cuit, 'generate')}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all"
+                                                    >
+                                                        {s.api_token ? 'Refresh API' : 'Activar API'}
+                                                    </button>
                                                     <button
                                                         onClick={() => handleUserAction(s.cuit, 'block')}
                                                         className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${s.estado === 'bloqueado'
@@ -528,9 +558,70 @@ const AdminPanel = () => {
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado: <span className={s.estado === 'bloqueado' ? 'text-brand-alert' : 'text-green-500'}>{s.estado.toUpperCase()}</span></p>
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.expiry_date || 'N/A'}</span></p>
                                             </div>
+                                            {s.api_token && (
+                                                <div className="mt-4 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex justify-between items-center">
+                                                    <code className="text-[10px] text-blue-500 font-mono">TOKEN API: {s.api_token}</code>
+                                                    <button onClick={() => navigator.clipboard.writeText(s.api_token)} className="text-[10px] font-black uppercase text-blue-500">Copiar</button>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
-                                {data.socios.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios registrados.</p>}
+                                {data.socios.filter(s => s.is_vip != 1).length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios registrados.</p>}
+                            </div>
+                        </div>
+                    ) : activeTab === 'vip' ? (
+                        <div className="space-y-6">
+                            <div className="flex justify-end mb-8">
+                                <button
+                                    onClick={() => {
+                                        const razon = prompt("Razón Social VIP:");
+                                        const cuit = prompt("CUIT (sin guiones):");
+                                        const email = prompt("Email:");
+                                        const pass = prompt("Contraseña (o dejar vacío para default):", cuit);
+
+                                        if (razon && cuit && email) {
+                                            fetch('/api/admin_create_socio.php', {
+                                                method: 'POST',
+                                                body: JSON.stringify({ razon_social: razon, cuit, email, pass, is_vip: 1 }),
+                                                headers: { 'Content-Type': 'application/json' },
+                                                credentials: 'include'
+                                            }).then(r => r.json()).then(data => {
+                                                alert(data.message);
+                                                fetchData();
+                                            });
+                                        }
+                                    }}
+                                    className="bg-brand-neon text-brand-darker font-black px-6 py-2 rounded-xl text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
+                                >
+                                    <Plus size={16} /> Alta Socio VIP
+                                </button>
+                            </div>
+                            <div className="grid gap-6">
+                                {data.socios
+                                    .filter(s => s.is_vip == 1)
+                                    .map((s, idx) => (
+                                        <div key={idx} className={`border p-6 rounded-3xl transition-all border-l-4 border-l-brand-neon ${theme === 'dark'
+                                            ? 'bg-brand-card border-brand-secondary shadow-lg shadow-brand-neon/5'
+                                            : 'bg-white border-slate-100 shadow-md'
+                                            }`}>
+                                            <div className="flex justify-between items-center mb-4">
+                                                <div>
+                                                    <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
+                                                    <span className="text-[8px] font-black uppercase bg-brand-neon/20 text-brand-neon px-2 py-0.5 rounded tracking-widest">Socio Estratégico / VIP</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => handleUserAction(s.cuit, 'delete')} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado: <span className="text-brand-neon">PERPETUO</span></p>
+                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className="text-slate-400 italic">Nunca</span></p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                {data.socios.filter(s => s.is_vip == 1).length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios VIP registrados.</p>}
                             </div>
                         </div>
                     ) : activeTab === 'stats' ? (
