@@ -1,5 +1,5 @@
 <?php
-// search.php - Buscador de Riesgo Crediticio
+// search.php - Motor de Inteligencia Comercial BuroSE
 require_once 'config.php';
 
 if (!isset($_GET['cuit'])) {
@@ -9,8 +9,59 @@ if (!isset($_GET['cuit'])) {
 
 $cuit = preg_replace('/[^0-9]/', '', $_GET['cuit']); // Limpiar guiones
 
-// 1. Buscar en Base de Datos Interna (Denuncias del Gremio)
-$stmt = $conn->prepare("SELECT * FROM reports WHERE cuit_denunciado = ? AND estado = 'validado'");
+// --- Funciones de Inteligencia Externa ---
+
+function obtener_nombre_scraper($cuit)
+{
+    $url = "https://www.cuitonline.com/search.php?q=" . $cuit;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+    $html = curl_exec($ch);
+    curl_close($ch);
+
+    if ($html) {
+        if (preg_match('/itemprop="name">(.*?)<\//', $html, $matches)) {
+            return strtoupper(trim(strip_tags($matches[1])));
+        }
+        if (preg_match('/CUIT\s+[\d-]+\s+-\s+(.*?)\s+-\s+Cuit/i', $html, $matches)) {
+            $name = trim($matches[1]);
+            if (strtoupper($name) !== "CUIT ONLINE")
+                return strtoupper($name);
+        }
+    }
+    return null;
+}
+
+function consultar_bcra($cuit)
+{
+    $url = "https://api.bcra.gob.ar/CentralDeDeudores/v1.0/Deudas/" . $cuit;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode == 200) {
+        $data = json_decode($response, true);
+        return $data['results'] ?? null;
+    }
+    return null;
+}
+
+// --- PROCESAMIENTO ---
+
+// 1. Obtener Nombre del Sujeto
+$scraped_name = obtener_nombre_scraper($cuit);
+
+// 2. Buscar en Base de Datos Interna (Denuncias del Gremio)
+$stmt = $conn->prepare("SELECT * FROM reports WHERE cuit_denunciado = ? AND estado = 'validado' ORDER BY fecha_denuncia DESC");
 $stmt->execute([$cuit]);
 $internal_reports = $stmt->fetchAll();
 
@@ -19,55 +70,44 @@ foreach ($internal_reports as $report) {
     $total_internal_debt += $report['monto'];
 }
 
-// 2. Simular/Cachear consulta al BCRA (Central de Deudores)
-// En una fase real, aquí se llamaría a una API externa del BCRA o similar.
-// Por ahora simulamos según el requerimiento del usuario.
-
-$bcra_data = [
-    "cuit" => $cuit,
+// 3. Consultar BCRA en Tiempo Real
+$bcra_results = consultar_bcra($cuit);
+$bcra_normalized = [
     "entidades" => [],
     "deuda_total" => 0,
     "max_situacion" => 1
 ];
 
-if ($cuit === "20111111112") {
-    $bcra_data["entidades"] = [
-        ["entidad" => "Banco Galicia", "periodo" => "12/23", "situacion" => 1, "monto" => 0]
-    ];
-} elseif ($cuit === "30222222223") {
-    $bcra_data["entidades"] = [
-        ["entidad" => "Banco Santander", "periodo" => "11/23", "situacion" => 3, "monto" => 1200000]
-    ];
-    $bcra_data["deuda_total"] = 1200000;
-    $bcra_data["max_situacion"] = 3;
-} elseif ($cuit === "20333333334") {
-    // Caso solicitado: Limpio en BCRA pero denunciado en el Gremio
-    $internal_reports = [
-        [
-            "monto" => 850000,
-            "fecha_denuncia" => date("Y-m-d H:i:s"),
-            "descripcion" => "Incumplimiento de pago en factura de cámaras y DVRs. Empresa: Biosegur SRL (Mayorista)",
-            "estado" => "validado"
-        ]
-    ];
-    $total_internal_debt = 850000;
-
-    $bcra_data["entidades"] = [
-        ["entidad" => "Banco Provincia", "periodo" => "01/24", "situacion" => 1, "monto" => 0]
-    ];
+if ($bcra_results && isset($bcra_results['periodos'])) {
+    $ultimo = reset($bcra_results['periodos']);
+    if (isset($ultimo['entidades'])) {
+        foreach ($ultimo['entidades'] as $b) {
+            $bcra_normalized["entidades"][] = [
+                "entidad" => $b['denominacion'],
+                "periodo" => $ultimo['periodo'],
+                "situacion" => $b['situacion'],
+                "monto" => $b['monto'] * 1000 // Convertir a pesos (k pesos a pesos)
+            ];
+            $bcra_normalized["deuda_total"] += $b['monto'] * 1000;
+            if ($b['situacion'] > $bcra_normalized["max_situacion"]) {
+                $bcra_normalized["max_situacion"] = $b['situacion'];
+            }
+        }
+    }
 }
 
-// 3. Resultado Unificado
+// 4. Resultado Unificado
 $unified_score = [
     "cuit" => $cuit,
+    "name" => $scraped_name ?: "RAZÓN SOCIAL NO DISPONIBLE",
     "internal" => [
         "count" => count($internal_reports),
         "total_debt" => $total_internal_debt,
         "reports" => $internal_reports
     ],
-    "bcra" => $bcra_data,
-    "total_risk_debt" => $total_internal_debt + $bcra_data["deuda_total"],
-    "alert_level" => ($total_internal_debt > 0 || $bcra_data["max_situacion"] > 1) ? "RED" : "GREEN"
+    "bcra" => $bcra_normalized,
+    "total_risk_debt" => $total_internal_debt + $bcra_normalized["deuda_total"],
+    "alert_level" => ($total_internal_debt > 0 || $bcra_normalized["max_situacion"] > 1) ? "RED" : "GREEN"
 ];
 
 echo json_encode($unified_score);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard } from 'lucide-react';
+import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard, Lock } from 'lucide-react';
 import ReportUpload from './ReportUpload';
 
 const RiskDashboard = ({ theme, setTheme }) => {
@@ -7,8 +7,10 @@ const RiskDashboard = ({ theme, setTheme }) => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
-    const [isAuthenticated, setIsAuthenticated] = useState(null); // null = checking, false = not logged in, true = logged in
+    const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [user, setUser] = useState(null);
+    const [showingSecurity, setShowingSecurity] = useState(false);
+    const [passwords, setPasswords] = useState({ current: '', new: '' });
 
     useEffect(() => {
         checkAuth();
@@ -98,6 +100,26 @@ const RiskDashboard = ({ theme, setTheme }) => {
         }
     };
 
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        try {
+            const resp = await fetch('/api/member_change_password.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ current_pass: passwords.current, new_pass: passwords.new }),
+                credentials: 'include'
+            });
+            const data = await resp.json();
+            alert(data.message);
+            if (data.status === 'success') {
+                setShowingSecurity(false);
+                setPasswords({ current: '', new: '' });
+            }
+        } catch (err) {
+            alert("Error al conectar con el servidor.");
+        }
+    };
+
     const handlePayment = async () => {
         setLoading(true);
         try {
@@ -133,18 +155,60 @@ const RiskDashboard = ({ theme, setTheme }) => {
                             </h1>
                         </div>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className={`flex items-center gap-2 transition-colors text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg border ${theme === 'dark' ? 'text-slate-400 border-transparent hover:text-white hover:bg-white/5' : 'text-slate-500 border-slate-200 hover:text-slate-900 hover:bg-slate-50'
-                            }`}
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        <span className="hidden sm:inline">Cerrar Sesión</span>
-                    </button>
+                    <div className="flex gap-4 items-center">
+                        <button
+                            onClick={() => setShowingSecurity(!showingSecurity)}
+                            className={`p-2 rounded-lg transition-all ${theme === 'dark' ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50'}`}
+                            title="Seguridad de Cuenta"
+                        >
+                            <Lock size={20} />
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className={`flex items-center gap-2 transition-colors text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg border ${theme === 'dark' ? 'text-slate-400 border-transparent hover:text-white hover:bg-white/5' : 'text-slate-500 border-slate-200 hover:text-slate-900 hover:bg-slate-50'
+                                }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span className="hidden sm:inline">Cerrar Sesión</span>
+                        </button>
+                    </div>
                 </div>
             </header>
+
+            {/* Modal de Seguridad */}
+            {showingSecurity && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-brand-darker/60 backdrop-blur-sm">
+                    <div className={`w-full max-w-md p-8 rounded-3xl border shadow-2xl animate-in zoom-in-95 duration-200 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+                        <h3 className={`text-2xl font-black uppercase mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Seguridad de Cuenta</h3>
+                        <form onSubmit={handlePasswordChange} className="space-y-4">
+                            <div>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted block mb-2">Contraseña Actual</label>
+                                <input
+                                    type="password" required
+                                    value={passwords.current}
+                                    onChange={e => setPasswords({ ...passwords, current: e.target.value })}
+                                    className={`w-full p-4 rounded-xl border outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-white/10 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted block mb-2">Nueva Contraseña</label>
+                                <input
+                                    type="password" required
+                                    value={passwords.new}
+                                    onChange={e => setPasswords({ ...passwords, new: e.target.value })}
+                                    className={`w-full p-4 rounded-xl border outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-white/10 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                                />
+                            </div>
+                            <div className="flex gap-4 pt-4">
+                                <button type="button" onClick={() => setShowingSecurity(false)} className={`flex-1 py-4 rounded-xl font-black uppercase text-xs tracking-widest ${theme === 'dark' ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-900'}`}>Cancelar</button>
+                                <button type="submit" className="flex-1 bg-brand-neon text-brand-darker font-black py-4 rounded-xl shadow-lg shadow-brand-neon/20 uppercase text-xs tracking-widest hover:brightness-110">Actualizar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Banner de Bienvenida para Socios */}
@@ -239,7 +303,8 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                     <p className="text-4xl md:text-5xl font-black tracking-tighter leading-none mb-2">
                                         {result.alert_level === 'GREEN' ? 'SIN RIESGO' : 'RIESGO DETECTADO'}
                                     </p>
-                                    <p className="text-lg font-bold opacity-80 uppercase">CUIT: {result.cuit}</p>
+                                    <p className="text-lg font-bold opacity-80 uppercase">{result.name}</p>
+                                    <p className="text-xs font-black opacity-60 uppercase tracking-widest mt-1">CUIT: {result.cuit}</p>
                                 </div>
                             </div>
                             <div className="text-center md:text-right">
