@@ -537,6 +537,16 @@ const AdminPanel = () => {
                                                         {s.api_token ? 'Refresh API' : 'Activar API'}
                                                     </button>
                                                     <button
+                                                        onClick={() => {
+                                                            if (confirm('¿Convertir a este socio en VIP? Tendrá acceso perpetuo sin vencimiento.')) {
+                                                                handleUserAction(s.cuit, 'make_vip');
+                                                            }
+                                                        }}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker transition-all"
+                                                    >
+                                                        Hacer VIP
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleUserAction(s.cuit, 'block')}
                                                         className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${s.estado === 'bloqueado'
                                                             ? 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white'

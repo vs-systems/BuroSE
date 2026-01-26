@@ -43,6 +43,11 @@ try {
         $stmt = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
         $stmt->execute([$cuit]);
         echo json_encode(["status" => "success", "message" => "Solicitud/Lead eliminada correctamente"]);
+    } elseif ($action === 'make_vip') {
+        // Convertir SOCIO normal en VIP
+        $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 1, expiry_date = NULL WHERE cuit = ?");
+        $stmt->execute([$cuit]);
+        echo json_encode(["status" => "success", "message" => "Socio convertido a VIP correctamente. Ahora es perpetuo."]);
     } else {
         echo json_encode(["status" => "error", "message" => "Acción no válida"]);
     }
