@@ -5,20 +5,18 @@ require_once 'config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
-    // 1. Verificar reCAPTCHA
-    $recaptcha_secret = "6Le7EFcsAAAAABvLjgE1cdaOm31jeCJQYnp3I1je";
-    $recaptcha_response = $data['recaptcha_token'] ?? '';
-
-    if (empty($recaptcha_response)) {
-        echo json_encode(["status" => "error", "message" => "Por favor, completa el captcha."]);
+    // 1. Técnica Honeypot (Anti-spam)
+    // El campo 'website_url' debe estar vacío siempre (los humanos no lo ven)
+    if (!empty($data['website_url'])) {
+        http_response_code(403);
+        echo json_encode(["status" => "error", "message" => "Spam detectado"]);
         exit;
     }
 
-    $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret}&response={$recaptcha_response}");
-    $responseKeys = json_decode($verify, true);
-
-    if (!$responseKeys["success"]) {
-        echo json_encode(["status" => "error", "message" => "Fallo en la verificación del captcha. Inténtalo de nuevo."]);
+    // 2. Validación de Email
+    $email = trim($data['email'] ?? '');
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(["status" => "error", "message" => "Formato de correo electrónico no válido."]);
         exit;
     }
 

@@ -15,10 +15,10 @@ const ReplyForm = ({ theme }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Obtener token de reCAPTCHA
-        const recaptchaToken = window.grecaptcha.getResponse();
-        if (!recaptchaToken) {
-            alert('Por favor, completa el captcha.');
+        // 1. Validación básica de Email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            alert('Correo electrónico no válido.');
             return;
         }
 
@@ -34,7 +34,7 @@ const ReplyForm = ({ theme }) => {
                     email: formData.email,
                     descargo: formData.message,
                     type: 'replica',
-                    recaptcha_token: recaptchaToken
+                    website_url: formData.website_url || ''
                 }),
             });
             const result = await response.json();
@@ -122,8 +122,16 @@ const ReplyForm = ({ theme }) => {
                         <strong className={theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}>Aviso Legal:</strong> BuroSE garantiza este canal formal para ejercer su derecho conforme a la legislación vigente (Ley 25.326). La información proporcionada será analizada por nuestro equipo de compliance.
                     </div>
 
-                    <div className="flex justify-center mb-6">
-                        <div className="g-recaptcha" data-sitekey="6Le7EFcsAAAAALb0Xi2OsJEx3Z5gXSSPnUdOqfV8" data-theme={theme === 'dark' ? 'dark' : 'light'}></div>
+                    {/* Honeypot field (hidden from humans) */}
+                    <div style={{ display: 'none' }} aria-hidden="true">
+                        <input
+                            type="text"
+                            name="website_url"
+                            value={formData.website_url || ''}
+                            onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                            tabIndex="-1"
+                            autoComplete="off"
+                        />
                     </div>
 
                     <button
