@@ -1,28 +1,36 @@
 <?php
-// config.php - Configuración de conexión a la base de datos
-header("Access-Control-Allow-Origin: https://www.burose.com.ar");
+// config.php - Configuración de conexión con alta compatibilidad
+error_reporting(0); // Prevenir que advertencias rompan el JSON
+
+// CORS Broad - Para máxima compatibilidad
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+} else {
+    header("Access-Control-Allow-Origin: *");
+}
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Content-Type: application/json; charset=UTF-8");
-
-// Configuración de sesión para persistencia en Hostinger
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'domain' => '', // Dejar vacío para dominio actual
-    'secure' => false, // Cambiar a true si usas HTTPS obligatorio
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
-session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// Datos reales de la base de datos en Hostinger
+// Configuración de Sesión
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'secure' => false,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Datos de Conexión
 $host = 'localhost';
 $db_name = 'u499089589_burose_db';
 $username = 'u499089589_burose_admin';
@@ -33,9 +41,9 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-    // Inicialización de esquema (si no existe)
+    // Inicialización suave de esquema
     try {
-        // 1. Asegurar tabla de logos
+        // Solo intentamos crear si no existen, uno por uno
         $conn->exec("CREATE TABLE IF NOT EXISTS brand_logos (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
@@ -45,26 +53,18 @@ try {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
 
-        // 2. Agregar columna de vencimiento si no existe
-        $res = $conn->query("SHOW TABLES LIKE 'membership_companies'");
-        if ($res && $res->fetch()) {
-            $check = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'expiry_date'");
-            if ($check && !$check->fetch()) {
-                $conn->exec("ALTER TABLE membership_companies ADD COLUMN expiry_date DATE DEFAULT NULL");
-            }
+        // Verificación de columna segura
+        $check = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'expiry_date'");
+        if ($check && $check->rowCount() == 0) {
+            $conn->exec("ALTER TABLE membership_companies ADD COLUMN expiry_date DATE DEFAULT NULL");
         }
-    } catch (Throwable $e) {
-        // Ignorar errores de esquema silenciosamente
+    } catch (Exception $e_schema) {
+        // Ignorar errores de esquema para no bloquear el login
     }
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode([
-        "status" => "error",
-        "message" => "Error de conexión a la base de datos: " . $e->getMessage(),
-        "db_host" => $host,
-        "db_name" => $db_name
-    ]);
+    echo json_encode(["status" => "error", "message" => "Base de datos desconectada"]);
     exit();
 }
 ?>
