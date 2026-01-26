@@ -4,7 +4,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once 'config.php';
-session_start();
 
 try {
     if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {

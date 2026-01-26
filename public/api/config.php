@@ -35,7 +35,7 @@ try {
 
     // Inicialización de esquema (si no existe)
     try {
-        // Asegurar tabla de logos
+        // 1. Asegurar tabla de logos
         $conn->exec("CREATE TABLE IF NOT EXISTS brand_logos (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
@@ -45,13 +45,16 @@ try {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
 
-        // Agregar columna de vencimiento si no existe (método compatible con versiones viejas de MySQL)
-        $q = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'expiry_date'");
-        if ($q->rowCount() === 0) {
-            $conn->exec("ALTER TABLE membership_companies ADD COLUMN expiry_date DATE DEFAULT NULL");
+        // 2. Agregar columna de vencimiento si no existe
+        $res = $conn->query("SHOW TABLES LIKE 'membership_companies'");
+        if ($res && $res->fetch()) {
+            $check = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'expiry_date'");
+            if ($check && !$check->fetch()) {
+                $conn->exec("ALTER TABLE membership_companies ADD COLUMN expiry_date DATE DEFAULT NULL");
+            }
         }
-    } catch (Exception $e) {
-        // Error silencioso en el esquema
+    } catch (Throwable $e) {
+        // Ignorar errores de esquema silenciosamente
     }
 
 } catch (PDOException $e) {
