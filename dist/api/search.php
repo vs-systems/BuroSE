@@ -58,7 +58,13 @@ function consultar_bcra($cuit)
 // --- PROCESAMIENTO ---
 
 // 1. Obtener Nombre del Sujeto
-$scraped_name = obtener_nombre_scraper($cuit);
+// Prioridad 1: Base de datos interna
+$stmtName = $conn->prepare("SELECT razon_social FROM membership_companies WHERE cuit = ?");
+$stmtName->execute([$cuit]);
+$internal_name = $stmtName->fetchColumn();
+
+// Prioridad 2: Scraper externo
+$scraped_name = $internal_name ?: obtener_nombre_scraper($cuit);
 
 // 2. Buscar en Base de Datos Interna (Denuncias del Gremio)
 $stmt = $conn->prepare("SELECT * FROM reports WHERE cuit_denunciado = ? AND estado = 'validado' ORDER BY fecha_denuncia DESC");
@@ -86,7 +92,7 @@ if ($bcra_results && isset($bcra_results['periodos'])) {
                 "entidad" => $b['denominacion'],
                 "periodo" => $ultimo['periodo'],
                 "situacion" => $b['situacion'],
-                "monto" => $b['monto'] * 1000 // Convertir a pesos (k pesos a pesos)
+                "monto" => $b['monto'] * 1000
             ];
             $bcra_normalized["deuda_total"] += $b['monto'] * 1000;
             if ($b['situacion'] > $bcra_normalized["max_situacion"]) {
@@ -96,19 +102,42 @@ if ($bcra_results && isset($bcra_results['periodos'])) {
     }
 }
 
-// 4. Resultado Unificado
-$unified_score = [
-    "cuit" => $cuit,
-    "name" => $scraped_name ?: "RAZÓN SOCIAL NO DISPONIBLE",
-    "internal" => [
-        "count" => count($internal_reports),
-        "total_debt" => $total_internal_debt,
-        "reports" => $internal_reports
-    ],
-    "bcra" => $bcra_normalized,
-    "total_risk_debt" => $total_internal_debt + $bcra_normalized["deuda_total"],
-    "alert_level" => ($total_internal_debt > 0 || $bcra_normalized["max_situacion"] > 1) ? "RED" : "GREEN"
-];
+// 4. Determinar Nivel de Riesgo
+$has_risk = ($total_internal_debt > 0 || $bcra_normalized["max_situacion"] > 1);
+$alert_level = $has_risk ? "RED" : "GREEN";
 
-echo json_encode($unified_score);
+// 5. Verificar sesión (Usuario socio o Administrador)
+$is_authenticated = (
+    (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true) ||
+    (isset($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true)
+);
+
+if (!$is_authenticated) {
+    // Modo GUEST: Información limitada para incentivar registro
+    echo json_encode([
+        "status" => "success",
+        "authenticated" => false,
+        "cuit" => $cuit,
+        "name" => $scraped_name ?: null,
+        "alert_level" => $alert_level,
+        "has_risk" => $has_risk,
+        "message" => "Regístrese para ver el detalle de los reportes y montos."
+    ]);
+} else {
+    // Modo FULL: Información detallada para socios/admin
+    echo json_encode([
+        "status" => "success",
+        "authenticated" => true,
+        "cuit" => $cuit,
+        "name" => $scraped_name ?: null,
+        "internal" => [
+            "count" => count($internal_reports),
+            "total_debt" => $total_internal_debt,
+            "reports" => $internal_reports
+        ],
+        "bcra" => $bcra_normalized,
+        "total_risk_debt" => $total_internal_debt + $bcra_normalized["deuda_total"],
+        "alert_level" => $alert_level
+    ]);
+}
 ?>
