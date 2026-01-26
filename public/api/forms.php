@@ -43,7 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "Email: " . $data['email'] . "\n" .
                 "Rubro: " . $data['sector'] . "\n" .
                 "Localidad: " . $data['city'] . "\n" .
-                "Preferencia: " . $data['contactPref'];
+                "Preferencia: " . $data['contactPref'] . "\n\n" .
+                "--- LEGAL ---\n" .
+                "Aceptó Términos: " . ($data['acceptTerms'] ? 'SÍ' : 'NO') . "\n" .
+                "Aceptó NDA: " . ($data['acceptNDA'] ? 'SÍ' : 'NO');
             $headers = "From: no-reply@burose.com.ar";
             mail($to, $subject, $body, $headers);
 

@@ -12,7 +12,7 @@ const MemberLogin = ({ theme, setTheme }) => {
         setError('');
 
         try {
-            const response = await fetch('/api/member_login.php', {
+            const response = await fetch('api/member_login.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cuit, password }),

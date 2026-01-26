@@ -9,7 +9,7 @@ const LogosManager = ({ theme }) => {
 
     const fetchLogos = async () => {
         try {
-            const res = await fetch('/api/admin_logos.php');
+            const res = await fetch('api/admin_logos.php');
             if (!res.ok) {
                 const text = await res.text();
                 console.error("Server Error:", text);
@@ -25,7 +25,7 @@ const LogosManager = ({ theme }) => {
     const handleAdd = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch('/api/admin_logos.php', {
+            const res = await fetch('api/admin_logos.php', {
                 method: 'POST',
                 body: JSON.stringify(newLogo),
                 headers: { 'Content-Type': 'application/json' }
@@ -49,7 +49,7 @@ const LogosManager = ({ theme }) => {
 
     const handleDelete = async (id) => {
         if (!confirm('¿Eliminar este logo?')) return;
-        await fetch(`/api/admin_logos.php?id=${id}`, { method: 'DELETE' });
+        await fetch(`api/admin_logos.php?id=${id}`, { method: 'DELETE' });
         fetchLogos();
     };
 
@@ -110,7 +110,7 @@ const AdminPanel = () => {
 
     const checkSession = async () => {
         try {
-            const resp = await fetch('/api/check_session.php', { credentials: 'include' });
+            const resp = await fetch('api/check_session.php', { credentials: 'include' });
             const res = await resp.json();
             if (res.authenticated && res.role === 'admin') {
                 setIsLogged(true);
@@ -124,7 +124,7 @@ const AdminPanel = () => {
         if (!confirm(confirmMsg)) return;
 
         try {
-            const resp = await fetch('/api/admin_user_action.php', {
+            const resp = await fetch('api/admin_user_action.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cuit, action }),
@@ -142,7 +142,7 @@ const AdminPanel = () => {
 
     const handleApiAction = async (cuit, action) => {
         try {
-            const resp = await fetch('/api/admin_api_action.php', {
+            const resp = await fetch('api/admin_api_action.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cuit, action }),
@@ -158,7 +158,7 @@ const AdminPanel = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const resp = await fetch('/api/admin_login.php', {
+            const resp = await fetch('api/admin_login.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user, pass }),
@@ -178,7 +178,7 @@ const AdminPanel = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const resp = await fetch('/api/admin_data.php', { credentials: 'include' });
+            const resp = await fetch('api/admin_data.php', { credentials: 'include' });
             const res = await resp.json();
             if (res.status === 'success') {
                 // Aseguramos que socios esté definido
@@ -193,7 +193,7 @@ const AdminPanel = () => {
     };
 
     const handleLogout = async () => {
-        await fetch('/api/logout.php');
+        await fetch('api/logout.php');
         setIsLogged(false);
         setData({ contacts: [], replicas: [], socios: [] });
         window.location.href = '/';
@@ -204,7 +204,7 @@ const AdminPanel = () => {
         if (pass === null) return;
 
         try {
-            const resp = await fetch('/api/admin_approve.php', {
+            const resp = await fetch('api/admin_approve.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -504,7 +504,7 @@ const AdminPanel = () => {
                                         const days = prompt("Días de membresía (ej: 365 para un año):", "365");
 
                                         if (razon && cuit && email) {
-                                            fetch('/api/admin_create_socio.php', {
+                                            fetch('api/admin_create_socio.php', {
                                                 method: 'POST',
                                                 body: JSON.stringify({ razon_social: razon, cuit, email, pass, expiry_days: days }),
                                                 headers: { 'Content-Type': 'application/json' },
@@ -591,7 +591,7 @@ const AdminPanel = () => {
                                         const pass = prompt("Contraseña (o dejar vacío para default):", cuit);
 
                                         if (razon && cuit && email) {
-                                            fetch('/api/admin_create_socio.php', {
+                                            fetch('api/admin_create_socio.php', {
                                                 method: 'POST',
                                                 body: JSON.stringify({ razon_social: razon, cuit, email, pass, is_vip: 1 }),
                                                 headers: { 'Content-Type': 'application/json' },

@@ -58,7 +58,7 @@ const AccessForm = ({ theme }) => {
         }
 
         try {
-            const response = await fetch('/api/forms.php', {
+            const response = await fetch('api/forms.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

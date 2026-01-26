@@ -4,7 +4,7 @@ const LogosSlider = ({ theme }) => {
     const [logos, setLogos] = useState([]);
 
     useEffect(() => {
-        fetch('/api/public_logos.php')
+        fetch('api/public_logos.php')
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {

@@ -73,7 +73,7 @@ const ReportUpload = ({ theme }) => {
         data.append('localidad', formData.localidad);
 
         try {
-            const response = await fetch('/api/upload_report.php', {
+            const response = await fetch('api/upload_report.php', {
                 method: 'POST',
                 body: data,
                 credentials: 'include'

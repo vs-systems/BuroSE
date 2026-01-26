@@ -18,7 +18,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
 
     const checkAuth = async () => {
         try {
-            const response = await fetch('/api/check_session.php', { credentials: 'include' });
+            const response = await fetch('api/check_session.php', { credentials: 'include' });
             const data = await response.json();
             setIsAuthenticated(data.authenticated);
             setUser(data.user);
@@ -41,7 +41,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(`/api/search.php?cuit=${cuit}`, { credentials: 'include' });
+            const response = await fetch(`api/search.php?cuit=${cuit}`, { credentials: 'include' });
             const data = await response.json();
             setResult(data);
         } catch (error) {
