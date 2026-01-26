@@ -60,7 +60,7 @@ try {
             $body = "Hola " . $member['razon_social'] . ",\n\n";
             $body .= "Usted fue premiado con una cuenta vip, sin cargo de por vida en BuroSE.\n";
             $body .= "Gracias por confiar en nosotros.\n\n";
-            $body .= "Firmado: Javier Gozzi";
+            $body .= "Javier Gozzi - VS Sistemas";
 
             $headers = "From: info@burose.com.ar\r\n";
             $headers .= "Reply-To: info@burose.com.ar\r\n";
