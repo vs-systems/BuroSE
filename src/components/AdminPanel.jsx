@@ -455,19 +455,45 @@ const AdminPanel = () => {
                         </div>
                     ) : activeTab === 'socios' ? (
                         <div className="space-y-6">
-                            <div className="flex gap-4 mb-6">
-                                {['all', 'validado', 'bloqueado'].map(f => (
-                                    <button
-                                        key={f}
-                                        onClick={() => setSocioFilter(f)}
-                                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${socioFilter === f
-                                            ? 'bg-brand-neon text-brand-darker shadow-lg'
-                                            : (theme === 'dark' ? 'bg-brand-secondary text-brand-muted hover:bg-brand-secondary/80' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')
-                                            }`}
-                                    >
-                                        {f === 'all' ? 'Todos' : f === 'validado' ? 'Activos' : 'Bloqueados'}
-                                    </button>
-                                ))}
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+                                <div className="flex gap-4">
+                                    {['all', 'validado', 'bloqueado'].map(f => (
+                                        <button
+                                            key={f}
+                                            onClick={() => setSocioFilter(f)}
+                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${socioFilter === f
+                                                ? 'bg-brand-neon text-brand-darker shadow-lg'
+                                                : (theme === 'dark' ? 'bg-brand-secondary text-brand-muted hover:bg-brand-secondary/80' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')
+                                                }`}
+                                        >
+                                            {f === 'all' ? 'Todos' : f === 'validado' ? 'Activos' : 'Bloqueados'}
+                                        </button>
+                                    ))}
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        const razon = prompt("Razón Social:");
+                                        const cuit = prompt("CUIT (sin guiones):");
+                                        const email = prompt("Email:");
+                                        const pass = prompt("Contraseña (o dejar vacío para default):", cuit);
+                                        const days = prompt("Días de membresía (ej: 365 para un año):", "365");
+
+                                        if (razon && cuit && email) {
+                                            fetch('/api/admin_create_socio.php', {
+                                                method: 'POST',
+                                                body: JSON.stringify({ razon_social: razon, cuit, email, pass, expiry_days: days }),
+                                                headers: { 'Content-Type': 'application/json' },
+                                                credentials: 'include'
+                                            }).then(r => r.json()).then(data => {
+                                                alert(data.message);
+                                                fetchData();
+                                            });
+                                        }
+                                    }}
+                                    className="bg-brand-neon text-brand-darker font-black px-6 py-2 rounded-xl text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
+                                >
+                                    <Plus size={16} /> Crear Socio Manual
+                                </button>
                             </div>
                             <div className="grid gap-6">
                                 {data.socios

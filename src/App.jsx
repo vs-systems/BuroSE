@@ -7,6 +7,7 @@ import MemberLogin from './components/MemberLogin';
 import Terms from './components/legal/Terms';
 import Privacy from './components/legal/Privacy';
 import Replica from './components/legal/Replica';
+import Manual from './components/Manual';
 
 function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/terms" element={<Terms theme={theme} setTheme={setTheme} />} />
                 <Route path="/privacy" element={<Privacy theme={theme} setTheme={setTheme} />} />
                 <Route path="/replica" element={<Replica theme={theme} setTheme={setTheme} />} />
+                <Route path="/manual" element={<Manual theme={theme} setTheme={setTheme} />} />
             </Routes>
         </Router>
     );

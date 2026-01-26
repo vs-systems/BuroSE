@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle } from 'lucide-react';
+import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard } from 'lucide-react';
 import ReportUpload from './ReportUpload';
 
 const RiskDashboard = ({ theme, setTheme }) => {
@@ -98,6 +98,24 @@ const RiskDashboard = ({ theme, setTheme }) => {
         }
     };
 
+    const handlePayment = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch('/api/mp_checkout.php', { credentials: 'include' });
+            const data = await response.json();
+            if (data.init_point) {
+                window.location.href = data.init_point;
+            } else {
+                alert("Error al generar el link de pago. Intente más tarde.");
+            }
+        } catch (err) {
+            console.error("Payment error:", err);
+            alert("Error de conexión con Mercado Pago.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div id="risk-search" className={`min-h-screen transition-colors duration-500 selection:bg-brand-neon/30 ${theme === 'dark' ? 'bg-brand-darker text-brand-text' : 'bg-slate-50 text-slate-900'
             }`}>
@@ -145,6 +163,34 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                 </p>
                             </div>
                         </div>
+                        <div className="flex flex-wrap gap-4">
+                            <a
+                                href="/#/manual"
+                                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all ${theme === 'dark' ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+                            >
+                                <BookOpen size={16} /> Ver Manual de Uso
+                            </a>
+                            <div className={`flex items-center gap-4 px-6 py-3 rounded-xl border ${theme === 'dark' ? 'bg-brand-dark/40 border-brand-neon/20' : 'bg-white border-slate-200'}`}>
+                                <div className="text-right">
+                                    <p className={`text-[8px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Estado de Cuenta</p>
+                                    <p className={`text-xs font-black uppercase ${theme === 'dark' ? 'text-brand-neon' : 'text-green-600'}`}>Socio Activo</p>
+                                </div>
+                                <button
+                                    onClick={handlePayment}
+                                    title="Pagar Abono Mensual"
+                                    className="bg-brand-neon text-brand-darker p-2 rounded-lg shadow-lg hover:scale-105 transition-transform"
+                                >
+                                    <CreditCard size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Feedback de Pago */}
+                {window.location.hash.includes('payment=success') && (
+                    <div className="mb-8 p-4 bg-green-500/10 border border-green-500/20 text-green-500 rounded-2xl text-center font-bold animate-pulse">
+                        ¡Pago procesado con éxito! Su suscripción ha sido extendida.
                     </div>
                 )}
 
