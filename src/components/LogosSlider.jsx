@@ -27,10 +27,9 @@ const LogosSlider = ({ theme }) => {
     const displayLogos = [...baseLogos, ...baseLogos, ...baseLogos];
 
     return (
-        <section className={`py-12 border-y transition-colors duration-500 overflow-hidden ${theme === 'dark' ? 'bg-brand-darker border-white/5' : 'bg-white border-slate-100'
-            }`}>
+        <section className={`py-12 border-y overflow-hidden bg-white border-slate-100`}>
             <div className="container mx-auto px-4 text-center mb-8">
-                <h3 className={`font-bold text-lg md:text-xl ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
+                <h3 className={`font-bold text-lg md:text-xl text-slate-600`}>
                     Estas empresas ya estan confiando sus bases de deudores en <span className="text-brand-neon">BuroSE</span>..
                 </h3>
             </div>

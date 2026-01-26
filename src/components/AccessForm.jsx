@@ -9,30 +9,30 @@ const AccessForm = ({ theme }) => {
         email: '',
         contactPref: 'whatsapp',
         sector: 'Distribuidor',
-        city: ''
+        city: '',
+        acceptTerms: false,
+        acceptNDA: false
     });
 
     const handleChange = (e) => {
-        let value = e.target.value;
-        if (e.target.name === 'cuit') {
-            value = value.replace(/\D/g, ''); // Solo números
+        const { name, value, type, checked } = e.target;
+        let finalValue = type === 'checkbox' ? checked : value;
+
+        if (name === 'cuit') {
+            finalValue = finalValue.replace(/\D/g, '');
         }
-        if (e.target.name === 'whatsapp') {
-            // Si el usuario borra todo, dejamos vacío
-            if (value === '') {
-                setFormData({ ...formData, [e.target.name]: '' });
+        if (name === 'whatsapp' && type !== 'checkbox') {
+            if (finalValue === '') {
+                setFormData({ ...formData, [name]: '' });
                 return;
             }
-            // Asegurar que empiece con +54 9
-            let digits = value.replace(/\D/g, '');
-            if (digits.startsWith('549')) {
-                // Ya tiene el prefijo
-            } else {
+            let digits = finalValue.replace(/\D/g, '');
+            if (!digits.startsWith('549')) {
                 digits = '549' + digits;
             }
-            value = '+' + digits.slice(0, 2) + ' ' + digits.slice(2, 3) + ' ' + digits.slice(3);
+            finalValue = '+' + digits.slice(0, 2) + ' ' + digits.slice(2, 3) + ' ' + digits.slice(3);
         }
-        setFormData({ ...formData, [e.target.name]: value });
+        setFormData({ ...formData, [name]: finalValue });
     };
 
     const handleSubmit = async (e) => {
@@ -49,6 +49,11 @@ const AccessForm = ({ theme }) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             alert('Por favor, ingresa un correo electrónico válido.');
+            return;
+        }
+
+        if (!formData.acceptTerms || !formData.acceptNDA) {
+            alert('Debes aceptar los Términos y Condiciones y el Acuerdo de Confidencialidad para continuar.');
             return;
         }
 
@@ -202,6 +207,31 @@ const AccessForm = ({ theme }) => {
                                 <span className={`text-sm font-bold ${theme === 'dark' ? 'text-brand-text' : 'text-slate-700'}`}>Llamado</span>
                             </label>
                         </div>
+                    </div>
+
+                    <div className="space-y-4 pt-2">
+                        <label className="flex items-start space-x-3 cursor-pointer group">
+                            <input
+                                type="checkbox" name="acceptTerms"
+                                checked={formData.acceptTerms}
+                                onChange={handleChange}
+                                className="mt-1 w-4 h-4 rounded border-slate-300 text-brand-neon focus:ring-brand-neon bg-transparent cursor-pointer"
+                            />
+                            <span className={`text-xs font-medium leading-tight ${theme === 'dark' ? 'text-brand-text/70' : 'text-slate-600'}`}>
+                                Acepto los <a href="/#/terms" target="_blank" className="text-brand-neon underline hover:brightness-110">Términos y Condiciones</a> de uso de la plataforma.
+                            </span>
+                        </label>
+                        <label className="flex items-start space-x-3 cursor-pointer group">
+                            <input
+                                type="checkbox" name="acceptNDA"
+                                checked={formData.acceptNDA}
+                                onChange={handleChange}
+                                className="mt-1 w-4 h-4 rounded border-slate-300 text-brand-neon focus:ring-brand-neon bg-transparent cursor-pointer"
+                            />
+                            <span className={`text-xs font-medium leading-tight ${theme === 'dark' ? 'text-brand-text/70' : 'text-slate-600'}`}>
+                                Acepto el <a href="/#/nda" target="_blank" className="text-brand-neon underline hover:brightness-110">Acuerdo de Confidencialidad (NDA)</a> y protección de datos.
+                            </span>
+                        </label>
                     </div>
 
                     <button
