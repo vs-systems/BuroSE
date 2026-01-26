@@ -15,6 +15,13 @@ const ReplyForm = ({ theme }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Obtener token de reCAPTCHA
+        const recaptchaToken = window.grecaptcha.getResponse();
+        if (!recaptchaToken) {
+            alert('Por favor, completa el captcha.');
+            return;
+        }
+
         try {
             const response = await fetch('/api/forms.php', {
                 method: 'POST',
@@ -26,7 +33,8 @@ const ReplyForm = ({ theme }) => {
                     cuit: formData.id,
                     email: formData.email,
                     descargo: formData.message,
-                    type: 'replica'
+                    type: 'replica',
+                    recaptcha_token: recaptchaToken
                 }),
             });
             const result = await response.json();
@@ -112,6 +120,10 @@ const ReplyForm = ({ theme }) => {
                     <div className={`text-[10px] font-bold p-4 rounded-xl border transition-colors ${theme === 'dark' ? 'text-brand-muted bg-brand-card border-brand-secondary' : 'text-slate-500 bg-slate-50 border-slate-200'
                         }`}>
                         <strong className={theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}>Aviso Legal:</strong> BuroSE garantiza este canal formal para ejercer su derecho conforme a la legislación vigente (Ley 25.326). La información proporcionada será analizada por nuestro equipo de compliance.
+                    </div>
+
+                    <div className="flex justify-center mb-6">
+                        <div className="g-recaptcha" data-sitekey="6Le7EFcsAAAAALb0Xi2OsJEx3Z5gXSSPnUdOqfV8" data-theme={theme === 'dark' ? 'dark' : 'light'}></div>
                     </div>
 
                     <button

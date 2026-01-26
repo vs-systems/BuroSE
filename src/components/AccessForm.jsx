@@ -45,13 +45,20 @@ const AccessForm = ({ theme }) => {
             type: 'contact'
         };
 
+        // 2. Obtener token de reCAPTCHA
+        const recaptchaToken = window.grecaptcha.getResponse();
+        if (!recaptchaToken) {
+            alert('Por favor, completa el captcha.');
+            return;
+        }
+
         try {
             const response = await fetch('/api/forms.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(cleanData),
+                body: JSON.stringify({ ...cleanData, recaptcha_token: recaptchaToken }),
             });
             const result = await response.json();
             if (result.status === 'success') {
@@ -167,7 +174,11 @@ const AccessForm = ({ theme }) => {
                         </div>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="md:col-span-2 flex justify-center mb-4">
+                    <div className="g-recaptcha" data-sitekey="6Le7EFcsAAAAALb0Xi2OsJEx3Z5gXSSPnUdOqfV8" data-theme={theme === 'dark' ? 'dark' : 'light'}></div>
+                </div>
+
+                <div className="md:col-span-2">
                         <label className={`block text-xs font-black uppercase mb-4 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Preferencia de Contacto</label>
                         <div className="flex flex-wrap gap-6">
                             <label className="flex items-center space-x-3 cursor-pointer group">

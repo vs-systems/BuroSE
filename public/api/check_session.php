@@ -1,13 +1,24 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://www.burose.com.ar');
-header('Access-Control-Allow-Credentials: true');
-session_start();
+require_once 'config.php';
 
 $response = [
-    'authenticated' => isset($_SESSION['user_id']),
-    'user' => isset($_SESSION['user_id']) ? $_SESSION['username'] : null
+    'authenticated' => false,
+    'user' => null,
+    'role' => null
 ];
+
+if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true) {
+    $response['authenticated'] = true;
+    $response['user'] = [
+        'name' => $_SESSION['member_name'],
+        'cuit' => $_SESSION['member_cuit']
+    ];
+    $response['role'] = 'member';
+} elseif (isset($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true) {
+    $response['authenticated'] = true;
+    $response['user'] = ['name' => 'Administrator'];
+    $response['role'] = 'admin';
+}
 
 echo json_encode($response);
 ?>

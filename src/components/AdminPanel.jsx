@@ -122,6 +122,27 @@ const AdminPanel = () => {
         } catch (e) { console.error(e); }
     };
 
+    const handleUserAction = async (cuit, action) => {
+        const confirmMsg = action === 'delete' ? '¿Eliminar definitivamente?' : '¿Cambiar estado de bloqueo?';
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const resp = await fetch('/api/admin_user_action.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cuit, action }),
+                credentials: 'include'
+            });
+            const res = await resp.json();
+            if (res.status === 'success') {
+                alert(res.message);
+                fetchData();
+            } else {
+                alert('Error: ' + res.message);
+            }
+        } catch (e) { alert('Error de conexión'); }
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -149,7 +170,12 @@ const AdminPanel = () => {
             const resp = await fetch('/api/admin_data.php', { credentials: 'include' });
             const res = await resp.json();
             if (res.status === 'success') {
-                setData(res.data);
+                // Aseguramos que socios esté definido
+                setData({
+                    contacts: res.data.contacts || [],
+                    replicas: res.data.replicas || [],
+                    socios: res.data.socios || []
+                });
             }
         } catch (e) { console.error(e); }
         setLoading(false);
@@ -158,7 +184,7 @@ const AdminPanel = () => {
     const handleLogout = async () => {
         await fetch('/api/logout.php');
         setIsLogged(false);
-        setData({ contacts: [], replicas: [] });
+        setData({ contacts: [], replicas: [], socios: [] });
     };
 
     const handleApprove = async (contact) => {
@@ -288,6 +314,16 @@ const AdminPanel = () => {
                         <ImageIcon size={18} />
                         <span>Logos</span>
                     </button>
+                    <button
+                        onClick={() => setActiveTab('socios')}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'socios'
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            }`}
+                    >
+                        <Users size={18} />
+                        <span>Socios Activos</span>
+                    </button>
                 </nav>
                 <div className={`p-4 border-t ${theme === 'dark' ? 'border-brand-secondary' : 'border-slate-100'}`}>
                     <button
@@ -314,7 +350,7 @@ const AdminPanel = () => {
                 <header className={`border-b p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10 w-full transition-colors ${theme === 'dark' ? 'bg-brand-dark/80 border-brand-secondary' : 'bg-white/80 border-slate-100 shadow-sm'
                     }`}>
                     <h2 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        {activeTab === 'contacts' ? 'Empresas Interesadas' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : 'Gestión de Logos'}
+                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : 'Gestión de Logos'}
                     </h2>
                     <button
                         onClick={fetchData} disabled={loading}
@@ -403,6 +439,41 @@ const AdminPanel = () => {
                                 </div>
                             ))}
                             {data.replicas.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay solicitudes de réplica de momento.</p>}
+                        </div>
+                    ) : activeTab === 'socios' ? (
+                        <div className="grid gap-6">
+                            {data.socios.map((s, idx) => (
+                                <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
+                                    ? 'bg-brand-card border-brand-secondary'
+                                    : 'bg-white border-slate-100 shadow-md'
+                                    } ${s.estado === 'bloqueado' ? 'opacity-60 border-brand-alert' : ''}`}>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleUserAction(s.cuit, 'block')}
+                                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${s.estado === 'bloqueado'
+                                                    ? 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white'
+                                                    : 'bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white'}`}
+                                            >
+                                                {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
+                                            </button>
+                                            <button
+                                                onClick={() => handleUserAction(s.cuit, 'delete')}
+                                                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
+                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
+                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
+                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado: <span className={s.estado === 'bloqueado' ? 'text-brand-alert' : 'text-green-500'}>{s.estado.toUpperCase()}</span></p>
+                                    </div>
+                                </div>
+                            ))}
+                            {data.socios.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios registrados.</p>}
                         </div>
                     ) : (
                         <LogosManager theme={theme} />

@@ -18,11 +18,16 @@ try {
     $stmt2 = $conn->query("SELECT * FROM replica_requests ORDER BY created_at DESC");
     $replicas = $stmt2->fetchAll();
 
+    // Obtener socios activos/registrados
+    $stmt3 = $conn->query("SELECT * FROM membership_companies ORDER BY created_at DESC");
+    $socios = $stmt3->fetchAll();
+
     echo json_encode([
         "status" => "success",
         "data" => [
             "contacts" => $contacts,
-            "replicas" => $replicas
+            "replicas" => $replicas,
+            "socios" => $socios
         ]
     ]);
 } catch (PDOException $e) {
