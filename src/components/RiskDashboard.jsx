@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard, Lock } from 'lucide-react';
 import ReportUpload from './ReportUpload';
+import DebtorRanking from './DebtorRanking';
 
 const RiskDashboard = ({ theme, setTheme }) => {
     const [cuit, setCuit] = useState('');
@@ -256,6 +257,13 @@ const RiskDashboard = ({ theme, setTheme }) => {
                         Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | Reporte Gremio Biosegur)
                     </p>
                 </div>
+
+                {/* Debtor Ranking Section */}
+                {!loading && !result && (
+                    <div className="max-w-4xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <DebtorRanking theme={theme} />
+                    </div>
+                )}
 
                 {loading && (
                     <div className="flex flex-col items-center justify-center py-20 space-y-4">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck } from 'lucide-react';
+import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save } from 'lucide-react';
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
@@ -89,6 +89,110 @@ const LogosManager = ({ theme }) => {
                     </div>
                 ))}
                 {logos.length === 0 && <p className="col-span-full text-center py-10 italic text-slate-400">No hay logos cargados.</p>}
+            </div>
+        </div>
+    );
+};
+
+const RankingManager = ({ theme }) => {
+    const [rankings, setRankings] = useState([]);
+    const [newItem, setNewItem] = useState({ cuit: '', full_name: '', amount: '', status: 'RED', is_forced: 1, forced_position: '' });
+
+    useEffect(() => { fetchRankings(); }, []);
+
+    const fetchRankings = async () => {
+        try {
+            const res = await fetch('api/admin_ranking_action.php?action=list');
+            const data = await res.json();
+            if (data.status === 'success') setRankings(data.data);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch('api/admin_ranking_action.php', {
+                method: 'POST',
+                body: JSON.stringify({ ...newItem, action: 'save' }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                alert(data.message);
+                setNewItem({ cuit: '', full_name: '', amount: '', status: 'RED', is_forced: 1, forced_position: '' });
+                fetchRankings();
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm('¿Eliminar este registro del ranking?')) return;
+        try {
+            await fetch('api/admin_ranking_action.php', {
+                method: 'POST',
+                body: JSON.stringify({ id, action: 'delete' }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            fetchRankings();
+        } catch (e) { console.error(e); }
+    };
+
+    return (
+        <div className="space-y-8">
+            <form onSubmit={handleSave} className={`border p-8 rounded-3xl grid md:grid-cols-3 lg:grid-cols-6 gap-6 items-end transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-xl'
+                }`}>
+                <div className="lg:col-span-2">
+                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">Nombre / Razón Social</label>
+                    <input type="text" value={newItem.full_name} onChange={e => setNewItem({ ...newItem, full_name: e.target.value })}
+                        className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`} required />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">CUIT (sin guiones)</label>
+                    <input type="text" value={newItem.cuit} onChange={e => setNewItem({ ...newItem, cuit: e.target.value })}
+                        className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`} required />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">Monto Deuda</label>
+                    <input type="number" value={newItem.amount} onChange={e => setNewItem({ ...newItem, amount: e.target.value })}
+                        className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`} required />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">Semáforo</label>
+                    <select value={newItem.status} onChange={e => setNewItem({ ...newItem, status: e.target.value })}
+                        className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`}>
+                        <option value="RED">Rojo (Peligroso)</option>
+                        <option value="YELLOW">Amarillo (Intención)</option>
+                        <option value="GREEN">Verde (Compromiso)</option>
+                    </select>
+                </div>
+                <button type="submit" className="bg-brand-neon text-brand-darker font-black py-4 rounded-xl flex items-center justify-center hover:scale-[1.02] transition-transform shadow-lg shadow-brand-neon/20 uppercase text-xs tracking-widest">
+                    <Save size={18} className="mr-2" /> Guardar
+                </button>
+            </form>
+
+            <div className="grid gap-4">
+                {rankings.map(r => (
+                    <div key={r.id} className={`border p-6 rounded-2xl flex items-center justify-between transition-all ${theme === 'dark' ? 'bg-brand-dark/50 border-brand-secondary/50' : 'bg-white border-slate-100 shadow-md'
+                        }`}>
+                        <div className="flex items-center gap-6">
+                            <div className={`w-3 h-3 rounded-full animate-pulse ${r.status === 'RED' ? 'bg-brand-alert' : r.status === 'YELLOW' ? 'bg-yellow-400' : 'bg-green-500'
+                                }`} />
+                            <div>
+                                <h4 className={`font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{r.full_name}</h4>
+                                <p className="text-[10px] font-bold text-brand-muted">CUIT: {r.cuit} • ${parseFloat(r.amount).toLocaleString('es-AR')}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <span className={`text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest ${r.is_forced ? 'bg-brand-neon/10 text-brand-neon' : 'bg-white/5 text-slate-500'
+                                }`}>
+                                {r.is_forced ? 'Override Manual' : 'Estado Manual'}
+                            </span>
+                            <button onClick={() => handleDelete(r.id)} className="p-2 rounded-lg text-brand-alert hover:bg-brand-alert/10 transition-all">
+                                <Trash2 size={18} />
+                            </button>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
@@ -356,6 +460,16 @@ const AdminPanel = () => {
                         <RefreshCcw size={18} />
                         <span>Estadísticas</span>
                     </button>
+                    <button
+                        onClick={() => setActiveTab('ranking')}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'ranking'
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            }`}
+                    >
+                        <Trophy size={18} />
+                        <span>Ranking Nacional</span>
+                    </button>
                 </nav>
                 <div className={`p-4 border-t ${theme === 'dark' ? 'border-brand-secondary' : 'border-slate-100'}`}>
                     <button
@@ -382,7 +496,7 @@ const AdminPanel = () => {
                 <header className={`border-b p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10 w-full transition-colors ${theme === 'dark' ? 'bg-brand-dark/80 border-brand-secondary' : 'bg-white/80 border-slate-100 shadow-sm'
                     }`}>
                     <h2 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'vip' ? 'Socios VIP (Perpetuos)' : activeTab === 'stats' ? 'Panel de Control' : 'Gestión de Logos'}
+                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'vip' ? 'Socios VIP (Perpetuos)' : activeTab === 'stats' ? 'Panel de Control' : activeTab === 'ranking' ? 'Ranking de Deudores' : 'Gestión de Logos'}
                     </h2>
                     <button
                         onClick={fetchData} disabled={loading}
@@ -675,6 +789,8 @@ const AdminPanel = () => {
                                 </div>
                             </div>
                         </div>
+                    ) : activeTab === 'ranking' ? (
+                        <RankingManager theme={theme} />
                     ) : (
                         <LogosManager theme={theme} />
                     )}
