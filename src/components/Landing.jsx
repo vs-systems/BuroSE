@@ -23,7 +23,7 @@ const Landing = ({ theme, setTheme }) => {
                 <HowItWorks theme={theme} />
                 <Pricing theme={theme} />
                 <Manuals theme={theme} />
-                <RiskDashboard theme={theme} />
+                {/* El buscador público ha sido removido por política de registro obligatorio */}
                 <Legal theme={theme} />
                 <div id="contact" className={`container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 transition-colors ${theme === 'dark' ? 'bg-transparent' : 'bg-slate-50'}`}>
                     <AccessForm theme={theme} />

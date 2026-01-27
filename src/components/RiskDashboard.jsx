@@ -232,38 +232,72 @@ const RiskDashboard = ({ theme, setTheme }) => {
                     </div>
                 )}
 
-                {/* Header / Search */}
+                {/* Header / Search Area */}
                 <div className="mb-16 text-center">
                     <h2 className={`text-3xl md:text-4xl font-black mb-8 uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                         Consulta <span className="text-brand-neon">Riesgo</span>
                     </h2>
-                    <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
-                        <input
-                            type="text"
-                            value={cuit}
-                            onChange={(e) => setCuit(e.target.value.replace(/[^0-9]/g, ''))}
-                            placeholder="Ingrese CUIT o DNI sin guiones..."
-                            className={`w-full border-2 rounded-full py-6 px-10 text-xl transition-all shadow-2xl focus:outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white placeholder:text-brand-muted/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400'
-                                }`}
-                        />
-                        <button
-                            type="submit"
-                            className="absolute right-4 top-4 bg-brand-neon text-brand-darker p-4 rounded-full hover:scale-105 transition-transform shadow-lg shadow-brand-neon/20"
-                        >
-                            <Search size={24} />
-                        </button>
-                    </form>
-                    <p className={`mt-6 text-xs font-bold uppercase tracking-widest transition-opacity ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                        Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | Reporte Biosegur)
-                    </p>
+
+                    {isAuthenticated ? (
+                        <>
+                            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
+                                <input
+                                    type="text"
+                                    value={cuit}
+                                    onChange={(e) => setCuit(e.target.value.replace(/[^0-9]/g, ''))}
+                                    placeholder="Ingrese CUIT o DNI sin guiones..."
+                                    className={`w-full border-2 rounded-full py-6 px-10 text-xl transition-all shadow-2xl focus:outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white placeholder:text-brand-muted/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400'
+                                        }`}
+                                />
+                                <button
+                                    type="submit"
+                                    className="absolute right-4 top-4 bg-brand-neon text-brand-darker p-4 rounded-full hover:scale-105 transition-transform shadow-lg shadow-brand-neon/20"
+                                >
+                                    <Search size={24} />
+                                </button>
+                            </form>
+                            <p className={`mt-6 text-xs font-bold uppercase tracking-widest transition-opacity ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                                Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | Reporte Biosegur)
+                            </p>
+
+                            {/* Debtor Ranking Section (Sólo para Socios) */}
+                            {!loading && !result && (
+                                <div className="max-w-4xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                                    <DebtorRanking theme={theme} />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className={`max-w-2xl mx-auto p-12 rounded-3xl border-2 border-dashed animate-in fade-in zoom-in duration-500 ${theme === 'dark' ? 'bg-brand-card/50 border-brand-secondary/50' : 'bg-white border-slate-200'}`}>
+                            <div className="bg-brand-alert/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Lock className="text-brand-alert" size={40} />
+                            </div>
+                            <h3 className={`text-2xl font-black uppercase mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Acceso Restringido</h3>
+                            <p className={`text-sm font-medium mb-8 leading-relaxed ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                                Por políticas de seguridad legal y protección de datos, el buscador de riesgo financiero es exclusivo para miembros registrados.
+                                <br /><span className="text-brand-neon font-black italic">El registro es gratuito.</span>
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <a href="/#/login" className="bg-blue-600 text-white font-black py-4 px-8 rounded-xl uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-blue-600/20">Iniciar Sesión</a>
+                                <button
+                                    onClick={() => {
+                                        if (window.location.hash === '#/risk-dashboard') {
+                                            window.location.href = '/#contact';
+                                        } else {
+                                            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+                                        }
+                                    }}
+                                    className="bg-brand-neon text-brand-darker font-black py-4 px-8 rounded-xl uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-brand-neon/20"
+                                >
+                                    Solicitar Acceso (Gratis)
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* Debtor Ranking Section */}
-                {!loading && !result && (
-                    <div className="max-w-4xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        <DebtorRanking theme={theme} />
-                    </div>
-                )}
+                {/* Espacio entre el área de búsqueda y los resultados */}
+                <div className="h-4"></div>
 
                 {loading && (
                     <div className="flex flex-col items-center justify-center py-20 space-y-4">
