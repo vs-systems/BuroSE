@@ -235,7 +235,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                 {/* Header / Search */}
                 <div className="mb-16 text-center">
                     <h2 className={`text-3xl md:text-4xl font-black mb-8 uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        Consulta Riesgo <span className="text-brand-neon">Gremio Seguridad</span>
+                        Consulta <span className="text-brand-neon">Riesgo</span>
                     </h2>
                     <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
                         <input
@@ -254,7 +254,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                         </button>
                     </form>
                     <p className={`mt-6 text-xs font-bold uppercase tracking-widest transition-opacity ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                        Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | Reporte Gremio Biosegur)
+                        Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | Reporte Biosegur)
                     </p>
                 </div>
 
@@ -342,8 +342,11 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                                         <span className="bg-brand-alert/10 text-brand-alert text-[10px] font-black px-3 py-1.5 rounded-full border border-brand-alert/20 uppercase tracking-widest">Validado</span>
                                                     </div>
                                                     <p className={`text-sm leading-relaxed font-medium italic ${theme === 'dark' ? 'text-brand-text/80' : 'text-slate-600'}`}>"{report.descripcion}"</p>
-                                                    <div className={`mt-6 pt-4 border-t flex items-center text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'border-white/5 text-brand-muted' : 'border-slate-200 text-slate-400'}`}>
-                                                        <FileText size={14} className="mr-2" /> Evidencia Adjunta: Verificada
+                                                    <div className={`mt-6 pt-4 border-t flex items-center justify-between text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'border-white/5 text-brand-muted' : 'border-slate-200 text-slate-400'}`}>
+                                                        <div className="flex items-center">
+                                                            <FileText size={14} className="mr-2" /> Reportado por: {report.reporter_name || 'Miembro BuroSE'}
+                                                        </div>
+                                                        <span className="text-brand-neon">Evidencia Verificada</span>
                                                     </div>
                                                 </div>
                                             ))}
