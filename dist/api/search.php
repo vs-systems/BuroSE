@@ -91,8 +91,9 @@ $bcra_normalized = [
 
 if ($bcra_results) {
     $bcra_normalized["found"] = true;
-    // Si el API devuelve 'periodos' dentro de results
-    $periodos = $bcra_results['periodos'] ?? null;
+
+    // El API puede devolver periodos directamente si venimos de results
+    $periodos = $bcra_results['periodos'] ?? (isset($bcra_results[0]['periodo']) ? $bcra_results : null);
 
     if ($periodos) {
         $ultimo = reset($periodos);
@@ -114,17 +115,14 @@ if ($bcra_results) {
 }
 
 // 4. Determinar Nivel de Riesgo
-// RED si tiene deudas internas o SIT > 1 en BCRA
-// Si tiene SIT 1 pero deuda > 0 corporativa, se puede considerar riesgo menor o amarillo
+// RED si tiene deudas internas o SIT > 1 en BCRA o Deuda Total > 0 (según el requerimiento del usuario de reportar deudas)
 $has_internal_risk = ($total_internal_debt > 0);
 $has_bcra_risk = ($bcra_normalized["max_situacion"] > 1);
+$has_bcra_debt = ($bcra_normalized["deuda_total"] > 0);
 
 $alert_level = "GREEN";
-if ($has_internal_risk || $has_bcra_risk) {
+if ($has_internal_risk || $has_bcra_risk || $has_bcra_debt) {
     $alert_level = "RED";
-} elseif ($bcra_normalized["deuda_total"] > 0) {
-    // Si tiene deuda bancaria aunque esté en SIT 1, lo dejamos en VERDE pero mostramos el monto
-    $alert_level = "GREEN";
 }
 
 // 5. Verificar sesión (Usuario socio o Administrador)
