@@ -256,7 +256,13 @@ const AdminPanel = () => {
                 credentials: 'include'
             });
             const res = await resp.json();
-            alert(res.message);
+
+            if (res.status === 'success' && res.token) {
+                await navigator.clipboard.writeText(res.token);
+                alert(`${res.message}\n\nEl token ha sido copiado al portapapeles.`);
+            } else {
+                alert(res.message);
+            }
             fetchData();
         } catch (e) { alert('Error de conexión'); }
     };
