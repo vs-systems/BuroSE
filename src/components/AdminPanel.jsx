@@ -1084,11 +1084,17 @@ const AdminPanel = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        {/* ABM de Rubros simplified mockup or future placeholders */}
-                                        <label className="block text-xs font-black uppercase mb-2 text-brand-muted tracking-widest">ABM de Rubros / Usuarios / Informes</label>
-                                        <p className="text-[10px] text-brand-muted italic mt-4">Use las pestañas correspondientes para gestionar cada sección. Esta pestaña centralizará configuraciones avanzadas en próximas actualizaciones.</p>
+                                        <label className="block text-xs font-black uppercase mb-2 text-brand-muted tracking-widest">Gestión del Sitio</label>
+                                        <p className="text-[10px] text-brand-muted italic mt-4">Los módulos de gestión de asociados y ranking de deudores se encuentran habilitados a continuación.</p>
                                     </div>
                                 </div>
+                            </div>
+
+                            <LogosManager theme={theme} />
+
+                            <div className="space-y-6">
+                                <h3 className="text-2xl font-black uppercase tracking-tighter">Ranking de <span className="text-brand-alert">Deudores</span></h3>
+                                <RankingManager theme={theme} />
                             </div>
                         </div>
                     ) : activeTab === 'stats' ? (
