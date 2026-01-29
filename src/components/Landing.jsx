@@ -14,7 +14,7 @@ import Footer from './Footer';
 import ContactModal from './ContactModal';
 import RiskMockup from './RiskMockup';
 
-const Landing = ({ theme, setTheme }) => {
+const Landing = ({ theme, setTheme, initialSection }) => {
     const [isContactOpen, setIsContactOpen] = useState(false);
     const [settings, setSettings] = useState({});
 
