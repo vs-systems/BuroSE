@@ -4,6 +4,7 @@ require_once 'config.php';
 
 // Solo admin puede realizar estas acciones
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
+    file_put_contents('auth_errors.log', date('[Y-m-d H:i:s] ') . "Auth Failed: " . print_r($_SESSION, true) . PHP_EOL, FILE_APPEND);
     http_response_code(403);
     echo json_encode(["status" => "error", "message" => "No autorizado"]);
     exit();
@@ -131,6 +132,10 @@ try {
         $stmt = $conn->prepare("DELETE FROM reports WHERE id = ?");
         $stmt->execute([$id]);
         echo json_encode(["status" => "success", "message" => "Reporte y archivos eliminados"]);
+    } elseif ($action === 'disable_api') {
+        $stmt = $conn->prepare("UPDATE membership_companies SET api_token = NULL WHERE cuit = ?");
+        $stmt->execute([$cuit]);
+        echo json_encode(["status" => "success", "message" => "Acceso API desactivado correctamente"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Acción no válida"]);
     }

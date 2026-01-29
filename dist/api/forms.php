@@ -38,10 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $prefUrl = null;
             $prefId = null;
 
-            // Llamada interna a create_preference logic (para no hacer http request a sí mismo)
-            require_once 'create_preference.php'; // Esto cargará funciones si las hubiera, pero como es script directo...
-            // Mejor refactorizamos create_preference para ser una función o lo llamamos via curl local
-            // Para simplificar y no refactorizar todo, usaremos curl a la propia API
+            // Llamada interna a create_preference logic via CURL
 
             $paymentData = [
                 'email' => $data['email'],

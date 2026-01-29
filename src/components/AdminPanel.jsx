@@ -734,6 +734,14 @@ const AdminPanel = () => {
                                                     >
                                                         {s.api_token ? 'Refresh API' : 'Activar API'}
                                                     </button>
+                                                    {s.api_token && (
+                                                        <button
+                                                            onClick={() => handleUserAction(s.cuit, 'disable_api')}
+                                                            className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white transition-all"
+                                                        >
+                                                            Desactivar API
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => {
                                                             if (confirm('¿Convertir a este socio en VIP? Tendrá acceso perpetuo sin vencimiento.')) {
@@ -849,6 +857,14 @@ const AdminPanel = () => {
                                                     >
                                                         {s.api_token ? 'Refresh API' : 'Activar API'}
                                                     </button>
+                                                    {s.api_token && (
+                                                        <button
+                                                            onClick={() => handleUserAction(s.cuit, 'disable_api')}
+                                                            className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white transition-all"
+                                                        >
+                                                            Desactivar API
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => {
                                                             const razon = prompt("Razón Social:", s.razon_social);
