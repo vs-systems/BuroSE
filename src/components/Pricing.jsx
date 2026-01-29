@@ -27,8 +27,8 @@ const Pricing = ({ theme }) => {
             features: [
                 "Consultas ILIMITADAS",
                 "Carga de Deudores (Sin límites)",
-                "2 Asesorías legales sin cargo",
-                "30% Off en informes de bases privadas"
+                "1 Asesoría legal S/Cargo",
+                "30% Off en Gestión de Legales y Recupero"
             ],
             cta: "Unirse ahora",
             popular: true,
@@ -42,8 +42,8 @@ const Pricing = ({ theme }) => {
             desc: "Integración total con tus sistemas propios y ERP.",
             features: [
                 "Acceso por API REST / Full",
-                "Asesoramineto legal ILIMITADO",
-                "50% Off en consultas bases especiales",
+                "50% Off en Legales y Recupero",
+                "30% Off en consultas bases especiales",
                 "Soporte VIP 24/7"
             ],
             cta: "Ver Docs",

@@ -9,6 +9,8 @@ import Privacy from './components/legal/Privacy';
 import NDA from './components/legal/NDA';
 import Replica from './components/legal/Replica';
 import Manual from './components/Manual';
+import LegalRecovery from './components/legal/LegalRecovery';
+import LegalServices from './components/LegalServices';
 
 function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
@@ -61,6 +63,8 @@ function App() {
                 <Route path="/nda" element={<NDA theme={theme} setTheme={setTheme} />} />
                 <Route path="/replica" element={<Replica theme={theme} setTheme={setTheme} />} />
                 <Route path="/manual" element={<Manual theme={theme} setTheme={setTheme} />} />
+                <Route path="/legal-recovery" element={<LegalRecovery theme={theme} setTheme={setTheme} />} />
+                <Route path="/legal-services" element={<LegalServices theme={theme} setTheme={setTheme} />} />
             </Routes>
         </Router>
     );

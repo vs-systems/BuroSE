@@ -43,6 +43,10 @@ const Header = ({ theme, setTheme, openContact }) => {
                         >
                             Consultar Riesgo
                         </button>
+                        <a href="/#/legal-services"
+                            className={`text-sm font-bold uppercase tracking-wide transition-all ${theme === 'dark' ? 'text-red-400 hover:text-red-300' : 'text-red-600 hover:text-red-700'}`}>
+                            Gestión de Cobranzas
+                        </a>
                         <a href="/#/login" className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${theme === 'dark'
                             ? 'bg-blue-600/10 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white'
                             : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white'

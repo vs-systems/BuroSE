@@ -45,6 +45,7 @@ const Footer = ({ theme, openContact }) => {
                             <li><a href="/#/terms" target="_blank" rel="noopener noreferrer" className="hover:text-brand-neon transition-colors uppercase tracking-tight">Términos y Condiciones</a></li>
                             <li><a href="/#/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-brand-neon transition-colors uppercase tracking-tight">Política de Privacidad</a></li>
                             <li><a href="/#/replica" target="_blank" rel="noopener noreferrer" className="hover:text-brand-neon transition-colors uppercase tracking-tight">Derecho a Réplica</a></li>
+                            <li><a href="/#/legal-recovery" target="_blank" rel="noopener noreferrer" className="hover:text-brand-neon transition-colors uppercase tracking-tight text-[10px] text-red-500 hover:text-red-400">Bases y Cond. Recupero</a></li>
                         </ul>
                     </div>
 

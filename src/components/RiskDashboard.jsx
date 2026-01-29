@@ -324,6 +324,13 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                         <p className="text-xl font-bold opacity-80 uppercase leading-none">{result.name}</p>
                                     )}
                                     <p className="text-xs font-black opacity-60 uppercase tracking-widest mt-2 px-3 py-1 bg-white/10 rounded-full inline-block">CUIT: {result.cuit}</p>
+                                    <div className="mt-4">
+                                        <a href={`mailto:legales@burose.com.ar?subject=Solicitud%20de%20Intimación%20-%20Cliente%20${result.cuit}`}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600/10 text-red-500 border border-red-600/20 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
+                                            <ShieldAlert size={14} />
+                                            Iniciar Recupero Legal
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
