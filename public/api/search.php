@@ -71,8 +71,13 @@ function consultar_bcra($cuit)
         ];
     }
 
-    // Log BCRA error for admin review
-    @file_put_contents('bcra_errors.log', date('[Y-m-d H:i:s] ') . "CUIT: $cuit, Code: $httpCode, Error: $error" . PHP_EOL, FILE_APPEND);
+    if ($httpCode == 404) {
+        return [
+            "success" => true,
+            "data" => null,
+            "not_found" => true
+        ];
+    }
 
     return [
         "success" => false,
@@ -122,12 +127,12 @@ if ($bcra_response['success'] && $bcra_response['data']) {
     $bcra_results = $bcra_response['data'];
     $bcra_normalized["found"] = true;
 
-    // Estructura BCRA: results es una lista de resultados por periodo
-    // Cada elemento tiene: cuit, denominacion, periodo, entidades[]
-    $periodos = $bcra_results; // El API devuelve directamente el array de periodos en 'results'
+    // Estructura BCRA: results contiene un objeto con la llave 'periodos'
+    // Cada periodo contiene la lista de entidades
+    $periodos = $bcra_results['periodos'] ?? [];
 
     if (is_array($periodos) && count($periodos) > 0) {
-        // Tomamos el periodo más reciente
+        // Tomamos el periodo más reciente (el primero)
         $ultimo = $periodos[0];
         if (isset($ultimo['entidades']) && is_array($ultimo['entidades'])) {
             foreach ($ultimo['entidades'] as $b) {
@@ -302,7 +307,11 @@ if (!$is_authenticated) {
     $body = "Socio: " . $user_name . " (" . ($_SESSION['member_cuit'] ?? 'N/A') . ")\nBuscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level";
     @mail($to, $subject, $body, "From: info@burose.com.ar");
 
-    log_activity($conn, $user_id, $user_name, 'SEARCH_SOCIO', "Buscó: $cuit ($scraped_name), Alerta: $alert_level");
+    try {
+        log_activity($conn, $user_id, $user_name, 'SEARCH_SOCIO', "Buscó: $cuit ($scraped_name), Alerta: $alert_level");
+    } catch (Exception $e_final_log) {
+        // Silencioso
+    }
 
     echo json_encode([
         "status" => "success",
