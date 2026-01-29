@@ -29,8 +29,32 @@ try {
     $initial_creds_monthly = ($plan === 'active') ? 25 : 0; // Ejemplo: 25 para socios
     $hashed_pass = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO membership_companies (cuit, password, razon_social, email, whatsapp, localidad, rubro, estado, expiry_date, plan, creds_monthly) VALUES (?, ?, ?, ?, ?, ?, ?, 'validado', ?, ?, ?)");
-    if ($stmt->execute([$cuit, $hashed_pass, $name, $email, $whatsapp, $localidad, $rubro, $expiry_date, $plan, $initial_creds_monthly])) {
+    $stmt = $conn->prepare("INSERT INTO membership_companies (cuit, password, razon_social, email, whatsapp, localidad, rubro, estado, expiry_date, plan, creds_monthly) 
+        VALUES (:cuit, :pass, :name, :email, :whatsapp, :loc, :rubro, 'validado', :expiry, :plan, :creds)
+        ON DUPLICATE KEY UPDATE 
+        password = VALUES(password), 
+        razon_social = VALUES(razon_social), 
+        email = VALUES(email), 
+        whatsapp = VALUES(whatsapp), 
+        localidad = VALUES(localidad), 
+        rubro = VALUES(rubro), 
+        estado = 'validado', 
+        expiry_date = VALUES(expiry_date), 
+        plan = VALUES(plan), 
+        creds_monthly = VALUES(creds_monthly)");
+
+    $stmt->bindValue(':cuit', $cuit);
+    $stmt->bindValue(':pass', $hashed_pass);
+    $stmt->bindValue(':name', $name);
+    $stmt->bindValue(':email', $email);
+    $stmt->bindValue(':whatsapp', $whatsapp);
+    $stmt->bindValue(':loc', $localidad);
+    $stmt->bindValue(':rubro', $rubro);
+    $stmt->bindValue(':expiry', $expiry_date);
+    $stmt->bindValue(':plan', $plan);
+    $stmt->bindValue(':creds', $initial_creds_monthly);
+
+    if ($stmt->execute()) {
         // Eliminar de solicitudes tras aprobar
         $stmtDel = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
         $stmtDel->execute([$cuit]);
