@@ -762,6 +762,12 @@ const AdminPanel = () => {
                                                     <span className="text-[8px] font-black uppercase bg-brand-neon/20 text-brand-neon px-2 py-0.5 rounded tracking-widest">Socio Estratégico / VIP</span>
                                                 </div>
                                                 <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleApiAction(s.cuit, 'generate')}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all"
+                                                    >
+                                                        {s.api_token ? 'Refresh API' : 'Activar API'}
+                                                    </button>
                                                     <button onClick={() => handleUserAction(s.cuit, 'delete')} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
                                                 </div>
                                             </div>
@@ -774,6 +780,12 @@ const AdminPanel = () => {
                                                 </div>
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className="text-slate-400 italic">Nunca</span></p>
                                             </div>
+                                            {s.api_token && (
+                                                <div className="mt-4 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex justify-between items-center">
+                                                    <code className="text-[10px] text-blue-500 font-mono">TOKEN API: {s.api_token}</code>
+                                                    <button onClick={() => navigator.clipboard.writeText(s.api_token)} className="text-[10px] font-black uppercase text-blue-500">Copiar</button>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 {data.socios.filter(s => s.is_vip == 1).length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios VIP registrados.</p>}

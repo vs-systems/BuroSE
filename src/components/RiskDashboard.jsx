@@ -237,7 +237,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                 {/* Header / Search Area */}
                 <div className="mb-16 text-center">
                     <h2 className={`text-3xl md:text-4xl font-black mb-8 uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        Consulta <span className="text-brand-neon">Riesgo</span>
+                        Consulta Riesgo <span className="text-brand-neon">Proveedores + BCRA</span>
                     </h2>
 
                     {isAuthenticated ? (
@@ -259,7 +259,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                 </button>
                             </form>
                             <p className={`mt-6 text-xs font-bold uppercase tracking-widest transition-opacity ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                                Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | Reporte Biosegur)
+                                Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | REPORTE GREMIO)
                             </p>
 
                             {/* Debtor Ranking Section (Sólo para Socios) */}
