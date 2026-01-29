@@ -150,6 +150,18 @@ try {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+        // 5. Tabla de Auditoría / Logs de Actividad
+        $conn->exec("CREATE TABLE IF NOT EXISTS activity_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NULL,
+            user_name VARCHAR(255) NULL,
+            action VARCHAR(100) NOT NULL,
+            details TEXT,
+            ip_address VARCHAR(50),
+            user_agent TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
     } catch (Exception $e_schema) {
         // Ignorar fallos de alter silenciosamente
     }
@@ -158,5 +170,22 @@ try {
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => "Base de datos en mantenimiento"]);
     exit();
+}
+
+function log_activity($conn, $user_id, $user_name, $action, $details = null)
+{
+    try {
+        $stmt = $conn->prepare("INSERT INTO activity_logs (user_id, user_name, action, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $user_id,
+            $user_name,
+            $action,
+            $details,
+            $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
+            $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+        ]);
+    } catch (Exception $e) {
+        // Ignorar fallos de log para no interrumpir flujo principal
+    }
 }
 ?>

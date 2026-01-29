@@ -42,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['member_is_vip'] = $user['is_vip'];
                 $_SESSION['is_member'] = true;
 
+                log_activity($conn, $user['id'], $user['razon_social'], 'LOGIN_MEMBER', "Ingreso al dashboard");
+
                 echo json_encode([
                     'success' => true,
                     'message' => 'Login exitoso',

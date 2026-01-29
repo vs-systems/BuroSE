@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Credenciales solicitadas por el usuario
     if ($user === 'admin' && $pass === 'vsys2026') {
         $_SESSION['admin_logged'] = true;
+        log_activity($conn, 0, 'Admin', 'LOGIN_ADMIN', 'Acceso al panel');
         echo json_encode(["status" => "success", "message" => "Login exitoso"]);
     } else {
         http_response_code(401);
