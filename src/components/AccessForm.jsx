@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Send } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ChevronDown, Rocket, ShieldCheck, Mail, MapPin, Briefcase } from 'lucide-react';
+import { calculateCUITDigit, getDeviceFingerprint } from '../utils/argentinaUtils';
 
-const AccessForm = ({ theme }) => {
+const AccessForm = ({ theme, defaultPlan = 'business' }) => {
     const [formData, setFormData] = useState({
         name: '',
         cuit: '',
@@ -37,11 +38,14 @@ const AccessForm = ({ theme }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         // Antes de enviar, limpiamos guiones y espacios extras por si acaso
         const cleanData = {
             ...formData,
             cuit: formData.cuit.replace(/\D/g, ''),
             whatsapp: formData.whatsapp.replace(/\D/g, ''),
+            fingerprint: getDeviceFingerprint(),
+            plan: defaultPlan,
             type: 'contact'
         };
 
@@ -71,7 +75,7 @@ const AccessForm = ({ theme }) => {
                     alert('Solicitud procesada. Serás redirigido al pago para completar tu alta.');
                     window.location.href = result.payment_url;
                 } else {
-                    alert('Gracias. Hemos recibido tu solicitud de acceso.');
+                    alert(result.message || 'Gracias. Hemos recibido tu solicitud de acceso.');
                     setFormData({
                         name: '',
                         cuit: '',
@@ -79,7 +83,9 @@ const AccessForm = ({ theme }) => {
                         email: '',
                         contactPref: 'whatsapp',
                         sector: 'Distribuidor',
-                        city: ''
+                        city: '',
+                        acceptTerms: false,
+                        acceptNDA: false
                     });
                 }
             } else {
@@ -117,26 +123,66 @@ const AccessForm = ({ theme }) => {
 
                     <div className="grid sm:grid-cols-2 gap-5">
                         <div>
-                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT (Solo números)</label>
+                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Calculadora CUIT (Opcional)</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Ingresa DNI"
+                                    maxLength="8"
+                                    className={`flex-1 border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'}`}
+                                    onChange={(e) => {
+                                        const dni = e.target.value.replace(/\D/g, '');
+                                        if (dni.length === 8) {
+                                            const base = "20" + dni;
+                                            const digit = calculateCUITDigit(base);
+                                            setFormData({ ...formData, cuit: base + digit });
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT Final (Solo números)</label>
                             <input
                                 type="text" name="cuit" required
                                 value={formData.cuit}
+                                maxLength="11"
                                 className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
                                     }`}
-                                placeholder="Ej: 30123456789"
+                                placeholder="20333333334"
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-5">
+                        <div>
+                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>WhatsApp de Contacto</label>
+                            <input
+                                type="text" name="whatsapp" required value={formData.whatsapp}
+                                className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
+                                    }`}
+                                placeholder="+54 9"
                                 onChange={handleChange}
                             />
                         </div>
                         <div>
-                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>WhatsApp (Sin 0 ni 15)</label>
-                            <input
-                                type="tel" name="whatsapp" required
-                                value={formData.whatsapp}
-                                className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
-                                    }`}
-                                placeholder="+54 9 11..."
-                                onChange={handleChange}
-                            />
+                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Gremio / Rubro</label>
+                            <div className="relative">
+                                <select
+                                    name="sector" value={formData.sector}
+                                    className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none appearance-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
+                                        }`}
+                                    onChange={handleChange}
+                                >
+                                    <option value="Distribuidor">Distribuidor</option>
+                                    <option value="Mayorista">Mayorista</option>
+                                    <option value="Servicios">Servicios</option>
+                                    <option value="Financiera">Financiera</option>
+                                    <option value="Otros">Otros</option>
+                                </select>
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" size={16} />
+                            </div>
                         </div>
                     </div>
 
@@ -146,105 +192,44 @@ const AccessForm = ({ theme }) => {
                             type="email" name="email" required value={formData.email}
                             className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
                                 }`}
-                            placeholder="info@tuempresa.com"
+                            placeholder="admin@empresa.com"
                             onChange={handleChange}
                         />
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-5">
-                        <div>
-                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Rubro</label>
-                            <div className="relative">
-                                <select
-                                    name="sector" value={formData.sector}
-                                    className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all appearance-none cursor-pointer ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
-                                        }`}
-                                    onChange={handleChange}
-                                >
-                                    <option value="Importador">Importador</option>
-                                    <option value="Distribuidor">Distribuidor</option>
-                                    <option value="Fabricante">Fabricante</option>
-                                    <option value="Mayorista">Mayorista</option>
-                                    <option value="Otro">Otro</option>
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Localidad</label>
+                    <div className="space-y-4 pt-4">
+                        <label className="flex items-start gap-4 cursor-pointer group">
                             <input
-                                type="text" name="city" required value={formData.city}
-                                className={`w-full border rounded-xl px-4 py-3 focus:border-brand-neon focus:outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100 text-slate-900'
-                                    }`}
-                                placeholder="CABA"
-                                onChange={handleChange}
+                                type="checkbox" name="acceptTerms" required
+                                checked={formData.acceptTerms} onChange={handleChange}
+                                className="mt-1 w-5 h-5 rounded border-2 border-brand-secondary bg-transparent checked:bg-brand-neon transition-all"
                             />
-                        </div>
-                    </div>
-
-                    {/* Honeypot field (hidden from humans) */}
-                    <div style={{ display: 'none' }} aria-hidden="true">
-                        <input
-                            type="text"
-                            name="website_url"
-                            value={formData.website_url || ''}
-                            onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                            tabIndex="-1"
-                            autoComplete="off"
-                        />
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label className={`block text-xs font-black uppercase mb-4 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Preferencia de Contacto</label>
-                        <div className="flex flex-wrap gap-6">
-                            <label className="flex items-center space-x-3 cursor-pointer group">
-                                <input type="radio" name="contactPref" value="whatsapp" checked={formData.contactPref === 'whatsapp'} onChange={handleChange} className="w-4 h-4 text-brand-neon focus:ring-brand-neon bg-transparent border-slate-400 cursor-pointer" />
-                                <span className={`text-sm font-bold ${theme === 'dark' ? 'text-brand-text' : 'text-slate-700'}`}>WhatsApp</span>
-                            </label>
-                            <label className="flex items-center space-x-3 cursor-pointer group">
-                                <input type="radio" name="contactPref" value="email" checked={formData.contactPref === 'email'} onChange={handleChange} className="w-4 h-4 text-brand-neon focus:ring-brand-neon bg-transparent border-slate-400 cursor-pointer" />
-                                <span className={`text-sm font-bold ${theme === 'dark' ? 'text-brand-text' : 'text-slate-700'}`}>Email</span>
-                            </label>
-                            <label className="flex items-center space-x-3 cursor-pointer group">
-                                <input type="radio" name="contactPref" value="telefono" checked={formData.contactPref === 'telefono'} onChange={handleChange} className="w-4 h-4 text-brand-neon focus:ring-brand-neon bg-transparent border-slate-400 cursor-pointer" />
-                                <span className={`text-sm font-bold ${theme === 'dark' ? 'text-brand-text' : 'text-slate-700'}`}>Llamado</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4 pt-2">
-                        <label className="flex items-start space-x-3 cursor-pointer group">
-                            <input
-                                type="checkbox" name="acceptTerms"
-                                checked={formData.acceptTerms}
-                                onChange={handleChange}
-                                className="mt-1 w-4 h-4 rounded border-slate-300 text-brand-neon focus:ring-brand-neon bg-transparent cursor-pointer"
-                            />
-                            <span className={`text-xs font-medium leading-tight ${theme === 'dark' ? 'text-brand-text/70' : 'text-slate-600'}`}>
-                                Acepto los <a href="/#/terms" target="_blank" className="text-brand-neon underline hover:brightness-110">Términos y Condiciones</a> de uso de la plataforma.
+                            <span className={`text-[10px] font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-muted group-hover:text-white' : 'text-slate-500'}`}>
+                                Acepto los <a href="/#/terms" className="text-brand-neon hover:underline">Términos y Condiciones</a> y la Política de Privacidad de BuroSE.
                             </span>
                         </label>
-                        <label className="flex items-start space-x-3 cursor-pointer group">
+                        <label className="flex items-start gap-4 cursor-pointer group">
                             <input
-                                type="checkbox" name="acceptNDA"
-                                checked={formData.acceptNDA}
-                                onChange={handleChange}
-                                className="mt-1 w-4 h-4 rounded border-slate-300 text-brand-neon focus:ring-brand-neon bg-transparent cursor-pointer"
+                                type="checkbox" name="acceptNDA" required
+                                checked={formData.acceptNDA} onChange={handleChange}
+                                className="mt-1 w-5 h-5 rounded border-2 border-brand-secondary bg-transparent checked:bg-brand-neon transition-all"
                             />
-                            <span className={`text-xs font-medium leading-tight ${theme === 'dark' ? 'text-brand-text/70' : 'text-slate-600'}`}>
-                                Acepto el <a href="/#/nda" target="_blank" className="text-brand-neon underline hover:brightness-110">Acuerdo de Confidencialidad (NDA)</a> y protección de datos.
+                            <span className={`text-[10px] font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-muted group-hover:text-white' : 'text-slate-500'}`}>
+                                Acepto el <a href="/#/nda" className="text-brand-neon hover:underline">Acuerdo de Confidencialidad (NDA)</a> para el uso de la base de datos colaborativa.
                             </span>
                         </label>
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full mt-4 bg-brand-neon text-brand-darker font-black py-5 rounded-xl hover:brightness-110 shadow-lg shadow-brand-neon/20 transition-all flex items-center justify-center uppercase tracking-widest active:scale-95 transform"
+                        className="w-full bg-brand-neon text-brand-darker font-black py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand-neon/20 flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
                     >
-                        Enviar Solicitud <Send size={18} className="ml-2" />
+                        Solicitar Acceso <ArrowRight size={20} />
                     </button>
+
+                    <p className="text-[9px] text-center font-black uppercase tracking-widest text-brand-muted opacity-50">
+                        Sujeto a validación comercial • BuroSE Compliance
+                    </p>
                 </form>
             </div>
         </div>

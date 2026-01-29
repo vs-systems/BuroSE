@@ -12,6 +12,7 @@ import Pricing from './Pricing';
 import Manuals from './Manuals';
 import Footer from './Footer';
 import ContactModal from './ContactModal';
+import RiskMockup from './RiskMockup';
 
 const Landing = ({ theme, setTheme }) => {
     const [isContactOpen, setIsContactOpen] = useState(false);
@@ -21,6 +22,7 @@ const Landing = ({ theme, setTheme }) => {
             <Header theme={theme} setTheme={setTheme} openContact={() => setIsContactOpen(true)} />
             <main>
                 <Hero theme={theme} />
+                <RiskMockup theme={theme} />
                 <ProblemChart theme={theme} />
                 <HowItWorks theme={theme} />
                 <Pricing theme={theme} />

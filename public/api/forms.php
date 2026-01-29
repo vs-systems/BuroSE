@@ -22,6 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($data['type'])) {
         if ($data['type'] === 'contact') {
+            $plan = $data['plan'] ?? 'business'; // Default to business (Socio)
+            $isFree = ($plan === 'free');
+
+            // 2.5 Security Tracking
+            $fingerprint = $data['fingerprint'] ?? null;
+            $ip = $_SERVER['REMOTE_ADDR'];
+
             // Procesar formulario de contacto / solicitud acceso
             $stmt = $conn->prepare("INSERT INTO contact_submissions (nombre_social, cuit, whatsapp, email, preferencia_contacto, rubro, localidad) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
@@ -34,50 +41,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['city']
             ]);
 
-            // Crear preferencia de pago MercadoLibre
             $prefUrl = null;
-            $prefId = null;
 
-            // Llamada interna a create_preference logic via CURL
+            if ($isFree) {
+                // Registro Gratuito: Alta Directa
+                $stmtAuth = $conn->prepare("INSERT IGNORE INTO membership_companies (razon_social, cuit, email, is_vip, plan, estado, gremio, fingerprint, last_ip, creds_monthly) VALUES (?, ?, ?, 0, 'free', 'validado', ?, ?, ?, 2)");
+                $stmtAuth->execute([
+                    $data['name'],
+                    $data['cuit'],
+                    $data['email'],
+                    $data['sector'], // Gremio
+                    $fingerprint,
+                    $ip
+                ]);
+                $message = "Gracias. Tu cuenta gratuita ha sido activada (Límite: 2 consultas semanales).";
+            } else {
+                // Pago Socio: Generar Preferencia
+                $paymentData = [
+                    'email' => $data['email'],
+                    'cuit' => $data['cuit'],
+                    'price' => 15000
+                ];
 
-            $paymentData = [
-                'email' => $data['email'],
-                'cuit' => $data['cuit'],
-                'price' => 15000
-            ];
+                $curl = curl_init();
+                $apiUrl = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . dirname($_SERVER['PHP_SELF']) . "/create_preference.php";
 
-            $curl = curl_init();
-            // Asumimos que la API está en el mismo dominio. En producción usar https://burose.com.ar/api/...
-            // Para localhost development:
-            $apiUrl = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . dirname($_SERVER['PHP_SELF']) . "/create_preference.php";
+                curl_setopt_array($curl, [
+                    CURLOPT_URL => $apiUrl,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_CUSTOMREQUEST => "POST",
+                    CURLOPT_POSTFIELDS => json_encode($paymentData),
+                    CURLOPT_HTTPHEADER => ["Content-Type: application/json"],
+                    CURLOPT_SSL_VERIFYPEER => false
+                ]);
+                $respPay = curl_exec($curl);
+                curl_close($curl);
+                $payJson = json_decode($respPay, true);
 
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $apiUrl,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($paymentData),
-                CURLOPT_HTTPHEADER => ["Content-Type: application/json"],
-                CURLOPT_SSL_VERIFYPEER => false // Solo si hay problemas de SSL local
-            ]);
-            $respPay = curl_exec($curl);
-            curl_close($curl);
-            $payJson = json_decode($respPay, true);
-
-            if ($payJson && isset($payJson['status']) && $payJson['status'] === 'success') {
-                $prefUrl = $payJson['init_point'];
+                if ($payJson && isset($payJson['status']) && $payJson['status'] === 'success') {
+                    $prefUrl = $payJson['init_point'];
+                }
+                $message = "Solicitud recibida. Redirigiendo al pago...";
             }
 
             // Notificar por mail (legales@burose.com.ar)
             $to = "legales@burose.com.ar";
-            $subject = "Nueva Solicitud: Denunciantes / Acceso - " . $data['name'];
+            $subject = "Nueva Solicitud [" . strtoupper($plan) . "]: " . $data['name'];
             $body = "Nombre: " . $data['name'] . "\n" .
                 "CUIT: " . $data['cuit'] . "\n" .
                 "WhatsApp: " . $data['whatsapp'] . "\n" .
                 "Email: " . $data['email'] . "\n" .
-                "Rubro: " . $data['sector'] . "\n" .
-                "Localidad: " . $data['city'] . "\n" .
-                "Preferencia: " . $data['contactPref'] . "\n\n" .
-                "Link Pago Generado: " . ($prefUrl ?? 'Error al generar') . "\n" .
+                "Gremio: " . $data['sector'] . "\n" .
+                "IP: " . $ip . "\n" .
+                "Fingerprint: " . ($fingerprint ?? 'No disponible') . "\n\n" .
+                "Estado: " . ($isFree ? 'ACTIVADO GRATIS' : 'PENDIENTE PAGO') . "\n" .
+                "Link Pago: " . ($prefUrl ?? 'N/A') . "\n" .
                 "--- LEGAL ---\n" .
                 "Aceptó Términos: " . ($data['acceptTerms'] ? 'SÍ' : 'NO') . "\n" .
                 "Aceptó NDA: " . ($data['acceptNDA'] ? 'SÍ' : 'NO');
@@ -87,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             echo json_encode([
                 "status" => "success",
-                "message" => "Solicitud recibida. Redirigiendo al pago...",
+                "message" => $message,
                 "payment_url" => $prefUrl
             ]);
         } elseif ($data['type'] === 'general_contact') {

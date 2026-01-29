@@ -32,24 +32,24 @@ const Hero = ({ theme }) => {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <button
-                        onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                        onClick={() => document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })}
                         className="w-full sm:w-auto group relative px-8 py-5 bg-brand-neon text-brand-darker font-black rounded-xl overflow-hidden shadow-xl shadow-brand-neon/20 transition-all hover:scale-105 active:scale-95"
                     >
-                        <span className="relative z-10 flex items-center justify-center">
-                            Solicitar Acceso Anticipado
+                        <span className="relative z-10 flex items-center justify-center uppercase tracking-widest">
+                            VER CÓMO FUNCIONA
                             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </span>
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     </button>
 
                     <button
-                        onClick={() => document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })}
+                        onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
                         className={`w-full sm:w-auto px-8 py-5 font-bold rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${theme === 'dark'
                             ? 'bg-transparent border-brand-card text-brand-text hover:bg-brand-card'
                             : 'bg-white border-slate-200 text-slate-700 hover:border-slate-800'
                             }`}
                     >
-                        Ver cómo funciona
+                        Empezar Ahora
                     </button>
                 </div>
             </div>

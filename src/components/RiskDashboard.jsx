@@ -42,7 +42,8 @@ const RiskDashboard = ({ theme, setTheme }) => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(`api/search.php?cuit=${cuit}`, { credentials: 'include' });
+            const fingerprint = typeof window !== 'undefined' ? await import('../utils/argentinaUtils').then(u => u.getDeviceFingerprint()) : '';
+            const response = await fetch(`api/search.php?cuit=${cuit}&fingerprint=${fingerprint}`, { credentials: 'include' });
             const data = await response.json();
             setResult(data);
         } catch (error) {
@@ -242,12 +243,33 @@ const RiskDashboard = ({ theme, setTheme }) => {
 
                     {isAuthenticated ? (
                         <>
+                            <div className="max-w-2xl mx-auto mb-4 flex justify-center gap-4">
+                                <div className="flex bg-brand-card border border-brand-secondary p-1 rounded-xl">
+                                    <input
+                                        type="text"
+                                        placeholder="DNI p/ Calcular"
+                                        maxLength="8"
+                                        className={`bg-transparent px-4 py-2 text-xs font-black uppercase outline-none w-32 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
+                                        onChange={(e) => {
+                                            const dni = e.target.value.replace(/\D/g, '');
+                                            if (dni.length === 8) {
+                                                import('../utils/argentinaUtils').then(u => {
+                                                    const base = "20" + dni;
+                                                    const digit = u.calculateCUITDigit(base);
+                                                    setCuit(base + digit);
+                                                });
+                                            }
+                                        }}
+                                    />
+                                    <div className="bg-brand-neon/10 px-3 py-2 rounded-lg text-[10px] font-black text-brand-neon uppercase flex items-center">Calc CUIT</div>
+                                </div>
+                            </div>
                             <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
                                 <input
                                     type="text"
                                     value={cuit}
                                     onChange={(e) => setCuit(e.target.value.replace(/[^0-9]/g, ''))}
-                                    placeholder="Ingrese CUIT o DNI sin guiones..."
+                                    placeholder="Ingrese CUIT (Solo Números)..."
                                     className={`w-full border-2 rounded-full py-6 px-10 text-xl transition-all shadow-2xl focus:outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white placeholder:text-brand-muted/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400'
                                         }`}
                                 />
@@ -259,7 +281,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                 </button>
                             </form>
                             <p className={`mt-6 text-xs font-bold uppercase tracking-widest transition-opacity ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                                Sugerencia: <span className="text-brand-neon">20333333334</span> (BCRA Oficial $0 | REPORTE GREMIO)
+                                Sugerencia: <span className="text-brand-neon">20333333334</span> (CONSULTA EXCLUSIVA POR CUIT)
                             </p>
 
                             {/* Debtor Ranking Section (Sólo para Socios) */}

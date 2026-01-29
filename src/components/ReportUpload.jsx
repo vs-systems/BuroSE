@@ -266,6 +266,18 @@ const ReportUpload = ({ theme }) => {
                     </div>
                 )}
 
+                <div className="pt-4">
+                    <label className="flex items-start gap-4 cursor-pointer group">
+                        <div className={`mt-1 w-6 h-6 rounded border-2 transition-all flex items-center justify-center shrink-0 ${formData.acceptLegal ? 'bg-brand-neon border-brand-neon' : 'bg-transparent border-slate-400'}`}>
+                            {formData.acceptLegal && <CheckCircle size={14} className="text-brand-darker" />}
+                        </div>
+                        <input type="checkbox" className="hidden" required checked={formData.acceptLegal} onChange={e => setFormData({ ...formData, acceptLegal: e.target.checked })} />
+                        <div className={`text-xs font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-text/80' : 'text-slate-600'}`}>
+                            <strong>Declaración Jurada:</strong> Confirmo que la información cargada es veraz. Entiendo que es <u>indispensable</u> adjuntar copia de la Factura o Remito impago para respaldar la operación. La documentación falsa implicará la suspensión definitiva de la cuenta.
+                        </div>
+                    </label>
+                </div>
+
                 <button
                     type="submit" disabled={loading}
                     className={`w-full bg-brand-neon text-brand-darker font-black py-4 rounded-xl shadow-xl shadow-brand-neon/20 transition-all flex items-center justify-center uppercase tracking-widest hover:brightness-110 active:scale-95 ${loading ? 'opacity-70 grayscale' : ''}`}
@@ -277,8 +289,8 @@ const ReportUpload = ({ theme }) => {
                     )}
                 </button>
 
-                <p className={`text-[10px] text-center font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
-                    Nota: Los reportes son validados por legales antes de ser públicos.
+                <p className={`text-[10px] text-center font-bold uppercase tracking-widest leading-relaxed ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                    Nota: Los reportes son validados por nuestro equipo legal antes de ser publicados. La carga tiene carácter de declaración jurada bajo apercibimiento de ley.
                 </p>
             </form>
         </div>

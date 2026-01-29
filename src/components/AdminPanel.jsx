@@ -431,7 +431,7 @@ const AdminPanel = () => {
                         { id: 'vip', label: 'Socios VIP', icon: ShieldCheck },
                         { id: 'reports', label: 'Informes Deuda', icon: FileText },
                         { id: 'replicas', label: 'Réplicas', icon: MessageSquare },
-                        { id: 'stats', label: 'Estadísticas', icon: RefreshCcw },
+                        { id: 'stats', label: 'Informes', icon: Landmark },
                         { id: 'ranking', label: 'Ranking Nac.', icon: Trophy },
                         { id: 'logos', label: 'Asociados', icon: Globe },
                     ].map((tab) => (
@@ -477,7 +477,7 @@ const AdminPanel = () => {
                         </button>
                         <div>
                             <h2 className={`text-xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                                {activeTab.toUpperCase()}
+                                {activeTab === 'stats' ? 'INFORMES ESTRATÉGICOS' : activeTab.toUpperCase()}
                             </h2>
                             <div className="flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-neon animate-pulse"></span>
@@ -719,7 +719,7 @@ const AdminPanel = () => {
                             </div>
                             <div className="grid gap-6">
                                 {data.socios
-                                    .filter(s => s.is_vip != 1 && (socioFilter === 'all' || s.estado === socioFilter) && (s.cuit.includes(searchSocio) || s.razon_social.toLowerCase().includes(searchSocio.toLowerCase())))
+                                    .filter(s => s.is_vip != 1 && (socioFilter === 'all' || s.estado === socioFilter) && (s.cuit.includes(searchSocio) || (s.razon_social || '').toLowerCase().includes(searchSocio.toLowerCase())))
                                     .map((s, idx) => (
                                         <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
                                             ? 'bg-brand-card border-brand-secondary'
@@ -765,8 +765,9 @@ const AdminPanel = () => {
                                                             const razon = prompt("Razón Social:", s.razon_social);
                                                             const cuit_new = prompt("Cuit (Solo números):", s.cuit);
                                                             const email = prompt("Email:", s.email);
+                                                            const gremio = prompt("Gremio:", s.gremio || "");
                                                             if (razon && cuit_new && email) {
-                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email });
+                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email, gremio });
                                                             }
                                                         }}
                                                         className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
@@ -792,6 +793,7 @@ const AdminPanel = () => {
                                                         }`}>
                                                         {s.plan?.toUpperCase() || 'FREE'}
                                                     </span>
+                                                    {s.gremio && <span className="bg-brand-neon/10 text-brand-neon px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">{s.gremio}</span>}
                                                     <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${s.estado === 'bloqueado' ? 'bg-red-500 text-white' : 'bg-brand-neon text-brand-darker'
                                                         }`}>
                                                         {s.estado.toUpperCase()}
@@ -870,8 +872,9 @@ const AdminPanel = () => {
                                                             const razon = prompt("Razón Social:", s.razon_social);
                                                             const cuit_new = prompt("Cuit (Solo números):", s.cuit);
                                                             const email = prompt("Email:", s.email);
+                                                            const gremio = prompt("Gremio:", s.gremio || "");
                                                             if (razon && cuit_new && email) {
-                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email });
+                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email, gremio });
                                                             }
                                                         }}
                                                         className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
@@ -932,6 +935,47 @@ const AdminPanel = () => {
                             <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
                                 <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Réplicas Totales</p>
                                 <p className={`text-5xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{data.stats?.replica_count || 0}</p>
+                            </div>
+
+                            <div className={`md:col-span-3 p-10 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="bg-brand-neon p-2 rounded-lg"><TrendingUp className="text-brand-darker" size={20} /></div>
+                                    <h3 className={`text-xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Distribución por Gremio</h3>
+                                </div>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                                    {/* Visual distribution list */}
+                                    <div className="space-y-6">
+                                        {(data.stats?.gremio_distribution || []).sort((a, b) => b.count - a.count).map((g, i) => {
+                                            const total = (data.stats?.gremio_distribution || []).reduce((acc, curr) => acc + parseInt(curr.count), 0);
+                                            const percent = Math.round((parseInt(g.count) / total) * 100);
+                                            return (
+                                                <div key={i} className="group">
+                                                    <div className="flex justify-between items-end mb-2">
+                                                        <span className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}>{g.gremio}</span>
+                                                        <span className="text-brand-neon font-black text-xs">{percent}% ({g.count})</span>
+                                                    </div>
+                                                    <div className={`h-2 rounded-full overflow-hidden ${theme === 'dark' ? 'bg-white/5' : 'bg-slate-100'}`}>
+                                                        <div
+                                                            className="h-full bg-brand-neon transition-all duration-1000 group-hover:brightness-125"
+                                                            style={{ width: `${percent}%` }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                        {(data.stats?.gremio_distribution || []).length === 0 && <p className="italic text-slate-400 text-sm font-medium">No hay datos de gremios disponibles aún.</p>}
+                                    </div>
+                                    {/* Simple CSS Pie Chart Mockup */}
+                                    <div className="hidden lg:flex justify-center">
+                                        <div className="relative w-64 h-64 rounded-full border-8 border-brand-neon/20 flex items-center justify-center animate-in zoom-in duration-700">
+                                            <div className="absolute inset-0 rounded-full border-t-8 border-brand-neon animate-[spin_3s_linear_infinite]"></div>
+                                            <div className="text-center">
+                                                <p className="text-4xl font-black text-white">{data.stats?.total_socios || 0}</p>
+                                                <p className="text-[10px] font-black uppercase text-brand-neon">Socios Totales</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className={`md:col-span-3 p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>

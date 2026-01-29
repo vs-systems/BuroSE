@@ -11,7 +11,6 @@ import Replica from './components/legal/Replica';
 import Manual from './components/Manual';
 import LegalRecovery from './components/legal/LegalRecovery';
 import LegalServices from './components/LegalServices';
-
 function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
