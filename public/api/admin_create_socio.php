@@ -34,15 +34,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $expiry_date = ($is_vip) ? NULL : date('Y-m-d', strtotime("+$expiry_days days"));
+        $plan = $is_vip ? 'vip' : 'active';
 
-        $stmt = $conn->prepare("INSERT INTO membership_companies (razon_social, cuit, email, password, estado, expiry_date, is_vip) VALUES (?, ?, ?, ?, 'validado', ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO membership_companies (razon_social, cuit, email, password, estado, expiry_date, is_vip, plan) VALUES (?, ?, ?, ?, 'validado', ?, ?, ?)");
         $stmt->execute([
             $razon_social,
             $cuit,
             $email,
             password_hash($pass, PASSWORD_DEFAULT),
             $expiry_date,
-            $is_vip
+            $is_vip,
+            $plan
         ]);
 
         echo json_encode([

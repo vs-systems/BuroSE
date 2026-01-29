@@ -67,7 +67,11 @@ $internal_name = $stmtName->fetchColumn();
 $scraped_name = $internal_name ?: obtener_nombre_scraper($cuit);
 
 // 2. Buscar en Base de Datos Interna (Denuncias del Gremio)
-$stmt = $conn->prepare("SELECT * FROM reports WHERE cuit_denunciado = ? AND estado = 'validado' ORDER BY fecha_denuncia DESC");
+$stmt = $conn->prepare("SELECT r.*, mc.razon_social as reporter_name 
+                        FROM reports r 
+                        LEFT JOIN membership_companies mc ON r.reporter_id = mc.id 
+                        WHERE r.cuit_denunciado = ? AND r.estado = 'validado' 
+                        ORDER BY r.fecha_denuncia DESC");
 $stmt->execute([$cuit]);
 $internal_reports = $stmt->fetchAll();
 
@@ -81,30 +85,45 @@ $bcra_results = consultar_bcra($cuit);
 $bcra_normalized = [
     "entidades" => [],
     "deuda_total" => 0,
-    "max_situacion" => 1
+    "max_situacion" => 1,
+    "found" => false
 ];
 
-if ($bcra_results && isset($bcra_results['periodos'])) {
-    $ultimo = reset($bcra_results['periodos']);
-    if (isset($ultimo['entidades'])) {
-        foreach ($ultimo['entidades'] as $b) {
-            $bcra_normalized["entidades"][] = [
-                "entidad" => $b['denominacion'],
-                "periodo" => $ultimo['periodo'],
-                "situacion" => $b['situacion'],
-                "monto" => $b['monto'] * 1000
-            ];
-            $bcra_normalized["deuda_total"] += $b['monto'] * 1000;
-            if ($b['situacion'] > $bcra_normalized["max_situacion"]) {
-                $bcra_normalized["max_situacion"] = $b['situacion'];
+if ($bcra_results) {
+    $bcra_normalized["found"] = true;
+
+    // El API puede devolver periodos directamente si venimos de results
+    $periodos = $bcra_results['periodos'] ?? (isset($bcra_results[0]['periodo']) ? $bcra_results : null);
+
+    if ($periodos) {
+        $ultimo = reset($periodos);
+        if (isset($ultimo['entidades'])) {
+            foreach ($ultimo['entidades'] as $b) {
+                $bcra_normalized["entidades"][] = [
+                    "entidad" => $b['denominacion'],
+                    "periodo" => $ultimo['periodo'],
+                    "situacion" => $b['situacion'],
+                    "monto" => $b['monto'] * 1000
+                ];
+                $bcra_normalized["deuda_total"] += $b['monto'] * 1000;
+                if ($b['situacion'] > $bcra_normalized["max_situacion"]) {
+                    $bcra_normalized["max_situacion"] = $b['situacion'];
+                }
             }
         }
     }
 }
 
 // 4. Determinar Nivel de Riesgo
-$has_risk = ($total_internal_debt > 0 || $bcra_normalized["max_situacion"] > 1);
-$alert_level = $has_risk ? "RED" : "GREEN";
+// RED si tiene deudas internas o SIT > 1 en BCRA o Deuda Total > 0 (según el requerimiento del usuario de reportar deudas)
+$has_internal_risk = ($total_internal_debt > 0);
+$has_bcra_risk = ($bcra_normalized["max_situacion"] > 1);
+$has_bcra_debt = ($bcra_normalized["deuda_total"] > 0);
+
+$alert_level = "GREEN";
+if ($has_internal_risk || $has_bcra_risk || $has_bcra_debt) {
+    $alert_level = "RED";
+}
 
 // 5. Verificar sesión (Usuario socio o Administrador)
 $is_authenticated = (
@@ -120,7 +139,7 @@ if (!$is_authenticated) {
         "cuit" => $cuit,
         "name" => $scraped_name ?: null,
         "alert_level" => $alert_level,
-        "has_risk" => $has_risk,
+        "has_risk" => ($has_internal_risk || $has_bcra_risk),
         "message" => "Regístrese para ver el detalle de los reportes y montos."
     ]);
 } else {
