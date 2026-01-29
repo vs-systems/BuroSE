@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             // Notificar por mail
-            $to = "burosearg@gmail.com";
+            $to = "somos@burose.com.ar";
             $subject = "Nueva Solicitud: Denunciantes / Acceso - " . $data['name'];
             $body = "Nombre: " . $data['name'] . "\n" .
                 "CUIT: " . $data['cuit'] . "\n" .
@@ -51,6 +51,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mail($to, $subject, $body, $headers);
 
             echo json_encode(["status" => "success", "message" => "Solicitud de contacto recibida"]);
+        } elseif ($data['type'] === 'general_contact') {
+            // Nuevo Formulario de Contacto (General/Soporte/Consultas)
+            $to = "somos@burose.com.ar";
+            $subject = "Consulta Web BuroSE [" . $data['motivo'] . "] - " . $data['name'];
+            $body = "De: " . $data['name'] . "\n" .
+                "Celular: " . $data['celular'] . "\n" .
+                "Motivo: " . $data['motivo'] . "\n\n" .
+                "Consulta:\n" . $data['consulta'];
+            $headers = "From: web@burose.com.ar";
+            mail($to, $subject, $body, $headers);
+
+            echo json_encode(["status" => "success", "message" => "Consulta enviada correctamente. Nos contactaremos a la brevedad."]);
         } elseif ($data['type'] === 'replica') {
             // Procesar derecho a réplica
             $stmt = $conn->prepare("INSERT INTO replica_requests (nombre_sujeto, cuit_dni, email, descargo) VALUES (?, ?, ?, ?)");
@@ -62,13 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             // Notificar por mail
-            $to = "burosearg@gmail.com";
+            $to = "somos@burose.com.ar";
             $subject = "Solicitud de Derecho a Réplica - " . $data['name'];
             $body = "Nombre: " . $data['name'] . "\n" .
                 "CUIT/DNI: " . $data['cuit'] . "\n" .
                 "Email: " . $data['email'] . "\n" .
                 "Mensaje: " . $data['descargo'];
-            $headers = "From: legales@vecinoseguro.com.ar";
+            $headers = "From: legales@burose.com.ar";
             mail($to, $subject, $body, $headers);
 
             echo json_encode(["status" => "success", "message" => "Solicitud de réplica recibida para revisión"]);

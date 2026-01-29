@@ -32,6 +32,18 @@ try {
         // Eliminar de solicitudes tras aprobar
         $stmtDel = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
         $stmtDel->execute([$cuit]);
+
+        // Notificar por mail
+        $notify_email = "somos@burose.com.ar";
+        $subject = "Socio Aprobado: $name";
+        $body = "Se ha dado el alta a un nuevo socio en BuroSE.\n\n";
+        $body .= "Nombre: $name\n";
+        $body .= "CUIT: $cuit\n";
+        $body .= "Email: $email\n";
+        $body .= "Vencimiento: $expiry_date\n";
+        $headers = "From: admin@burose.com.ar";
+        @mail($notify_email, $subject, $body, $headers);
+
         echo json_encode(["status" => "success", "message" => "Socio aprobado correctamente. Vencimiento: " . $expiry_date]);
     }
 } catch (PDOException $e) {
