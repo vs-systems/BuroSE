@@ -159,13 +159,13 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
         $consumption_type = null;
 
         if ($user_plan === 'free') {
-            // Límite Gratuito: 2 por semana
+            // Límite Gratuito: 1 por semana
             // Verificamos consultas en los últimos 7 días
-            $stmtCheckFree = $conn->prepare("SELECT COUNT(*) FROM search_logs WHERE user_id = ? AND timestamp > DATE_SUB(NOW(), INTERVAL 7 DAY)");
+            $stmtCheckFree = $conn->prepare("SELECT COUNT(*) FROM search_logs WHERE user_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)");
             $stmtCheckFree->execute([$user_id]);
             $countLastWeek = $stmtCheckFree->fetchColumn();
 
-            if ($countLastWeek < 2) {
+            if ($countLastWeek < 1) {
                 // Verificar Anti-Abuso (IP/Fingerprint)
                 $ip = $_SERVER['REMOTE_ADDR'];
                 $stmtCheckAbuse = $conn->prepare("SELECT id FROM membership_companies WHERE (fingerprint = ? OR last_ip = ?) AND id != ? AND plan = 'free' LIMIT 1");
@@ -176,8 +176,12 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
                 }
                 $can_search = true;
                 $consumption_type = 'weekly_free';
+            } elseif ($dbUser['creds_package'] > 0) {
+                // Usar créditos obtenidos por informes o comprados
+                $can_search = true;
+                $consumption_type = 'package';
             } else {
-                echo json_encode(["status" => "error", "message" => "Límite semanal alcanzado (2/2). Vuelva en 7 días o adquiera un paquete."]);
+                echo json_encode(["status" => "error", "message" => "Límite semanal alcanzado (1/1). Suba un informe de deuda validado para obtener créditos extra o adquiera un paquete."]);
                 exit();
             }
         } else {

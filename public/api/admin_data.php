@@ -29,6 +29,13 @@ try {
         $reports = [];
     }
 
+    // Obtener configuración del sistema
+    $settings_rows = $conn->query("SELECT setting_key, setting_value FROM system_settings")->fetchAll();
+    $settings = [];
+    foreach ($settings_rows as $row) {
+        $settings[$row['setting_key']] = $row['setting_value'];
+    }
+
     echo json_encode([
         "status" => "success",
         "data" => [
@@ -36,8 +43,11 @@ try {
             "replicas" => $replicas,
             "socios" => $socios,
             "reports" => $reports,
+            "settings" => $settings,
             "stats" => [
                 "vip_count" => $conn->query("SELECT COUNT(*) FROM membership_companies WHERE is_vip = 1")->fetchColumn(),
+                "free_count" => $conn->query("SELECT COUNT(*) FROM membership_companies WHERE plan = 'free'")->fetchColumn(),
+                "active_count" => $conn->query("SELECT COUNT(*) FROM membership_companies WHERE plan != 'free' AND is_vip = 0")->fetchColumn(),
                 "replica_count" => count($replicas),
                 "total_socios" => count($socios),
                 "pending_leads" => count($contacts),

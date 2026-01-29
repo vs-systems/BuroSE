@@ -12,6 +12,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
     const [user, setUser] = useState(null);
     const [showingSecurity, setShowingSecurity] = useState(false);
     const [passwords, setPasswords] = useState({ current: '', new: '' });
+    const [showPurchase, setShowPurchase] = useState(false);
 
     useEffect(() => {
         checkAuth();
@@ -95,10 +96,10 @@ const RiskDashboard = ({ theme, setTheme }) => {
         }
     };
 
-    const handlePayment = async () => {
+    const handlePayment = async (type = 'subscription') => {
         setLoading(true);
         try {
-            const response = await fetch('/api/mp_checkout.php', { credentials: 'include' });
+            const response = await fetch(`api/mp_checkout.php?type=${type}`, { credentials: 'include' });
             const data = await response.json();
             if (data.init_point) {
                 window.location.href = data.init_point;
@@ -185,6 +186,43 @@ const RiskDashboard = ({ theme, setTheme }) => {
                 </div>
             )}
 
+            {/* Modal de Compra de Créditos */}
+            {showPurchase && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-brand-darker/60 backdrop-blur-sm">
+                    <div className={`w-full max-w-2xl p-8 rounded-3xl border shadow-2xl animate-in zoom-in-95 duration-200 ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className={`text-2xl font-black uppercase ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Comprar <span className="text-brand-neon">Créditos</span></h3>
+                            <button onClick={() => setShowPurchase(false)} className="text-brand-muted hover:text-white transition-colors">✕</button>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {[
+                                { id: 'subscription', name: 'Abono Mensual', price: 15000, desc: 'Activa 25 consultas/mes', icon: Landmark },
+                                { id: 'topup5', name: 'Pack 5', price: (user?.plan === 'free' ? 7500 : 4000), desc: '5 consultas adicionales', icon: Wallet },
+                                { id: 'topup10', name: 'Pack 10', price: (user?.plan === 'free' ? 13000 : 7000), desc: '10 consultas adicionales', icon: Wallet },
+                                { id: 'topup50', name: 'Pack 50', price: (user?.plan === 'free' ? 50000 : 27500), desc: '50 consultas adicionales', icon: Wallet }
+                            ].map(pkg => (
+                                <button
+                                    key={pkg.id}
+                                    onClick={() => handlePayment(pkg.id)}
+                                    className={`p-6 rounded-2xl border-2 text-left transition-all hover:border-brand-neon group ${theme === 'dark' ? 'bg-brand-dark border-white/5' : 'bg-slate-50 border-slate-100'}`}
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="p-2 bg-brand-neon/10 rounded-lg group-hover:bg-brand-neon transition-colors">
+                                            <pkg.icon className="text-brand-neon group-hover:text-brand-darker" size={20} />
+                                        </div>
+                                        <span className="text-xl font-black text-white">${pkg.price.toLocaleString('es-AR')}</span>
+                                    </div>
+                                    <h4 className="font-black uppercase text-sm mb-1">{pkg.name}</h4>
+                                    <p className="text-[10px] font-bold text-brand-muted">{pkg.desc}</p>
+                                </button>
+                            ))}
+                        </div>
+                        <p className="mt-8 text-[10px] text-brand-muted text-center italic">* Los créditos adicionales no vencen con el abono mensual y se consumen tras agotar los mensuales.</p>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Banner de Bienvenida para Socios */}
                 {isAuthenticated && (
@@ -211,14 +249,14 @@ const RiskDashboard = ({ theme, setTheme }) => {
                             </a>
                             <div className={`flex items-center gap-4 px-6 py-3 rounded-xl border ${theme === 'dark' ? 'bg-brand-dark/40 border-brand-neon/20' : 'bg-white border-slate-200'}`}>
                                 <div className="text-right">
-                                    <p className={`text-[8px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Estado de Cuenta</p>
-                                    <p className={`text-xs font-black uppercase ${user?.is_vip == 1 ? 'text-brand-neon' : user?.plan === 'business' ? 'text-blue-500' : 'text-green-500'}`}>
-                                        {user?.is_vip == 1 ? 'Socio VIP' : user?.plan?.toUpperCase() || 'Socio Activo'}
+                                    <p className={`text-[8px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Créditos Disponibles</p>
+                                    <p className={`text-xs font-black uppercase text-brand-neon`}>
+                                        {user?.is_vip == 1 ? '∞' : (parseInt(user?.creds_monthly || 0) + parseInt(user?.creds_package || 0))}
                                     </p>
                                 </div>
                                 <button
-                                    onClick={handlePayment}
-                                    title="Pagar Abono Mensual"
+                                    onClick={() => setShowPurchase(true)}
+                                    title="Comprar Créditos"
                                     className="bg-brand-neon text-brand-darker p-2 rounded-lg shadow-lg hover:scale-105 transition-transform"
                                 >
                                     <CreditCard size={16} />

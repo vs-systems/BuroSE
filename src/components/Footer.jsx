@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-const Footer = ({ theme, openContact }) => {
+const Footer = ({ theme, openContact, settings }) => {
     return (
         <footer className={`transition-colors duration-500 py-16 border-t ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]'
             }`}>
@@ -62,7 +62,7 @@ const Footer = ({ theme, openContact }) => {
                         <div className="mt-8 pt-4 border-t border-white/5">
                             <p className="text-[10px] font-black uppercase tracking-tighter text-brand-muted">
                                 Última Actualización:<br />
-                                <span className="text-brand-neon">2026-01-28 23:35</span>
+                                <span className="text-brand-neon">{settings?.footer_update_date || '2026-01-29 00:00'}</span>
                             </p>
                         </div>
                     </div>

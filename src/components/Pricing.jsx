@@ -119,7 +119,7 @@ const Pricing = ({ theme }) => {
                             </ul>
 
                             <button
-                                onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                                onClick={() => window.location.hash = '/risk-dashboard'}
                                 className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${plan.popular || plan.name === 'Empresa & API'
                                     ? 'bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20'
                                     : (theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')
@@ -144,7 +144,12 @@ const Pricing = ({ theme }) => {
                                         <span className="font-bold">{t.qty} Consultas</span>
                                         <div className="flex items-center gap-4">
                                             <span className="font-black text-xl">${t.price.toLocaleString('es-AR')}</span>
-                                            <button className="bg-brand-neon text-brand-darker px-4 py-2 rounded-lg text-[10px] font-black uppercase">Comprar</button>
+                                            <button
+                                                onClick={() => window.location.hash = '/risk-dashboard'}
+                                                className="bg-brand-neon text-brand-darker px-4 py-2 rounded-lg text-[10px] font-black uppercase"
+                                            >
+                                                Comprar
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -160,7 +165,12 @@ const Pricing = ({ theme }) => {
                                         <span className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}>{t.qty} Consultas</span>
                                         <div className="flex items-center gap-4">
                                             <span className={`font-black text-xl ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>${t.price.toLocaleString('es-AR')}</span>
-                                            <button className={`${theme === 'dark' ? 'bg-brand-neon text-brand-darker' : 'bg-slate-900 text-white'} px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all`}>Comprar</button>
+                                            <button
+                                                onClick={() => window.location.hash = '/risk-dashboard'}
+                                                className={`${theme === 'dark' ? 'bg-brand-neon text-brand-darker' : 'bg-slate-900 text-white'} px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all`}
+                                            >
+                                                Comprar
+                                            </button>
                                         </div>
                                     </div>
                                 ))}

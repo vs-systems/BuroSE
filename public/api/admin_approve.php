@@ -23,28 +23,31 @@ if (empty($cuit) || empty($password)) {
 }
 
 try {
-    // Calcular fecha de vencimiento (30 días desde hoy) - Rolling Billing
-    $expiry_date = date('Y-m-d', strtotime('+30 days'));
+    $plan = $data['plan'] ?? 'active';
+    // Calcular fecha de vencimiento: 30 días para active, null para free (se maneja por límite semanal)
+    $expiry_date = ($plan === 'active') ? date('Y-m-d', strtotime('+30 days')) : null;
+    $initial_creds_monthly = ($plan === 'active') ? 25 : 0; // Ejemplo: 25 para socios
     $hashed_pass = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO membership_companies (cuit, password, razon_social, email, whatsapp, localidad, rubro, estado, expiry_date, plan) VALUES (?, ?, ?, ?, ?, ?, ?, 'validado', ?, 'active')");
-    if ($stmt->execute([$cuit, $hashed_pass, $name, $email, $whatsapp, $localidad, $rubro, $expiry_date])) {
+    $stmt = $conn->prepare("INSERT INTO membership_companies (cuit, password, razon_social, email, whatsapp, localidad, rubro, estado, expiry_date, plan, creds_monthly) VALUES (?, ?, ?, ?, ?, ?, ?, 'validado', ?, ?, ?)");
+    if ($stmt->execute([$cuit, $hashed_pass, $name, $email, $whatsapp, $localidad, $rubro, $expiry_date, $plan, $initial_creds_monthly])) {
         // Eliminar de solicitudes tras aprobar
         $stmtDel = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
         $stmtDel->execute([$cuit]);
 
         // Notificar por mail
         $notify_email = "somos@burose.com.ar";
-        $subject = "Socio Aprobado: $name";
+        $subject = "Socio Aprobado ($plan): $name";
         $body = "Se ha dado el alta a un nuevo socio en BuroSE.\n\n";
         $body .= "Nombre: $name\n";
         $body .= "CUIT: $cuit\n";
         $body .= "Email: $email\n";
-        $body .= "Vencimiento: $expiry_date\n";
+        $body .= "Plan: $plan\n";
+        $body .= "Vencimiento: " . ($expiry_date ?: 'N/A') . "\n";
         $headers = "From: admin@burose.com.ar";
         @mail($notify_email, $subject, $body, $headers);
 
-        echo json_encode(["status" => "success", "message" => "Socio aprobado correctamente. Vencimiento: " . $expiry_date]);
+        echo json_encode(["status" => "success", "message" => "Socio aprobado correctamente como $plan."]);
     }
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);

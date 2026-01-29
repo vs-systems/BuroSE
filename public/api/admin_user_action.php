@@ -120,10 +120,26 @@ try {
 
         if ($reporter_id) {
             // Sumamos 1 crédito al paquete (los créditos de paquete no se resetean semanalmente como los free)
-            $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + 1 WHERE id = ?")->execute([$reporter_id]);
+            $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + 1, reports_submitted_count = reports_submitted_count + 1 WHERE id = ?")->execute([$reporter_id]);
         }
 
         echo json_encode(["status" => "success", "message" => "Reporte validado y 1 crédito acreditado al Miembro"]);
+    } elseif ($action === 'update_credits') {
+        $monthly = intval($data['creds_monthly'] ?? 0);
+        $package = intval($data['creds_package'] ?? 0);
+        $stmt = $conn->prepare("UPDATE membership_companies SET creds_monthly = ?, creds_package = ? WHERE cuit = ?");
+        $stmt->execute([$monthly, $package, $cuit]);
+        echo json_encode(["status" => "success", "message" => "Créditos actualizados correctamente"]);
+    } elseif ($action === 'system_config') {
+        $key = $data['key'] ?? '';
+        $value = $data['value'] ?? '';
+        if ($key) {
+            $stmt = $conn->prepare("INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            $stmt->execute([$key, $value, $value]);
+            echo json_encode(["status" => "success", "message" => "Configuración de $key actualizada"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Falta la clave de configuración"]);
+        }
     } elseif ($action === 'delete_report') {
         $id = $data['id'] ?? null;
 

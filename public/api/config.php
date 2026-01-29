@@ -62,7 +62,9 @@ try {
             'creds_package' => "INT DEFAULT 0",
             'creds_package_expiry' => "DATE DEFAULT NULL",
             'fingerprint' => "VARCHAR(255) DEFAULT NULL",
-            'last_ip' => "VARCHAR(100) DEFAULT NULL"
+            'last_ip' => "VARCHAR(100) DEFAULT NULL",
+            'creds_purchased' => "INT DEFAULT 0",
+            'reports_submitted_count' => "INT DEFAULT 0"
         ];
         foreach ($mc_fields as $f => $d) {
             $check = $conn->query("SHOW COLUMNS FROM membership_companies LIKE '$f'");
@@ -70,6 +72,17 @@ try {
                 $conn->exec("ALTER TABLE membership_companies ADD COLUMN $f $d");
             }
         }
+
+        // 3. Tabla de Configuración Global
+        $conn->exec("CREATE TABLE IF NOT EXISTS system_settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            setting_key VARCHAR(100) NOT NULL UNIQUE,
+            setting_value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // Insertar valores por defecto si no existen
+        $conn->exec("INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES ('footer_update_date', '2026-01-29 12:48:48')");
 
         // Normalizar reports
         $rep_fields = [

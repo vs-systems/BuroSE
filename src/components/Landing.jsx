@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Hero from './Hero';
 import ProblemChart from './ProblemChart';
@@ -16,6 +16,16 @@ import RiskMockup from './RiskMockup';
 
 const Landing = ({ theme, setTheme }) => {
     const [isContactOpen, setIsContactOpen] = useState(false);
+    const [settings, setSettings] = useState({});
+
+    useEffect(() => {
+        fetch('api/public_settings.php')
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === 'success') setSettings(res.data);
+            })
+            .catch(e => console.error("Error fetching settings:", e));
+    }, []);
 
     return (
         <div className={`min-h-screen font-sans transition-colors duration-300 ${theme === 'dark' ? 'bg-brand-darker text-brand-text' : 'bg-slate-50 text-slate-900'}`}>
@@ -34,7 +44,7 @@ const Landing = ({ theme, setTheme }) => {
                 </div>
                 <LogosSlider theme={theme} />
             </main>
-            <Footer theme={theme} openContact={() => setIsContactOpen(true)} />
+            <Footer theme={theme} openContact={() => setIsContactOpen(true)} settings={settings} />
             <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} theme={theme} />
         </div>
     );

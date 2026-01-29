@@ -200,11 +200,87 @@ const RankingManager = ({ theme }) => {
     );
 };
 
+const ManualReportForm = ({ theme, onComplete }) => {
+    const [formData, setFormData] = useState({
+        cuit_denunciado: '',
+        nombre_denunciado: '',
+        monto: '',
+        descripcion: '',
+        reporter_cuit: ''
+    });
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const res = await fetch('api/admin_create_report.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                alert(data.message);
+                setFormData({ cuit_denunciado: '', nombre_denunciado: '', monto: '', descripcion: '', reporter_cuit: '' });
+                if (onComplete) onComplete();
+            } else {
+                alert(data.message);
+            }
+        } catch (err) { alert("Error de conexión"); }
+        finally { setLoading(false); }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className={`p-8 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+            <h3 className="text-xl font-black uppercase mb-6 tracking-tighter">Carga <span className="text-brand-neon">Directa de Deuda</span></h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input
+                    type="text" placeholder="CUIT Denunciado (solo números)"
+                    value={formData.cuit_denunciado} onChange={e => setFormData({ ...formData, cuit_denunciado: e.target.value.replace(/\D/g, '') })}
+                    className={`px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                    required
+                />
+                <input
+                    type="text" placeholder="Nombre/Razón Social Denunciado"
+                    value={formData.nombre_denunciado} onChange={e => setFormData({ ...formData, nombre_denunciado: e.target.value })}
+                    className={`px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                    required
+                />
+                <input
+                    type="number" placeholder="Monto Deuda ($)"
+                    value={formData.monto} onChange={e => setFormData({ ...formData, monto: e.target.value })}
+                    className={`px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                    required
+                />
+                <input
+                    type="text" placeholder="CUIT Reportador (opcional, default Admin)"
+                    value={formData.reporter_cuit} onChange={e => setFormData({ ...formData, reporter_cuit: e.target.value.replace(/\D/g, '') })}
+                    className={`px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                />
+                <textarea
+                    placeholder="Descripción del incidente..."
+                    value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })}
+                    className={`md:col-span-2 px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon h-32 ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                ></textarea>
+                <div className="md:col-span-2 flex justify-end">
+                    <button
+                        disabled={loading}
+                        className="bg-brand-neon text-brand-darker font-black px-8 py-3 rounded-xl uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-neon/20"
+                    >
+                        {loading ? 'Cargando...' : 'Cargar Informe Validado'}
+                    </button>
+                </div>
+            </div>
+        </form>
+    );
+};
+
 const AdminPanel = () => {
     const [isLogged, setIsLogged] = useState(false);
     const [user, setUser] = useState('');
     const [pass, setPass] = useState('');
-    const [data, setData] = useState({ contacts: [], replicas: [], socios: [], reports: [] });
+    const [data, setData] = useState({ contacts: [], replicas: [], socios: [], reports: [], settings: {} });
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('contacts');
     const [searchSocio, setSearchSocio] = useState('');
@@ -300,6 +376,7 @@ const AdminPanel = () => {
                     replicas: res.data.replicas || [],
                     socios: res.data.socios || [],
                     reports: res.data.reports || [],
+                    settings: res.data.settings || {},
                     stats: res.data.stats || { vip_count: 0, replica_count: 0, total_socios: 0, pending_leads: 0 }
                 });
             }
@@ -314,8 +391,8 @@ const AdminPanel = () => {
         window.location.href = '/';
     };
 
-    const handleApprove = async (contact) => {
-        const pass = prompt(`Asignar contraseña para ${contact.nombre_social} (CUIT: ${contact.cuit}):`, contact.cuit);
+    const handleApprove = async (contact, plan = 'active') => {
+        const pass = prompt(`Asignar contraseña para ${contact.nombre_social} (CUIT: ${contact.cuit}) [Plan: ${plan}]:`, contact.cuit);
         if (pass === null) return;
 
         try {
@@ -329,7 +406,8 @@ const AdminPanel = () => {
                     email: contact.email,
                     whatsapp: contact.whatsapp,
                     rubro: contact.rubro,
-                    localidad: contact.localidad
+                    localidad: contact.localidad,
+                    plan: plan
                 })
             });
             const res = await resp.json();
@@ -428,12 +506,14 @@ const AdminPanel = () => {
                     {[
                         { id: 'contacts', label: 'Leads/Accesos', icon: Users },
                         { id: 'socios', label: 'Socios Activos', icon: Users },
+                        { id: 'gratuitos', label: 'Cuentas Gratuitas', icon: Users },
                         { id: 'vip', label: 'Socios VIP', icon: ShieldCheck },
                         { id: 'reports', label: 'Informes Deuda', icon: FileText },
                         { id: 'replicas', label: 'Réplicas', icon: MessageSquare },
                         { id: 'stats', label: 'Informes', icon: Landmark },
                         { id: 'ranking', label: 'Ranking Nac.', icon: Trophy },
                         { id: 'logos', label: 'Asociados', icon: Globe },
+                        { id: 'config', label: 'Configuración', icon: Save },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -477,7 +557,10 @@ const AdminPanel = () => {
                         </button>
                         <div>
                             <h2 className={`text-xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                                {activeTab === 'stats' ? 'INFORMES ESTRATÉGICOS' : activeTab.toUpperCase()}
+                                {activeTab === 'stats' ? 'INFORMES ESTRATÉGICOS' :
+                                    activeTab === 'gratuitos' ? 'CUENTAS GRATUITAS' :
+                                        activeTab === 'config' ? 'CONFIGURACIÓN DEL SISTEMA' :
+                                            activeTab.toUpperCase()}
                             </h2>
                             <div className="flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-neon animate-pulse"></span>
@@ -522,7 +605,8 @@ const AdminPanel = () => {
                                             <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>WhatsApp: <span className="text-white">{c.whatsapp}</span></p>
                                         </div>
                                         <div className="mt-6 pt-6 border-t border-white/5 flex gap-4">
-                                            <button onClick={() => handleApprove(c)} className="bg-brand-neon text-brand-darker text-[10px] font-black px-6 py-2.5 rounded-xl uppercase">Aprobar Socio</button>
+                                            <button onClick={() => handleApprove(c, 'active')} className="bg-brand-neon text-brand-darker text-[10px] font-black px-6 py-2.5 rounded-xl uppercase">Aprobar Socio</button>
+                                            <button onClick={() => handleApprove(c, 'free')} className="bg-blue-500 text-white text-[10px] font-black px-6 py-2.5 rounded-xl uppercase shadow-lg shadow-blue-500/20">Aprobar Gratuito</button>
                                             <button onClick={() => handleUserAction(c.cuit, 'delete_lead')} className="bg-red-500/10 text-red-500 text-[10px] font-black px-6 py-2.5 rounded-xl uppercase border border-red-500/20">Descartar</button>
                                         </div>
                                     </div>
@@ -798,6 +882,18 @@ const AdminPanel = () => {
                                                         }`}>
                                                         {s.estado.toUpperCase()}
                                                     </span>
+                                                    <button
+                                                        onClick={() => {
+                                                            const monthly = prompt("Créditos Mensuales:", s.creds_monthly || 0);
+                                                            const package_creds = prompt("Créditos Paquete/Extra:", s.creds_package || 0);
+                                                            if (monthly !== null && package_creds !== null) {
+                                                                handleUserAction(s.cuit, 'update_credits', { creds_monthly: monthly, creds_package: package_creds });
+                                                            }
+                                                        }}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker transition-all"
+                                                    >
+                                                        Gestionar Créditos ({s.creds_monthly || 0} / {s.creds_package || 0})
+                                                    </button>
                                                 </div>
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.expiry_date || 'N/A'}</span></p>
                                             </div>
@@ -918,15 +1014,98 @@ const AdminPanel = () => {
                                 {data.socios.filter(s => s.is_vip == 1).length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios VIP registrados.</p>}
                             </div>
                         </div>
+                    ) : activeTab === 'gratuitos' ? (
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-center mb-8">
+                                <div className="relative flex-1 max-w-md">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted opacity-50" size={16} />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar cuenta gratuita..."
+                                        value={searchSocio}
+                                        onChange={(e) => setSearchSocio(e.target.value)}
+                                        className={`w-full pl-12 pr-4 py-2.5 rounded-xl border-2 outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white focus:border-brand-neon' : 'bg-white border-slate-100 focus:border-brand-neon'}`}
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid gap-6">
+                                {data.socios
+                                    .filter(s => s.plan === 'free' && (s.cuit.includes(searchSocio) || (s.razon_social || '').toLowerCase().includes(searchSocio.toLowerCase())))
+                                    .map((s, idx) => (
+                                        <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-md'}`}>
+                                            <div className="flex justify-between items-center mb-4">
+                                                <div>
+                                                    <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
+                                                    <p className="text-[10px] font-bold text-brand-muted">Email: {s.email} | CUIT: {s.cuit}</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            const package_creds = prompt("Créditos Extra (Bonus/Venta):", s.creds_package || 0);
+                                                            if (package_creds !== null) {
+                                                                handleUserAction(s.cuit, 'update_credits', { creds_monthly: 0, creds_package: package_creds });
+                                                            }
+                                                        }}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker transition-all"
+                                                    >
+                                                        Gestionar Créditos ({s.creds_package || 0})
+                                                    </button>
+                                                    <button onClick={() => handleUserAction(s.cuit, 'block')} className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white transition-all">
+                                                        {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
+                                                    </button>
+                                                    <button onClick={() => handleUserAction(s.cuit, 'delete')} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4 text-[10px] font-bold">
+                                                <span className="bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded uppercase">Reportes Subidos: {s.reports_submitted_count || 0}</span>
+                                                <span className="bg-brand-neon/10 text-brand-neon px-2 py-0.5 rounded uppercase">Créditos Extra: {s.creds_package || 0}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                {data.socios.filter(s => s.plan === 'free').length === 0 && <p className="text-center py-20 italic text-brand-muted">No hay cuentas gratuitas registradas.</p>}
+                            </div>
+                        </div>
+                    ) : activeTab === 'config' ? (
+                        <div className="space-y-12 pb-20">
+                            <ManualReportForm theme={theme} onComplete={fetchData} />
+
+                            <div className={`p-8 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+                                <h3 className="text-xl font-black uppercase mb-6 tracking-tighter">Ajustes <span className="text-brand-neon">Globales</span></h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div>
+                                        <label className="block text-xs font-black uppercase mb-2 text-brand-muted tracking-widest">Fecha Actualización Pie de Página</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={data.settings?.footer_update_date || ''}
+                                                onChange={(e) => setData({ ...data, settings: { ...data.settings, footer_update_date: e.target.value } })}
+                                                className={`flex-1 px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                                            />
+                                            <button
+                                                onClick={() => handleUserAction('system', 'system_config', { key: 'footer_update_date', value: data.settings.footer_update_date })}
+                                                className="bg-brand-neon text-brand-darker font-black px-6 py-2 rounded-xl uppercase text-[10px]"
+                                            >
+                                                Guardar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {/* ABM de Rubros simplified mockup or future placeholders */}
+                                        <label className="block text-xs font-black uppercase mb-2 text-brand-muted tracking-widest">ABM de Rubros / Usuarios / Informes</label>
+                                        <p className="text-[10px] text-brand-muted italic mt-4">Use las pestañas correspondientes para gestionar cada sección. Esta pestaña centralizará configuraciones avanzadas en próximas actualizaciones.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     ) : activeTab === 'stats' ? (
                         <div className="grid md:grid-cols-3 gap-8">
                             <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
-                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Total Socios</p>
-                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>{data.stats?.total_socios || data.socios.length}</p>
+                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Socios Activos (Pagos)</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>{data.stats?.active_count || 0}</p>
                             </div>
                             <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
-                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Leads Pendientes</p>
-                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-alert' : 'text-red-500'}`}>{data.stats?.pending_leads || data.contacts.length}</p>
+                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Cuentas Gratuitas</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-alert' : 'text-red-500'}`}>{data.stats?.free_count || 0}</p>
                             </div>
                             <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
                                 <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Socios VIP</p>
