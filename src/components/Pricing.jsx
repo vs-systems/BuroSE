@@ -156,11 +156,11 @@ const Pricing = ({ theme }) => {
                             <h4 className="text-slate-400 font-black mb-6 uppercase tracking-widest text-xs">Usuarios Gratuitos</h4>
                             <div className="space-y-4">
                                 {topupsFree.map(t => (
-                                    <div key={t.qty} className="flex justify-between items-center p-4 bg-slate-100 rounded-xl border border-slate-200/50">
+                                    <div key={t.qty} className={`flex justify-between items-center p-4 rounded-xl border transition-colors ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200/50'}`}>
                                         <span className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}>{t.qty} Consultas</span>
                                         <div className="flex items-center gap-4">
                                             <span className={`font-black text-xl ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>${t.price.toLocaleString('es-AR')}</span>
-                                            <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase">Comprar</button>
+                                            <button className={`${theme === 'dark' ? 'bg-brand-neon text-brand-darker' : 'bg-slate-900 text-white'} px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all`}>Comprar</button>
                                         </div>
                                     </div>
                                 ))}

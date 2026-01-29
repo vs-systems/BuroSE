@@ -9,7 +9,7 @@ const AccessForm = ({ theme, defaultPlan = 'business' }) => {
         whatsapp: '',
         email: '',
         contactPref: 'whatsapp',
-        sector: 'Distribuidor',
+        sector: 'Seguridad',
         city: '',
         acceptTerms: false,
         acceptNDA: false
@@ -82,7 +82,7 @@ const AccessForm = ({ theme, defaultPlan = 'business' }) => {
                         whatsapp: '',
                         email: '',
                         contactPref: 'whatsapp',
-                        sector: 'Distribuidor',
+                        sector: 'Seguridad',
                         city: '',
                         acceptTerms: false,
                         acceptNDA: false
@@ -175,11 +175,13 @@ const AccessForm = ({ theme, defaultPlan = 'business' }) => {
                                         }`}
                                     onChange={handleChange}
                                 >
-                                    <option value="Distribuidor">Distribuidor</option>
-                                    <option value="Mayorista">Mayorista</option>
-                                    <option value="Servicios">Servicios</option>
-                                    <option value="Financiera">Financiera</option>
-                                    <option value="Otros">Otros</option>
+                                    <option value="Seguridad">Seguridad</option>
+                                    <option value="Informática">Informática</option>
+                                    <option value="Electricidad">Electricidad</option>
+                                    <option value="Conectividad">Conectividad</option>
+                                    <option value="Monitoreo">Monitoreo</option>
+                                    <option value="Particular">Particular</option>
+                                    <option value="Otro">Otro</option>
                                 </select>
                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" size={16} />
                             </div>
