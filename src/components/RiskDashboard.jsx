@@ -403,6 +403,21 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                         {parseFloat(result.total_risk_debt).toLocaleString('es-AR')}
                                     </p>
                                 </div>
+                            ) : isAuthenticated ? (
+                                /* Authenticated Client-side but API denied (Session mismatch) */
+                                <div className="bg-brand-alert/10 p-6 rounded-2xl max-w-sm border border-brand-alert/20 backdrop-blur-sm text-center">
+                                    <AlertTriangle className="mx-auto text-brand-alert mb-3" size={32} />
+                                    <p className="text-xs font-black uppercase tracking-widest mb-4 opacity-80 leading-relaxed text-brand-alert">
+                                        Error de Sincronización de Sesión
+                                    </p>
+                                    <p className="text-[10px] font-bold mb-4">El servidor no pudo validar su credencial. Por favor reingrese.</p>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full bg-brand-alert text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest hover:brightness-110 shadow-lg shadow-brand-alert/20 transition-all"
+                                    >
+                                        Reiniciar Sesión
+                                    </button>
+                                </div>
                             ) : (
                                 /* CTA for Guests */
                                 <div className="bg-white/10 p-6 rounded-2xl max-w-sm border border-white/20 backdrop-blur-sm">
