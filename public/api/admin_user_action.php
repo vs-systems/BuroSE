@@ -44,8 +44,7 @@ try {
         $stmt->execute([$cuit]);
         echo json_encode(["status" => "success", "message" => "Solicitud/Lead eliminada correctamente"]);
     } elseif ($action === 'make_vip') {
-        // Convertir SOCIO normal en VIP
-        // Primero obtenemos el email para notificar
+        // ... (existing code for make_vip)
         $stmtEmail = $conn->prepare("SELECT email, razon_social FROM membership_companies WHERE cuit = ?");
         $stmtEmail->execute([$cuit]);
         $member = $stmtEmail->fetch();
@@ -72,6 +71,26 @@ try {
         } else {
             echo json_encode(["status" => "error", "message" => "Socio no encontrado"]);
         }
+    } elseif ($action === 'approve_replica') {
+        $id = $data['id'] ?? null;
+        $stmt = $conn->prepare("UPDATE replica_requests SET estado = 'aprobado' WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(["status" => "success", "message" => "Réplica marcada como aprobada/leída"]);
+    } elseif ($action === 'delete_replica') {
+        $id = $data['id'] ?? null;
+        $stmt = $conn->prepare("DELETE FROM replica_requests WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(["status" => "success", "message" => "Réplica eliminada"]);
+    } elseif ($action === 'approve_report') {
+        $id = $data['id'] ?? null;
+        $stmt = $conn->prepare("UPDATE reports SET estado = 'validado' WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(["status" => "success", "message" => "Reporte validado y publicado"]);
+    } elseif ($action === 'delete_report') {
+        $id = $data['id'] ?? null;
+        $stmt = $conn->prepare("DELETE FROM reports WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(["status" => "success", "message" => "Reporte eliminado"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Acción no válida"]);
     }

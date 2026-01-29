@@ -377,12 +377,10 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                                         </div>
                                                         <span className="bg-brand-alert/10 text-brand-alert text-[10px] font-black px-3 py-1.5 rounded-full border border-brand-alert/20 uppercase tracking-widest">Validado</span>
                                                     </div>
-                                                    <p className={`text-sm leading-relaxed font-medium italic ${theme === 'dark' ? 'text-brand-text/80' : 'text-slate-600'}`}>"{report.descripcion}"</p>
                                                     <div className={`mt-6 pt-4 border-t flex items-center justify-between text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'border-white/5 text-brand-muted' : 'border-slate-200 text-slate-400'}`}>
                                                         <div className="flex items-center">
                                                             <FileText size={14} className="mr-2" /> Reportado por: {report.reporter_name || 'Miembro BuroSE'}
                                                         </div>
-                                                        <span className="text-brand-neon">Evidencia Verificada</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -405,6 +403,13 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                     </div>
 
                                     <div className="space-y-4">
+                                        {!result.bcra.success && (
+                                            <div className="p-6 bg-brand-alert/10 border border-brand-alert/20 rounded-2xl flex items-center gap-4">
+                                                <AlertTriangle className="text-brand-alert" size={32} />
+                                                <p className="text-xs font-bold text-brand-alert uppercase tracking-widest">{result.bcra.message}</p>
+                                            </div>
+                                        )}
+
                                         {result.bcra.entidades.length > 0 ? (
                                             result.bcra.entidades.map((entidad, idx) => (
                                                 <div key={idx} className={`flex items-center justify-between p-6 border rounded-2xl transition-all ${theme === 'dark' ? 'bg-brand-dark/30 border-brand-secondary/30' : 'bg-slate-50 border-slate-100'
@@ -422,10 +427,12 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="flex flex-col items-center justify-center py-16 opacity-30 grayscale gap-4">
-                                                <Landmark size={64} strokeWidth={1} />
-                                                <p className="font-bold italic text-sm">No se registran deudas bancarias oficiales.</p>
-                                            </div>
+                                            result.bcra.success && (
+                                                <div className="flex flex-col items-center justify-center py-16 opacity-30 grayscale gap-4">
+                                                    <Landmark size={64} strokeWidth={1} />
+                                                    <p className="font-bold italic text-sm">No se registran deudas bancarias oficiales.</p>
+                                                </div>
+                                            )
                                         )}
 
                                         {result.bcra.max_situacion > 2 && (

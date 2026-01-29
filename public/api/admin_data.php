@@ -21,12 +21,17 @@ try {
     $stmt3 = $conn->query("SELECT * FROM membership_companies ORDER BY created_at DESC");
     $socios = $stmt3->fetchAll();
 
+    // Obtener reportes cargados por asociados
+    $stmt4 = $conn->query("SELECT r.*, mc.razon_social as reporter_name FROM reports r LEFT JOIN membership_companies mc ON r.reporter_id = mc.id ORDER BY r.created_at DESC");
+    $reports = $stmt4->fetchAll();
+
     echo json_encode([
         "status" => "success",
         "data" => [
             "contacts" => $contacts,
             "replicas" => $replicas,
-            "socios" => $socios
+            "socios" => $socios,
+            "reports" => $reports
         ]
     ]);
 } catch (PDOException $e) {

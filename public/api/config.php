@@ -71,6 +71,7 @@ try {
         }
 
         // Nuevos campos para reportes (Enriquecimiento de datos)
+        // Nuevos campos para reportes (Enriquecimiento de datos)
         $new_report_cols = [
             'intencion_pago' => 'TINYINT DEFAULT 0',
             'instancia_judicial' => 'TINYINT DEFAULT 0',
@@ -85,6 +86,12 @@ try {
             if ($check && $check->rowCount() == 0) {
                 $conn->exec("ALTER TABLE reports ADD COLUMN $col $type");
             }
+        }
+
+        // Estado para replicas
+        $check_rep = $conn->query("SHOW COLUMNS FROM replica_requests LIKE 'estado'");
+        if ($check_rep && $check_rep->rowCount() == 0) {
+            $conn->exec("ALTER TABLE replica_requests ADD COLUMN estado VARCHAR(20) DEFAULT 'pendiente'");
         }
     } catch (Exception $e_schema) {
         // Ignorar

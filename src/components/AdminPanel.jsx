@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save } from 'lucide-react';
+import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle } from 'lucide-react';
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
@@ -204,7 +204,7 @@ const AdminPanel = () => {
     const [isLogged, setIsLogged] = useState(false);
     const [user, setUser] = useState('');
     const [pass, setPass] = useState('');
-    const [data, setData] = useState({ contacts: [], replicas: [], socios: [] });
+    const [data, setData] = useState({ contacts: [], replicas: [], socios: [], reports: [] });
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('contacts');
     const [searchSocio, setSearchSocio] = useState('');
@@ -226,24 +226,22 @@ const AdminPanel = () => {
         } catch (e) { console.error(e); }
     };
 
-    const handleUserAction = async (cuit, action) => {
-        const confirmMsg = action === 'delete' ? '¿Eliminar definitivamente?' : '¿Cambiar estado de bloqueo?';
-        if (!confirm(confirmMsg)) return;
-
+    const handleUserAction = async (id_or_cuit, action) => {
+        if (!confirm('¿Confirma realizar esta acción?')) return;
         try {
             const resp = await fetch('api/admin_user_action.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cuit, action }),
+                body: JSON.stringify({
+                    cuit: id_or_cuit, // Mantener compatibilidad nombres
+                    id: id_or_cuit,   // Nuevo ID para replicas/informes
+                    action
+                }),
                 credentials: 'include'
             });
             const res = await resp.json();
-            if (res.status === 'success') {
-                alert(res.message);
-                fetchData();
-            } else {
-                alert('Error: ' + res.message);
-            }
+            alert(res.message);
+            fetchData();
         } catch (e) { alert('Error de conexión'); }
     };
 
@@ -294,11 +292,12 @@ const AdminPanel = () => {
             const resp = await fetch('api/admin_data.php', { credentials: 'include' });
             const res = await resp.json();
             if (res.status === 'success') {
-                // Aseguramos que socios esté definido
+                // Aseguramos que los campos existan
                 setData({
                     contacts: res.data.contacts || [],
                     replicas: res.data.replicas || [],
-                    socios: res.data.socios || []
+                    socios: res.data.socios || [],
+                    reports: res.data.reports || []
                 });
             }
         } catch (e) { console.error(e); }
@@ -450,6 +449,16 @@ const AdminPanel = () => {
                         <span>Socios Activos</span>
                     </button>
                     <button
+                        onClick={() => setActiveTab('reports')}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'reports'
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            }`}
+                    >
+                        <FileText size={18} />
+                        <span>Informes Deuda</span>
+                    </button>
+                    <button
                         onClick={() => setActiveTab('vip')}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'vip'
                             ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
@@ -505,7 +514,7 @@ const AdminPanel = () => {
                 <header className={`border-b p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10 w-full transition-colors ${theme === 'dark' ? 'bg-brand-dark/80 border-brand-secondary' : 'bg-white/80 border-slate-100 shadow-sm'
                     }`}>
                     <h2 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'vip' ? 'Socios VIP (Perpetuos)' : activeTab === 'stats' ? 'Panel de Control' : activeTab === 'ranking' ? 'Ranking de Deudores' : 'Gestión de Logos'}
+                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'reports' ? 'Gestión de Informes' : activeTab === 'vip' ? 'Socios VIP (Perpetuos)' : activeTab === 'stats' ? 'Panel de Control' : activeTab === 'ranking' ? 'Ranking de Deudores' : 'Gestión de Asociados'}
                     </h2>
                     <button
                         onClick={fetchData} disabled={loading}
@@ -593,13 +602,95 @@ const AdminPanel = () => {
                                         <p className={`text-[10px] font-black uppercase mb-3 tracking-[0.2em] ${theme === 'dark' ? 'text-brand-muted' : 'text-red-400'}`}>Mensaje / Descargo</p>
                                         <p className={`text-sm italic leading-relaxed ${theme === 'dark' ? 'text-brand-text' : 'text-slate-700'}`}>"{r.descargo}"</p>
                                     </div>
-                                    <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
-                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{r.email}</span></p>
-                                        <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>{new Date(r.created_at).toLocaleString()}</p>
+                                    <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                        <div className="flex items-center space-x-4 text-[10px] font-bold uppercase tracking-widest">
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{r.email}</span></p>
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>{new Date(r.created_at).toLocaleString()}</p>
+                                            {r.estado === 'aprobado' && <span className="text-green-500 font-black">PROCESADA</span>}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {r.estado !== 'aprobado' && (
+                                                <button onClick={() => handleUserAction(r.id, 'approve_replica')} className="bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all">Aprobar</button>
+                                            )}
+                                            <button onClick={() => handleUserAction(r.id, 'delete_replica')} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all">Eliminar</button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
-                            {data.replicas.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay solicitudes de réplica de momento.</p>}
+                            {data.replicas.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay réplicas pendientes.</p>}
+                        </div>
+                    ) : activeTab === 'reports' ? (
+                        <div className="grid gap-6">
+                            {data.reports.map((report, idx) => (
+                                <div key={idx} className={`border p-8 rounded-3xl transition-all ${theme === 'dark'
+                                    ? 'bg-brand-card border-brand-secondary'
+                                    : 'bg-white border-slate-100 shadow-lg'
+                                    }`}>
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div>
+                                            <h3 className={`text-xl font-black mb-1 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{report.nombre_denunciado}</h3>
+                                            <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT: {report.cuit_denunciado}</p>
+                                        </div>
+                                        <span className={`text-[10px] font-black px-4 py-1.5 rounded-full border uppercase tracking-widest ${report.estado === 'validado' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 animate-pulse'
+                                            }`}>
+                                            {report.estado}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-3 gap-8 mb-8">
+                                        <div>
+                                            <p className={`text-[8px] font-black uppercase mb-1 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Monto Deuda</p>
+                                            <p className="text-2xl font-black text-brand-neon">$ {parseFloat(report.monto).toLocaleString('es-AR')}</p>
+                                        </div>
+                                        <div>
+                                            <p className={`text-[8px] font-black uppercase mb-1 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Reportado por</p>
+                                            <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{report.reporter_name}</p>
+                                        </div>
+                                        <div>
+                                            <p className={`text-[8px] font-black uppercase mb-1 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Fecha Carga</p>
+                                            <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{new Date(report.created_at).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className={`p-5 rounded-2xl border mb-8 ${theme === 'dark' ? 'bg-brand-dark/50 border-brand-secondary/50' : 'bg-slate-50 border-slate-200'}`}>
+                                        <p className={`text-[8px] font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Descripción Interna</p>
+                                        <p className={`text-xs italic ${theme === 'dark' ? 'text-brand-text' : 'text-slate-600'}`}>{report.descripcion || 'Sin descripción'}</p>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-4 items-center justify-between pt-6 border-t border-white/5">
+                                        <div className="flex gap-4">
+                                            {report.evidencia_url && (
+                                                <a
+                                                    href={report.evidencia_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center space-x-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
+                                                >
+                                                    <Download size={14} />
+                                                    <span>Descargar Prueba</span>
+                                                </a>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-3">
+                                            {report.estado !== 'validado' && (
+                                                <button
+                                                    onClick={() => handleUserAction(report.id, 'approve_report')}
+                                                    className="bg-brand-neon text-brand-darker hover:brightness-110 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shadow-lg shadow-brand-neon/20"
+                                                >
+                                                    Aprobar Informe
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleUserAction(report.id, 'delete_report')}
+                                                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {data.reports.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No se han cargado informes de morosos.</p>}
                         </div>
                     ) : activeTab === 'socios' ? (
                         <div className="space-y-6">

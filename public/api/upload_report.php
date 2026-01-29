@@ -88,4 +88,3 @@ if (in_array($fileExt, $allowedExts)) {
     echo json_encode(["status" => "error", "message" => "Formato de archivo no permitido"]);
 }
 ?>
-?>

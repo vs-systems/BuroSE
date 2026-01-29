@@ -44,15 +44,26 @@ function consultar_bcra($cuit)
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
     curl_close($ch);
 
     if ($httpCode == 200) {
         $data = json_decode($response, true);
-        return $data['results'] ?? null;
+        return [
+            "success" => true,
+            "data" => $data['results'] ?? null
+        ];
     }
-    return null;
+
+    return [
+        "success" => false,
+        "message" => "El servicio del BCRA no responde momentáneamente.",
+        "code" => $httpCode,
+        "error" => $error
+    ];
 }
 
 // --- PROCESAMIENTO ---
@@ -81,15 +92,18 @@ foreach ($internal_reports as $report) {
 }
 
 // 3. Consultar BCRA en Tiempo Real
-$bcra_results = consultar_bcra($cuit);
+$bcra_response = consultar_bcra($cuit);
 $bcra_normalized = [
     "entidades" => [],
     "deuda_total" => 0,
     "max_situacion" => 1,
-    "found" => false
+    "found" => false,
+    "success" => $bcra_response['success'],
+    "message" => $bcra_response['message'] ?? null
 ];
 
-if ($bcra_results) {
+if ($bcra_response['success'] && $bcra_response['data']) {
+    $bcra_results = $bcra_response['data'];
     $bcra_normalized["found"] = true;
 
     // El API puede devolver periodos directamente si venimos de results
@@ -143,6 +157,16 @@ if (!$is_authenticated) {
         "message" => "Regístrese para ver el detalle de los reportes y montos."
     ]);
 } else {
+    // Limpiar reportes internos para cumplir con políticas de privacidad
+    $sanitized_reports = array_map(function ($r) {
+        return [
+            "reporter_name" => $r['reporter_name'] ?: 'Miembro BuroSE',
+            "monto" => $r['monto'],
+            "fecha_denuncia" => $r['fecha_denuncia'],
+            // Se elimina descripcion y evidencia_url por política de privacidad comercial
+        ];
+    }, $internal_reports);
+
     // Modo FULL: Información detallada para socios/admin
     echo json_encode([
         "status" => "success",
@@ -152,7 +176,7 @@ if (!$is_authenticated) {
         "internal" => [
             "count" => count($internal_reports),
             "total_debt" => $total_internal_debt,
-            "reports" => $internal_reports
+            "reports" => $sanitized_reports
         ],
         "bcra" => $bcra_normalized,
         "total_risk_debt" => $total_internal_debt + $bcra_normalized["deuda_total"],
