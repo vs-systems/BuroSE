@@ -150,6 +150,16 @@ try {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+        // 6. Tabla de Logs de Búsqueda
+        $conn->exec("CREATE TABLE IF NOT EXISTS search_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NULL,
+            cuit_searched VARCHAR(20) NOT NULL,
+            consumption_type VARCHAR(50),
+            ip_address VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
         // 5. Tabla de Auditoría / Logs de Actividad
         $conn->exec("CREATE TABLE IF NOT EXISTS activity_logs (
             id INT AUTO_INCREMENT PRIMARY KEY,

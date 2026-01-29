@@ -13,6 +13,8 @@ const RiskDashboard = ({ theme, setTheme }) => {
     const [showingSecurity, setShowingSecurity] = useState(false);
     const [passwords, setPasswords] = useState({ current: '', new: '' });
     const [showPurchase, setShowPurchase] = useState(false);
+    const [cuitPrefix, setCuitPrefix] = useState('20');
+    const [dniInput, setDniInput] = useState('');
 
     useEffect(() => {
         checkAuth();
@@ -281,18 +283,40 @@ const RiskDashboard = ({ theme, setTheme }) => {
 
                     {isAuthenticated ? (
                         <>
-                            <div className="max-w-2xl mx-auto mb-4 flex justify-center gap-4">
+                            <div className="max-w-2xl mx-auto mb-4 flex flex-col md:flex-row justify-center gap-4">
                                 <div className="flex bg-brand-card border border-brand-secondary p-1 rounded-xl">
+                                    <select
+                                        value={cuitPrefix}
+                                        onChange={(e) => {
+                                            const newPrefix = e.target.value;
+                                            setCuitPrefix(newPrefix);
+                                            if (dniInput.length === 8) {
+                                                import('../utils/argentinaUtils').then(u => {
+                                                    const base = newPrefix + dniInput;
+                                                    const digit = u.calculateCUITDigit(base);
+                                                    setCuit(base + digit);
+                                                });
+                                            }
+                                        }}
+                                        className={`bg-transparent px-3 py-2 text-[10px] font-black uppercase outline-none ${theme === 'dark' ? 'text-white' : 'text-slate-900'} border-r border-brand-secondary/30`}
+                                    >
+                                        <option value="20">Masc (20)</option>
+                                        <option value="27">Fem (27)</option>
+                                        <option value="30">Emp (30)</option>
+                                        <option value="23">Var (23)</option>
+                                    </select>
                                     <input
                                         type="text"
                                         placeholder="DNI p/ Calcular"
                                         maxLength="8"
+                                        value={dniInput}
                                         className={`bg-transparent px-4 py-2 text-xs font-black uppercase outline-none w-32 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
                                         onChange={(e) => {
                                             const dni = e.target.value.replace(/\D/g, '');
+                                            setDniInput(dni);
                                             if (dni.length === 8) {
                                                 import('../utils/argentinaUtils').then(u => {
-                                                    const base = "20" + dni;
+                                                    const base = cuitPrefix + dni;
                                                     const digit = u.calculateCUITDigit(base);
                                                     setCuit(base + digit);
                                                 });
