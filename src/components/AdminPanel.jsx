@@ -209,6 +209,20 @@ const ManualReportForm = ({ theme, onComplete }) => {
         reporter_cuit: ''
     });
     const [loading, setLoading] = useState(false);
+    const [lookupLoading, setLookupLoading] = useState(false);
+
+    const handleLookup = async (cuit) => {
+        if (cuit.length < 11) return;
+        setLookupLoading(true);
+        try {
+            const res = await fetch(`api/search.php?cuit=${cuit}`);
+            const data = await res.json();
+            if (data.status === 'success' && data.name) {
+                setFormData(prev => ({ ...prev, nombre_denunciado: data.name }));
+            }
+        } catch (err) { console.error("Lookup error", err); }
+        finally { setLookupLoading(false); }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -235,12 +249,20 @@ const ManualReportForm = ({ theme, onComplete }) => {
         <form onSubmit={handleSubmit} className={`p-8 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
             <h3 className="text-xl font-black uppercase mb-6 tracking-tighter">Carga <span className="text-brand-neon">Directa de Deuda</span></h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input
-                    type="text" placeholder="CUIT Denunciado (solo números)"
-                    value={formData.cuit_denunciado} onChange={e => setFormData({ ...formData, cuit_denunciado: e.target.value.replace(/\D/g, '') })}
-                    className={`px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
-                    required
-                />
+                <div className="relative">
+                    <input
+                        type="text" placeholder="CUIT Denunciado (solo números)"
+                        value={formData.cuit_denunciado}
+                        onChange={e => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            setFormData({ ...formData, cuit_denunciado: val });
+                            if (val.length === 11) handleLookup(val);
+                        }}
+                        className={`w-full px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                        required
+                    />
+                    {lookupLoading && <div className="absolute right-3 top-3 animate-spin border-2 border-brand-neon border-t-transparent rounded-full w-4 h-4"></div>}
+                </div>
                 <input
                     type="text" placeholder="Nombre/Razón Social Denunciado"
                     value={formData.nombre_denunciado} onChange={e => setFormData({ ...formData, nombre_denunciado: e.target.value })}
@@ -411,6 +433,58 @@ const SocioList = ({ data, filterFn, theme, searchSocio, setSearchSocio, handleU
         </div>
     </div>
 );
+
+const LogsView = ({ theme }) => {
+    const [logs, setLogs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchLogs();
+    }, []);
+
+    const fetchLogs = async () => {
+        try {
+            const res = await fetch('api/admin_fetch_logs.php');
+            const data = await res.json();
+            if (data.status === 'success') setLogs(data.logs);
+        } catch (err) { console.error("Error fetching logs", err); }
+        finally { setLoading(false); }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className={`flex justify-between items-center p-6 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+                <h3 className="text-xl font-black uppercase tracking-tight">Registro de <span className="text-brand-neon">Actividad</span></h3>
+                <button onClick={fetchLogs} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                    <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
+                </button>
+            </div>
+
+            <div className="grid gap-4">
+                {logs.map((log, idx) => (
+                    <div key={idx} className={`p-4 rounded-2xl border ${theme === 'dark' ? 'bg-brand-card/50 border-brand-secondary' : 'bg-white border-slate-100 shadow-sm'} flex flex-col md:flex-row md:items-center justify-between gap-4`}>
+                        <div className="flex items-center gap-4">
+                            <div className={`p-2 rounded-lg ${log.action?.includes('LOGIN') ? 'bg-blue-500/10 text-blue-500' : 'bg-brand-neon/10 text-brand-neon'}`}>
+                                <Globe size={16} />
+                            </div>
+                            <div>
+                                <p className="text-xs font-black uppercase tracking-widest">{log.action}</p>
+                                <p className={`text-[10px] font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                                    {log.user_name} (ID: {log.user_id || 'Admin'}) • IP: {log.ip_address}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col md:items-end">
+                            <p className="text-[10px] font-medium opacity-80 mb-1">{log.details}</p>
+                            <p className="text-[9px] font-bold opacity-40">{new Date(log.created_at).toLocaleString()}</p>
+                        </div>
+                    </div>
+                ))}
+                {!loading && logs.length === 0 && <p className="text-center italic opacity-40 py-10">No hay registros de actividad aún.</p>}
+            </div>
+        </div>
+    );
+};
 
 const AdminPanel = () => {
     const [isLogged, setIsLogged] = useState(false);
@@ -700,6 +774,7 @@ const AdminPanel = () => {
                         { id: 'reports', label: 'Informes Deuda', icon: FileText },
                         { id: 'replicas', label: 'Réplicas', icon: MessageSquare },
                         { id: 'stats', label: 'Estadísticas', icon: Landmark },
+                        { id: 'logs', label: 'Auditoría Logs', icon: Clock },
                         { id: 'config', label: 'Configuración', icon: Save },
                     ].map((tab) => (
                         <button
@@ -982,6 +1057,8 @@ const AdminPanel = () => {
                             handlePlanChange={handlePlanChange}
                             fetchData={fetchData}
                         />
+                    ) : activeTab === 'logs' ? (
+                        <LogsView theme={theme} />
                     ) : activeTab === 'config' ? (
                         <div className="space-y-12 pb-20">
                             <ManualReportForm theme={theme} onComplete={fetchData} />

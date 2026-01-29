@@ -78,6 +78,8 @@ try {
             $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 1, plan = 'business', expiry_date = NULL WHERE cuit = ?");
             $stmt->execute([$cuit]);
 
+            log_activity($conn, 0, 'Admin', 'MAKE_VIP', "Socio $cuit convertido a VIP");
+
             // Enviar Mail de Notificación
             $to = $member['email'];
             $subject = "¡Premio VIP BuroSE - Acceso de por vida!";
@@ -92,7 +94,7 @@ try {
 
             @mail($to, $subject, $body, $headers);
 
-            echo json_encode(["status" => "success", "message" => "Socio convertido a VIP y notificado por email correctamente."]);
+            echo json_encode(["status" => "success", "message" => "Socio convertido a VIP and notificado por email correctamente."]);
         } else {
             echo json_encode(["status" => "error", "message" => "Socio no encontrado"]);
         }
@@ -100,11 +102,13 @@ try {
         $id = $data['id'] ?? null;
         $stmt = $conn->prepare("UPDATE replica_requests SET estado = 'aprobado' WHERE id = ?");
         $stmt->execute([$id]);
+        log_activity($conn, 0, 'Admin', 'APPROVE_REPLICA', "ID: $id");
         echo json_encode(["status" => "success", "message" => "Réplica marcada como aprobada/leída"]);
     } elseif ($action === 'delete_replica') {
         $id = $data['id'] ?? null;
         $stmt = $conn->prepare("DELETE FROM replica_requests WHERE id = ?");
         $stmt->execute([$id]);
+        log_activity($conn, 0, 'Admin', 'DELETE_REPLICA', "ID: $id");
         echo json_encode(["status" => "success", "message" => "Réplica eliminada"]);
     } elseif ($action === 'approve_report') {
         $id = $data['id'] ?? null;
@@ -123,13 +127,40 @@ try {
             $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + 1, reports_submitted_count = reports_submitted_count + 1 WHERE id = ?")->execute([$reporter_id]);
         }
 
+        log_activity($conn, 0, 'Admin', 'APPROVE_REPORT', "ID Reporte: $id, acreditado a ID: $reporter_id");
         echo json_encode(["status" => "success", "message" => "Reporte validado y 1 crédito acreditado al Miembro"]);
     } elseif ($action === 'update_credits') {
-        $monthly = intval($data['creds_monthly'] ?? 0);
-        $package = intval($data['creds_package'] ?? 0);
-        $stmt = $conn->prepare("UPDATE membership_companies SET creds_monthly = ?, creds_package = ? WHERE cuit = ?");
-        $stmt->execute([$monthly, $package, $cuit]);
+        // Fix para recibir 'credits' y 'type' del frontend, o 'creds_monthly'/'creds_package'
+        $creditsValue = intval($data['credits'] ?? 0);
+        $type = $data['type'] ?? 'all';
+
+        if ($type === 'package') {
+            $stmt = $conn->prepare("UPDATE membership_companies SET creds_package = ? WHERE cuit = ?");
+            $stmt->execute([$creditsValue, $cuit]);
+        } elseif ($type === 'monthly') {
+            $stmt = $conn->prepare("UPDATE membership_companies SET creds_monthly = ? WHERE cuit = ?");
+            $stmt->execute([$creditsValue, $cuit]);
+        } else {
+            // Caso por defecto o retrocompatibilidad
+            $monthly = intval($data['creds_monthly'] ?? $creditsValue);
+            $package = intval($data['creds_package'] ?? 0);
+            $stmt = $conn->prepare("UPDATE membership_companies SET creds_monthly = ?, creds_package = ? WHERE cuit = ?");
+            $stmt->execute([$monthly, $package, $cuit]);
+        }
+
+        log_activity($conn, 0, 'Admin', 'UPDATE_CREDITS', "CUIT: $cuit, Valor: $creditsValue, Tipo: $type");
         echo json_encode(["status" => "success", "message" => "Créditos actualizados correctamente"]);
+    } elseif ($action === 'update_plan') {
+        $plan = $data['plan'] ?? 'active';
+        $expiry_date = ($plan === 'active') ? date('Y-m-d', strtotime('+30 days')) : null;
+        if ($plan === 'free')
+            $expiry_date = null;
+
+        $stmt = $conn->prepare("UPDATE membership_companies SET plan = ?, expiry_date = ?, is_vip = 0 WHERE cuit = ?");
+        $stmt->execute([$plan, $expiry_date, $cuit]);
+
+        log_activity($conn, 0, 'Admin', 'UPDATE_PLAN', "CUIT: $cuit, Plan: $plan");
+        echo json_encode(["status" => "success", "message" => "Plan actualizado a $plan"]);
     } elseif ($action === 'system_config') {
         $key = $data['key'] ?? '';
         $value = $data['value'] ?? '';

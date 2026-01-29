@@ -43,8 +43,10 @@ function consultar_bcra($cuit)
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
@@ -57,6 +59,9 @@ function consultar_bcra($cuit)
             "data" => $data['results'] ?? null
         ];
     }
+
+    // Log BCRA error for admin review
+    @file_put_contents('bcra_errors.log', date('[Y-m-d H:i:s] ') . "CUIT: $cuit, Code: $httpCode, Error: $error" . PHP_EOL, FILE_APPEND);
 
     return [
         "success" => false,
@@ -141,7 +146,8 @@ if ($has_internal_risk || $has_bcra_risk || $has_bcra_debt) {
 
 // 5. Verificar sesión y Créditos
 $is_authenticated = false;
-$user_id = $_SESSION['user_id'] ?? null;
+$user_id = $_SESSION['member_id'] ?? null;
+$user_name = $_SESSION['member_name'] ?? 'Socio';
 $user_plan = 'guest';
 
 if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id) {
@@ -258,9 +264,11 @@ if (!$is_authenticated) {
 
     // Notificación por mail (burosearg@gmail.com)
     $to = "burosearg@gmail.com";
-    $subject = "CONSULTA SOCIO - " . ($_SESSION['user_name'] ?? 'Desconocido');
-    $body = "Socio: " . ($_SESSION['user_name'] ?? 'Desconocido') . " (" . ($_SESSION['user_cuit'] ?? 'N/A') . ")\nBuscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level\nAuth: " . ($_SESSION['user_auth_type'] ?? 'direct');
+    $subject = "CONSULTA SOCIO - " . $user_name;
+    $body = "Socio: " . $user_name . " (" . ($_SESSION['member_cuit'] ?? 'N/A') . ")\nBuscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level";
     @mail($to, $subject, $body, "From: info@burose.com.ar");
+
+    log_activity($conn, $user_id, $user_name, 'SEARCH_SOCIO', "Buscó: $cuit ($scraped_name), Alerta: $alert_level");
 
     echo json_encode([
         "status" => "success",
