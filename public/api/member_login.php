@@ -28,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user) {
-            // Uso de password_verify para contraseñas hasheadas
-            if (password_verify($password, $user['password'])) {
+            // Soporte para ambos: contraseñas hasheadas y legacy (texto plano)
+            if (password_verify($password, $user['password']) || $password === $user['password']) {
                 if ($user['estado'] !== 'validado') {
                     echo json_encode(['success' => false, 'message' => 'Tu cuenta aún no está validada por el administrador']);
                     exit;
