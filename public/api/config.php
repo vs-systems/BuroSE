@@ -90,6 +90,7 @@ try {
 
         // Esquema para reports (Asegurar que coincida con lo que usa el sitio)
         $conn->exec("ALTER TABLE reports MODIFY COLUMN monto DECIMAL(12,2) DEFAULT 0");
+        $conn->exec("ALTER TABLE reports MODIFY COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
         $check_fd = $conn->query("SHOW COLUMNS FROM reports LIKE 'fecha_denuncia'");
         if ($check_fd && $check_fd->rowCount() == 0) {
             $conn->exec("ALTER TABLE reports ADD COLUMN fecha_denuncia DATE DEFAULT NULL");

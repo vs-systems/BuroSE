@@ -39,7 +39,7 @@ if (!isset($_FILES['report'])) {
 
 $file = $_FILES['report'];
 $fileName = time() . '_' . basename($file['name']);
-$uploadDir = '../uploads/reports/';
+$uploadDir = 'uploads/reports/'; // Relativo al script public/api/
 
 // Crear directorio si no existe
 if (!is_dir($uploadDir)) {

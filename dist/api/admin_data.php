@@ -2,6 +2,10 @@
 // admin_data.php
 require_once 'config.php';
 
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Content-Type: application/json');
+
 if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
     http_response_code(403);
     echo json_encode(["status" => "error", "message" => "No autorizado"]);
@@ -22,7 +26,8 @@ try {
     $socios = $stmt3->fetchAll();
 
     // Obtener reportes cargados por asociados
-    $stmt4 = $conn->query("SELECT r.*, mc.razon_social as reporter_name FROM reports r LEFT JOIN membership_companies mc ON r.reporter_id = mc.id ORDER BY r.created_at DESC");
+    $stmt4 = $conn->query("SELECT r.*, mc.razon_social as reporter_name FROM reports r LEFT JOIN membership_companies mc ON
+r.reporter_id = mc.id ORDER BY r.created_at DESC");
     $reports = $stmt4->fetchAll();
 
     echo json_encode([
