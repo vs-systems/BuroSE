@@ -67,16 +67,21 @@ const AccessForm = ({ theme }) => {
             });
             const result = await response.json();
             if (result.status === 'success') {
-                alert('Gracias. Hemos recibido tu solicitud de acceso.');
-                setFormData({
-                    name: '',
-                    cuit: '',
-                    whatsapp: '',
-                    email: '',
-                    contactPref: 'whatsapp',
-                    sector: 'Distribuidor',
-                    city: ''
-                });
+                if (result.payment_url) {
+                    alert('Solicitud procesada. Serás redirigido al pago para completar tu alta.');
+                    window.location.href = result.payment_url;
+                } else {
+                    alert('Gracias. Hemos recibido tu solicitud de acceso.');
+                    setFormData({
+                        name: '',
+                        cuit: '',
+                        whatsapp: '',
+                        email: '',
+                        contactPref: 'whatsapp',
+                        sector: 'Distribuidor',
+                        city: ''
+                    });
+                }
             } else {
                 alert('Hubo un error: ' + result.message);
             }

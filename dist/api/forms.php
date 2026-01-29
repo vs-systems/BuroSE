@@ -34,6 +34,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['city']
             ]);
 
+            // Crear preferencia de pago MercadoLibre
+            $prefUrl = null;
+            $prefId = null;
+
+            // Llamada interna a create_preference logic (para no hacer http request a sí mismo)
+            require_once 'create_preference.php'; // Esto cargará funciones si las hubiera, pero como es script directo...
+            // Mejor refactorizamos create_preference para ser una función o lo llamamos via curl local
+            // Para simplificar y no refactorizar todo, usaremos curl a la propia API
+
+            $paymentData = [
+                'email' => $data['email'],
+                'cuit' => $data['cuit'],
+                'price' => 15000
+            ];
+
+            $curl = curl_init();
+            // Asumimos que la API está en el mismo dominio. En producción usar https://burose.com.ar/api/...
+            // Para localhost development:
+            $apiUrl = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . dirname($_SERVER['PHP_SELF']) . "/create_preference.php";
+
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $apiUrl,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($paymentData),
+                CURLOPT_HTTPHEADER => ["Content-Type: application/json"],
+                CURLOPT_SSL_VERIFYPEER => false // Solo si hay problemas de SSL local
+            ]);
+            $respPay = curl_exec($curl);
+            curl_close($curl);
+            $payJson = json_decode($respPay, true);
+
+            if ($payJson && isset($payJson['status']) && $payJson['status'] === 'success') {
+                $prefUrl = $payJson['init_point'];
+            }
+
             // Notificar por mail (legales@burose.com.ar)
             $to = "legales@burose.com.ar";
             $subject = "Nueva Solicitud: Denunciantes / Acceso - " . $data['name'];
@@ -44,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "Rubro: " . $data['sector'] . "\n" .
                 "Localidad: " . $data['city'] . "\n" .
                 "Preferencia: " . $data['contactPref'] . "\n\n" .
+                "Link Pago Generado: " . ($prefUrl ?? 'Error al generar') . "\n" .
                 "--- LEGAL ---\n" .
                 "Aceptó Términos: " . ($data['acceptTerms'] ? 'SÍ' : 'NO') . "\n" .
                 "Aceptó NDA: " . ($data['acceptNDA'] ? 'SÍ' : 'NO');
@@ -51,7 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $headers .= "Bcc: burosearg@gmail.com\r\n";
             mail($to, $subject, $body, $headers);
 
-            echo json_encode(["status" => "success", "message" => "Solicitud de contacto recibida"]);
+            echo json_encode([
+                "status" => "success",
+                "message" => "Solicitud recibida. Redirigiendo al pago...",
+                "payment_url" => $prefUrl
+            ]);
         } elseif ($data['type'] === 'general_contact') {
             // Nuevo Formulario de Contacto (General)
             $to = "legales@burose.com.ar";
