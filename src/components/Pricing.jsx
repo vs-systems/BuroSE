@@ -7,19 +7,29 @@ const Pricing = ({ theme }) => {
             name: "Consulta Individual",
             price: "Gratis",
             period: "*",
-            promo: "¡Próximamente!",
-            desc: "Para personas físicas que deseen consultar su estado básico.",
-            features: ["Acceso a Score BuroSE", "Validación de DNI/CUIT", "1 Consulta gratuita semanal"],
-            cta: "Explorar",
+            promo: "Ideal Prueba",
+            desc: "Para empresas que deseen probar el ecosistema colaborativo.",
+            features: [
+                "Acceso a Score BuroSE",
+                "Ratio 1/15 (1 consulta cada 15 días)",
+                "+1 Crédito por cada denuncia subida",
+                "Fichas técnicas básicas"
+            ],
+            cta: "Empezar Gratis",
             color: "border-slate-200"
         },
         {
             name: "Socio BuroSE",
             price: "$15.000",
             period: "/mes",
-            promo: "¡Ya Disponible!",
-            desc: "Ideal para empresas de Seguridad, Informática y Servicios IT.",
-            features: ["Consultas ilimitadas", "Acceso a Reportes de Gremios", "Carga de Deudores Propios", "Soporte Prioritario"],
+            promo: "¡Más Elegido!",
+            desc: "Acceso total para proteger tu facturación diaria.",
+            features: [
+                "Consultas ILIMITADAS",
+                "Carga de Deudores (Sin límites)",
+                "2 Asesorías legales sin cargo",
+                "30% Off en informes de bases privadas"
+            ],
             cta: "Unirse ahora",
             popular: true,
             color: "border-brand-neon"
@@ -28,9 +38,14 @@ const Pricing = ({ theme }) => {
             name: "Empresa & API",
             price: "$45.000",
             period: "/mes",
-            promo: "Consultar",
-            desc: "Enlaza nuestra base de datos con tu propio sistema.",
-            features: ["Acceso por API REST", "Documentación Técnica", "Tokens ilimitados", "Update en tiempo real"],
+            promo: "Alta Escala",
+            desc: "Integración total con tus sistemas propios y ERP.",
+            features: [
+                "Acceso por API REST / Full",
+                "Asesoramineto legal ILIMITADO",
+                "50% Off en consultas bases especiales",
+                "Soporte VIP 24/7"
+            ],
             cta: "Ver Docs",
             color: "border-blue-500"
         }
@@ -129,7 +144,7 @@ const Pricing = ({ theme }) => {
                             <h4 className={`text-2xl font-black mb-2 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>¿Ya tienes un sistema ERP o CRM?</h4>
                             <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>
                                 Enlaza BuroSE directamente con tu sitio web o facturador. Nuestra API permite verificar el riesgo de tus clientes en milisegundos de forma automática.
-                                <span className={`block mt-2 font-black text-blue-500 uppercase tracking-tighter ${theme === 'dark' ? '' : 'brightness-90'}`}>Ideal para Gremio de Seguridad e Informática.</span>
+                                <span className={`block mt-2 font-black text-blue-500 uppercase tracking-tighter ${theme === 'dark' ? '' : 'brightness-90'}`}>Ideal para Empresas y Profesionales en Argentina.</span>
                             </p>
                         </div>
                         <button

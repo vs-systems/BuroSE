@@ -11,7 +11,9 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true) {
     $response['authenticated'] = true;
     $response['user'] = [
         'name' => $_SESSION['member_name'],
-        'cuit' => $_SESSION['member_cuit']
+        'cuit' => $_SESSION['member_cuit'],
+        'plan' => $_SESSION['member_plan'] ?? 'free',
+        'is_vip' => $_SESSION['member_is_vip'] ?? 0
     ];
     $response['role'] = 'member';
 } elseif (isset($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true) {

@@ -45,64 +45,63 @@ const Manual = ({ theme }) => {
                     </motion.div>
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4 italic">BuroSE <span className="text-brand-neon">Manual</span></h1>
                     <p className={`text-lg md:text-xl font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                        Liderando la Red de Información Crediticia para Seguridad
+                        Liderando la Red de Información Crediticia para Argentina
                     </p>
                 </header>
 
                 <div className="grid gap-12">
-                    <section className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>
-                        <div className="flex flex-col md:flex-row items-center gap-10">
-                            <div className="flex-1">
-                                <h2 className="text-2xl font-black uppercase mb-6 flex items-center">
-                                    <Shield className="text-brand-neon mr-3" /> Seguridad de Datos
-                                </h2>
-                                <p className="text-lg leading-relaxed mb-6">
-                                    BuroSE no es solo una base de datos; es un ecosistema colaborativo. Cada registro subido es verificado y protegido bajo estándares de encriptación de grado bancario.
-                                </p>
-                                <div className="space-y-4">
-                                    {['Validación por CUIT', 'Cumplimiento con Ley de Protección de Datos', 'Auditoría constante'].map((check, i) => (
-                                        <div key={i} className="flex items-center font-bold">
-                                            <CheckCircle size={18} className="text-brand-neon mr-2" /> {check}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="flex-1">
-                                <img src="/manual_hero_png_1769455415195.png" alt="Security Illustration" className="rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-500" />
+                    <section className={`p-10 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>
+                        <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+                            <h2 className="text-3xl font-black uppercase mb-6 flex items-center justify-center">
+                                <Shield className="text-brand-neon mr-3" /> Seguridad de Datos
+                            </h2>
+                            <p className="text-xl leading-relaxed mb-8">
+                                BuroSE no es solo una base de datos; es un ecosistema colaborativo. Cada registro subido es verificado y protegido bajo estándares de encriptación de grado bancario.
+                            </p>
+                            <div className="grid sm:grid-cols-3 gap-6 w-full">
+                                {['Validación por CUIT', 'Cumplimiento con Ley de Protección de Datos', 'Auditoría constante'].map((check, i) => (
+                                    <div key={i} className="flex items-center justify-center font-bold p-4 bg-white/5 rounded-2xl border border-white/10 uppercase text-[10px] tracking-widest">
+                                        <CheckCircle size={14} className="text-brand-neon mr-2" /> {check}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </section>
 
                     <motion.div variants={container} initial="hidden" animate="show" className="grid md:grid-cols-3 gap-6">
                         {steps.map((step, idx) => (
-                            <motion.div key={idx} variants={item} className={`p-6 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary hover:border-brand-neon/40' : 'bg-white border-slate-100 shadow-lg hover:shadow-2xl'}`}>
+                            <motion.div key={idx} variants={item} className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary hover:border-brand-neon/40' : 'bg-white border-slate-100 shadow-lg hover:shadow-2xl'}`}>
                                 <div className="mb-4">{step.icon}</div>
-                                <h3 className="font-black uppercase mb-3 text-lg">{step.title}</h3>
+                                <h3 className="font-black uppercase mb-4 text-xl tracking-tighter">{step.title}</h3>
                                 <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'}`}>{step.desc}</p>
                             </motion.div>
                         ))}
                     </motion.div>
 
                     <section className={`p-10 rounded-3xl overflow-hidden relative ${theme === 'dark' ? 'bg-brand-neon/5 border border-brand-neon/20' : 'bg-slate-900 border border-slate-800'}`}>
-                        <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-                            <div className="flex-1 text-white">
-                                <h2 className="text-3xl font-black uppercase mb-6 tracking-tight italic">
-                                    Integración con <span className="text-brand-neon">Mercado Pago</span>
-                                </h2>
-                                <p className="text-lg opacity-80 mb-8 leading-relaxed font-medium">
-                                    Olvídate de las transferencias manuales. Paga tu abono mensual de forma instantánea y segura. Tu acceso se renueva de forma automática para que nunca pierdas el ritmo de tu negocio.
-                                </p>
-                                <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
-                                    <p className="text-xs font-black uppercase tracking-widest text-brand-neon mb-4">¿Cómo funciona?</p>
-                                    <ul className="space-y-3 text-sm font-bold">
-                                        <li className="flex items-start"><ArrowRight size={14} className="mr-2 mt-1 text-brand-neon" /> Botón de pago en tu Dashboard</li>
-                                        <li className="flex items-start"><ArrowRight size={14} className="mr-2 mt-1 text-brand-neon" /> Selección de medio (Débito/Crédito)</li>
-                                        <li className="flex items-start"><ArrowRight size={14} className="mr-2 mt-1 text-brand-neon" /> Notificación instantánea y extensión de servicio</li>
-                                    </ul>
+                        <div className="flex flex-col items-center text-center max-w-3xl mx-auto relative z-10">
+                            <h2 className="text-3xl font-black uppercase mb-6 tracking-tight italic text-white">
+                                Integración con <span className="text-brand-neon">Mercado Pago</span>
+                            </h2>
+                            <p className="text-lg opacity-80 mb-8 leading-relaxed font-medium text-white">
+                                Olvídate de las transferencias manuales. Paga tu abono mensual de forma instantánea y segura. Tu acceso se renueva de forma automática para que nunca pierdas el ritmo de tu negocio.
+                            </p>
+                            <div className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20 w-full">
+                                <p className="text-xs font-black uppercase tracking-widest text-brand-neon mb-6">¿Cómo funciona?</p>
+                                <div className="grid sm:grid-cols-3 gap-6 text-white">
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-10 h-10 rounded-full bg-brand-neon text-brand-darker flex items-center justify-center font-black mb-3">1</div>
+                                        <p className="text-[10px] uppercase font-black tracking-widest">Botón de pago en Dashboard</p>
+                                    </div>
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-10 h-10 rounded-full bg-brand-neon text-brand-darker flex items-center justify-center font-black mb-3">2</div>
+                                        <p className="text-[10px] uppercase font-black tracking-widest">Selección de medio</p>
+                                    </div>
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-10 h-10 rounded-full bg-brand-neon text-brand-darker flex items-center justify-center font-black mb-3">3</div>
+                                        <p className="text-[10px] uppercase font-black tracking-widest">Notificación instantánea</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex-1">
-                                <img src="/step_registration_png_1769455431135.png" alt="Process Infographic" className="rounded-2xl shadow-2xl brightness-110" />
                             </div>
                         </div>
                     </section>

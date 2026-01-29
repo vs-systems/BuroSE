@@ -11,72 +11,49 @@ const LogosSlider = ({ theme }) => {
                     setLogos(data.data);
                 }
             })
-            .catch(err => console.error("Error loading logos:", err));
+            .catch(err => console.error("Error loading associates:", err));
     }, []);
 
-    // Placeholder data if no logos are available in DB
-    const baseLogos = logos.length > 0 ? logos : [
-        { name: "Seguridad 1", logo_url: "https://via.placeholder.com/150?text=Security+Co" },
-        { name: "Informática 2", logo_url: "https://via.placeholder.com/150?text=IT+Services" },
-        { name: "Alarma 3", logo_url: "https://via.placeholder.com/150?text=Alarms+Pro" },
-        { name: "CCTV 4", logo_url: "https://via.placeholder.com/150?text=CCTV+Global" },
-        { name: "Seguridad 5", logo_url: "https://via.placeholder.com/150?text=Shield+Tech" }
+    // Placeholder data if no entries in DB
+    const associates = logos.length > 0 ? logos : [
+        { name: "Seguridad Global", website_url: "#" },
+        { name: "IT Solutions AR", website_url: "#" },
+        { name: "Alarms & Monitoring", website_url: "#" },
+        { name: "CCTV Experts", website_url: "#" },
+        { name: "Shield Tech", website_url: "#" }
     ];
 
-    // Duplicate logos for infinite scroll effect
-    const displayLogos = [...baseLogos, ...baseLogos, ...baseLogos];
-
     return (
-        <section className={`py-12 border-y overflow-hidden bg-white border-slate-100`}>
-            <div className="container mx-auto px-4 text-center mb-8">
-                <h3 className={`font-bold text-lg md:text-xl text-slate-600`}>
-                    Estas empresas ya estan confiando sus bases de deudores en <span className="text-brand-neon">BuroSE</span>..
-                </h3>
-            </div>
+        <section id="associates" className={`py-20 border-t transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker border-brand-secondary/30' : 'bg-white border-slate-100'}`}>
+            <div className="container mx-auto px-4">
+                <div className="text-center mb-12">
+                    <h3 className={`text-2xl md:text-3xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                        Empresas que confían en <span className="text-brand-neon">BuroSE</span>
+                    </h3>
+                    <p className={`mt-2 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                        Nuestra red colaborativa crece día a día para proteger el crédito comercial.
+                    </p>
+                </div>
 
-            <div className="relative flex overflow-x-hidden group">
-                <div className="flex animate-scroll whitespace-nowrap gap-8 items-center py-4">
-                    {displayLogos.map((logo, idx) => (
+                <div className="flex flex-wrap justify-center gap-4 max-w-6xl mx-auto">
+                    {associates.map((item, idx) => (
                         <a
                             key={idx}
-                            href={logo.website_url || "#"}
+                            href={item.website_url || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`h-20 min-w-[200px] px-8 py-4 border rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-xl group/card ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-brand-neon/40' : 'bg-white border-slate-50 hover:border-brand-neon/40'
+                            className={`px-8 py-5 border-2 rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-brand-neon/50 active:scale-95 group ${theme === 'dark'
+                                ? 'bg-brand-card/50 border-brand-secondary/50 text-white'
+                                : 'bg-white border-slate-100 text-slate-800 shadow-sm'
                                 }`}
                         >
-                            <img
-                                src={logo.logo_url}
-                                alt={logo.name}
-                                title={logo.name}
-                                className={`max-h-12 w-auto object-contain transition-all duration-300 ${theme === 'dark' ? 'brightness-110 grayscale hover:grayscale-0' : 'grayscale hover:grayscale-0'
-                                    }`}
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    const span = document.createElement('span');
-                                    span.className = "text-xs font-black uppercase tracking-widest text-slate-400";
-                                    span.innerText = logo.name;
-                                    e.target.parentElement.appendChild(span);
-                                }}
-                            />
+                            <span className="text-lg md:text-xl font-black uppercase tracking-tighter transition-colors group-hover:text-brand-neon whitespace-nowrap">
+                                {item.name}
+                            </span>
                         </a>
                     ))}
                 </div>
             </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes scroll {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                }
-                .animate-scroll {
-                    animation: scroll 30s linear infinite;
-                }
-                .animate-scroll:hover {
-                    animation-play-state: paused;
-                }
-            `}} />
         </section>
     );
 };

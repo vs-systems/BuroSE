@@ -23,13 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // En la tabla real la columna se llama 'password' (según admin_approve.php)
         // Buscamos coincidencia por CUIT
-        $stmt = $conn->prepare("SELECT id, razon_social, cuit, password, estado FROM membership_companies WHERE cuit = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT id, razon_social, cuit, password, estado, plan, is_vip FROM membership_companies WHERE cuit = ? LIMIT 1");
         $stmt->execute([$cuit]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user) {
-            // Comparación directa (password plain text o simple hash)
-            if ($password === $user['password']) {
+            // Uso de password_verify para contraseñas hasheadas
+            if (password_verify($password, $user['password'])) {
                 if ($user['estado'] !== 'validado') {
                     echo json_encode(['success' => false, 'message' => 'Tu cuenta aún no está validada por el administrador']);
                     exit;
@@ -38,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['member_id'] = $user['id'];
                 $_SESSION['member_name'] = $user['razon_social'];
                 $_SESSION['member_cuit'] = $user['cuit'];
+                $_SESSION['member_plan'] = $user['plan'];
+                $_SESSION['member_is_vip'] = $user['is_vip'];
                 $_SESSION['is_member'] = true;
 
                 echo json_encode([

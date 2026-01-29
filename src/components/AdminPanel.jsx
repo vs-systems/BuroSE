@@ -3,92 +3,94 @@ import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, T
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
-    const [newLogo, setNewLogo] = useState({ name: '', logo_url: '', website_url: '' });
+    const [name, setName] = useState('');
+    const [website, setWebsite] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => { fetchLogos(); }, []);
+    useEffect(() => {
+        fetchLogos();
+    }, []);
 
     const fetchLogos = async () => {
         try {
             const res = await fetch('api/admin_logos.php');
-            if (!res.ok) {
-                const text = await res.text();
-                console.error("Server Error:", text);
-                return;
-            }
             const data = await res.json();
             if (data.status === 'success') setLogos(data.data);
-        } catch (e) {
-            console.error("Error fetching logos:", e);
+        } catch (err) {
+            console.error("Error fetching associates:", err);
         }
     };
 
     const handleAdd = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const res = await fetch('api/admin_logos.php', {
                 method: 'POST',
-                body: JSON.stringify(newLogo),
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, website_url: website, logo_url: 'TEXT_ONLY' }) // Usamos un flag para bypass del check de backend viejo
             });
-
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => null);
-                const msg = errorData?.message || "Error desconocido en el servidor";
-                const hint = errorData?.hint || "";
-                alert(`Error al agregar logo: ${msg}\n${hint}`);
-                return;
+            const data = await res.json();
+            if (data.status === 'success') {
+                setName('');
+                setWebsite('');
+                fetchLogos();
+            } else {
+                alert(data.message);
             }
-
-            setNewLogo({ name: '', logo_url: '', website_url: '' });
-            fetchLogos();
-        } catch (e) {
-            console.error("Add Logo Error:", e);
-            alert("Error de conexión al agregar logo");
+        } catch (err) {
+            alert("Error al conectar con la base de datos");
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('¿Eliminar este logo?')) return;
+        if (!confirm("¿Eliminar este asociado?")) return;
         await fetch(`api/admin_logos.php?id=${id}`, { method: 'DELETE' });
         fetchLogos();
     };
 
     return (
-        <div className="space-y-8">
-            <form onSubmit={handleAdd} className={`border p-6 rounded-2xl grid md:grid-cols-4 gap-4 items-end transition-colors ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-sm'
-                }`}>
-                <div>
-                    <label className={`block text-xs font-bold uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>Nombre Empresa</label>
-                    <input type="text" value={newLogo.name} onChange={e => setNewLogo({ ...newLogo, name: e.target.value })} className={`w-full border rounded-lg px-4 py-2 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                        }`} placeholder="Ej: Seguridad X" required />
+        <div className={`p-10 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+            <h2 className="text-3xl font-black uppercase mb-8 tracking-tighter">Gestión de <span className="text-brand-neon">Asociados</span></h2>
+
+            <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input
+                        type="text" value={name} onChange={e => setName(e.target.value)}
+                        placeholder="Nombre de la Empresa (ej: Seguridad X)"
+                        required
+                        className={`px-6 py-4 rounded-xl border-2 focus:border-brand-neon outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                    />
+                    <input
+                        type="url" value={website} onChange={e => setWebsite(e.target.value)}
+                        placeholder="Sitio Web (https://...)"
+                        required
+                        className={`px-6 py-4 rounded-xl border-2 focus:border-brand-neon outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                    />
                 </div>
-                <div>
-                    <label className={`block text-xs font-bold uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>URL del Logo</label>
-                    <input type="text" value={newLogo.logo_url} onChange={e => setNewLogo({ ...newLogo, logo_url: e.target.value })} className={`w-full border rounded-lg px-4 py-2 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                        }`} placeholder="https://..." required />
-                </div>
-                <div>
-                    <label className={`block text-xs font-bold uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>URL Sitio Web</label>
-                    <input type="text" value={newLogo.website_url} onChange={e => setNewLogo({ ...newLogo, website_url: e.target.value })} className={`w-full border rounded-lg px-4 py-2 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                        }`} placeholder="https://..." />
-                </div>
-                <button type="submit" className="bg-brand-neon text-brand-darker font-black py-2 rounded-lg flex items-center justify-center hover:scale-[1.02] transition-transform shadow-lg shadow-brand-neon/20 uppercase text-xs">
-                    <Plus size={18} className="mr-2" /> Agregar Logo
+                <button
+                    disabled={loading}
+                    className="bg-brand-neon text-brand-darker font-black py-4 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-neon/20 uppercase tracking-widest text-xs"
+                >
+                    {loading ? 'Procesando...' : '+ Agregar Asociado'}
                 </button>
             </form>
 
-            <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 p-6 rounded-2xl ${theme === 'dark' ? 'bg-white' : 'bg-white border border-slate-100'}`}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
                 {logos.map(logo => (
-                    <div key={logo.id} className="border p-4 rounded-xl relative group overflow-hidden transition-all bg-white border-slate-100 shadow-sm">
-                        <img src={logo.logo_url} alt={logo.name} className="h-12 w-full object-contain mb-4" />
-                        <h4 className="text-sm font-bold text-center truncate text-slate-900">{logo.name}</h4>
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center space-x-4 bg-white/95">
-                            <a href={logo.website_url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full transition-all bg-slate-100 text-slate-600 hover:bg-brand-neon hover:text-brand-darker"><Globe size={18} /></a>
-                            <button onClick={() => handleDelete(logo.id)} className="p-2 rounded-full transition-all bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"><Trash2 size={18} /></button>
-                        </div>
+                    <div key={logo.id} className={`group relative p-6 rounded-2xl border-2 flex flex-col items-center justify-center text-center transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary hover:border-brand-neon/50' : 'bg-slate-50 border-slate-100 hover:border-brand-neon/50'}`}>
+                        <span className="text-sm font-black uppercase tracking-tighter mb-2 leading-none">{logo.name}</span>
+                        <span className="text-[10px] text-brand-muted truncate w-full opacity-50 px-2">{logo.website_url}</span>
+                        <button
+                            onClick={() => handleDelete(logo.id)}
+                            className="absolute -top-3 -right-3 p-2 bg-brand-alert text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-brand-alert/20"
+                        >
+                            <Trash2 size={14} />
+                        </button>
                     </div>
                 ))}
-                {logos.length === 0 && <p className="col-span-full text-center py-10 italic text-slate-400">No hay logos cargados.</p>}
             </div>
         </div>
     );
@@ -205,6 +207,7 @@ const AdminPanel = () => {
     const [data, setData] = useState({ contacts: [], replicas: [], socios: [] });
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('contacts');
+    const [searchSocio, setSearchSocio] = useState('');
     const [socioFilter, setSocioFilter] = useState('all'); // 'all', 'validado', 'bloqueado'
     const [theme, setTheme] = useState('dark');
 
@@ -427,8 +430,8 @@ const AdminPanel = () => {
                             : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
                             }`}
                     >
-                        <ImageIcon size={18} />
-                        <span>Logos</span>
+                        <Globe size={18} />
+                        <span>Asociados</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('socios')}
@@ -594,20 +597,32 @@ const AdminPanel = () => {
                         </div>
                     ) : activeTab === 'socios' ? (
                         <div className="space-y-6">
-                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
-                                <div className="flex gap-4">
-                                    {['all', 'validado', 'bloqueado'].map(f => (
-                                        <button
-                                            key={f}
-                                            onClick={() => setSocioFilter(f)}
-                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${socioFilter === f
-                                                ? 'bg-brand-neon text-brand-darker shadow-lg'
-                                                : (theme === 'dark' ? 'bg-brand-secondary text-brand-muted hover:bg-brand-secondary/80' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')
-                                                }`}
-                                        >
-                                            {f === 'all' ? 'Todos' : f === 'validado' ? 'Activos' : 'Bloqueados'}
-                                        </button>
-                                    ))}
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 w-full">
+                                <div className="flex flex-1 gap-4 w-full">
+                                    <div className="relative flex-1">
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted opacity-50" size={16} />
+                                        <input
+                                            type="text"
+                                            placeholder="Buscar CUIT (solo números)..."
+                                            value={searchSocio}
+                                            onChange={(e) => setSearchSocio(e.target.value.replace(/\D/g, ''))}
+                                            className={`w-full pl-12 pr-4 py-2.5 rounded-xl border-2 outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white focus:border-brand-neon' : 'bg-white border-slate-100 focus:border-brand-neon'}`}
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {['all', 'validado', 'bloqueado'].map(f => (
+                                            <button
+                                                key={f}
+                                                onClick={() => setSocioFilter(f)}
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${socioFilter === f
+                                                    ? 'bg-brand-neon text-brand-darker shadow-lg'
+                                                    : (theme === 'dark' ? 'bg-brand-secondary text-brand-muted hover:bg-brand-secondary/80' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')
+                                                    }`}
+                                            >
+                                                {f === 'all' ? 'Todos' : f === 'validado' ? 'Activos' : 'Bloqueados'}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                                 <button
                                     onClick={() => {
@@ -620,7 +635,7 @@ const AdminPanel = () => {
                                         if (razon && cuit && email) {
                                             fetch('api/admin_create_socio.php', {
                                                 method: 'POST',
-                                                body: JSON.stringify({ razon_social: razon, cuit, email, pass, expiry_days: days }),
+                                                body: JSON.stringify({ razon_social: razon, cuit: cuit.replace(/\D/g, ''), email, pass, expiry_days: days }),
                                                 headers: { 'Content-Type': 'application/json' },
                                                 credentials: 'include'
                                             }).then(r => r.json()).then(data => {
@@ -629,14 +644,14 @@ const AdminPanel = () => {
                                             });
                                         }
                                     }}
-                                    className="bg-brand-neon text-brand-darker font-black px-6 py-2 rounded-xl text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
+                                    className="bg-brand-neon text-brand-darker font-black px-6 py-2.5 rounded-xl text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
                                 >
                                     <Plus size={16} /> Crear Socio Manual
                                 </button>
                             </div>
                             <div className="grid gap-6">
                                 {data.socios
-                                    .filter(s => s.is_vip != 1 && (socioFilter === 'all' || s.estado === socioFilter))
+                                    .filter(s => s.is_vip != 1 && (socioFilter === 'all' || s.estado === socioFilter) && (s.cuit.includes(searchSocio) || s.razon_social.toLowerCase().includes(searchSocio.toLowerCase())))
                                     .map((s, idx) => (
                                         <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
                                             ? 'bg-brand-card border-brand-secondary'
@@ -680,7 +695,19 @@ const AdminPanel = () => {
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado: <span className={s.estado === 'bloqueado' ? 'text-brand-alert' : 'text-green-500'}>{s.estado.toUpperCase()}</span></p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Cuenta:</p>
+                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${s.plan === 'business' ? 'bg-blue-500 text-white' :
+                                                        s.plan === 'active' ? 'bg-green-500 text-white' :
+                                                            'bg-slate-500 text-white'
+                                                        }`}>
+                                                        {s.plan?.toUpperCase() || 'FREE'}
+                                                    </span>
+                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${s.estado === 'bloqueado' ? 'bg-red-500 text-white' : 'bg-brand-neon text-brand-darker'
+                                                        }`}>
+                                                        {s.estado.toUpperCase()}
+                                                    </span>
+                                                </div>
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.expiry_date || 'N/A'}</span></p>
                                             </div>
                                             {s.api_token && (
@@ -741,7 +768,10 @@ const AdminPanel = () => {
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado: <span className="text-brand-neon">PERPETUO</span></p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado:</p>
+                                                    <span className="bg-brand-neon text-brand-darker px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">PERPETUO / VIP</span>
+                                                </div>
                                                 <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className="text-slate-400 italic">Nunca</span></p>
                                             </div>
                                         </div>

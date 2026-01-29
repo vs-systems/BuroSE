@@ -11,14 +11,14 @@ const Manuals = ({ theme }) => {
             content: [
                 { h: "Acceso Básico", p: "Cualquier persona puede consultar el Score BuroSE introduciendo un DNI o CUIT válido." },
                 { h: "Alcance", p: "La consulta gratuita muestra el nivel de riesgo unificado (Verde, Amarillo, Rojo) basado en datos del BCRA." },
-                { h: "Limitaciones", p: "No es posible visualizar deudas internas del gremio ni detalles de acreedores sin una cuenta de Socio." }
+                { h: "Limitaciones", p: "No es posible visualizar deudas internas de empresas asociadas ni detalles de acreedores sin una cuenta de Socio." }
             ]
         },
         socio: {
             title: "Manual del Socio (Empresas)",
             icon: <ShieldCheck className="text-brand-neon" />,
             content: [
-                { h: "Buscador Avanzado", p: "Acceso total a la base de datos de deudores de seguridad electrónica e informática." },
+                { h: "Buscador Avanzado", p: "Acceso total a la base de datos de deudores de empresas y proveedores asociados en Argentina." },
                 { h: "Carga de Informes", p: "Los socios pueden reportar deudores subiendo documentación probatoria (PDF/Imagen). Esta información es confidencial." },
                 { h: "Privacidad", p: "BuroSE garantiza que la documentación subida solo se utiliza como respaldo legal y no se muestra a terceros." },
                 { h: "Responsabilidad", p: "El socio es responsable por la veracidad de los datos cargados conforme a la Ley 25.326." }
@@ -88,10 +88,34 @@ const Manuals = ({ theme }) => {
 
                         <div className={`mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-6 ${theme === 'dark' ? 'border-brand-secondary/50' : 'border-slate-100'
                             }`}>
-                            <p className={`text-[10px] uppercase font-black tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>BuroSE | Framework de Riesgo 2.1</p>
-                            <button className={`flex items-center text-xs font-black uppercase tracking-widest transition-all hover:scale-105 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>
-                                Descargar PDF <Download size={14} className="ml-2" />
-                            </button>
+                            <p className={`text-[10px] uppercase font-black tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>BuroSE | Framework de Riesgo 2.2</p>
+                            <div className="flex items-center gap-6">
+                                <button
+                                    onClick={() => {
+                                        const text = encodeURIComponent(`*Manual BuroSE: ${manuals[activeManual].title}*\n\n` + manuals[activeManual].content.map(c => `*${c.h}:* ${c.p}`).join('\n\n'));
+                                        window.open(`https://wa.me/?text=${text}`, '_blank');
+                                    }}
+                                    className={`flex items-center text-xs font-black uppercase tracking-widest transition-all hover:scale-105 ${theme === 'dark' ? 'text-brand-muted hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
+                                >
+                                    WhatsApp
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const subject = encodeURIComponent(`Manual BuroSE: ${manuals[activeManual].title}`);
+                                        const body = encodeURIComponent(`Detalle del ${manuals[activeManual].title}:\n\n` + manuals[activeManual].content.map(c => `${c.h}: ${c.p}`).join('\n\n'));
+                                        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                                    }}
+                                    className={`flex items-center text-xs font-black uppercase tracking-widest transition-all hover:scale-105 ${theme === 'dark' ? 'text-brand-muted hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
+                                >
+                                    Email
+                                </button>
+                                <button
+                                    onClick={() => window.print()}
+                                    className={`flex items-center text-xs font-black uppercase tracking-widest transition-all hover:scale-105 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}
+                                >
+                                    Descargar PDF <Download size={14} className="ml-2" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

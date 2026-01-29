@@ -211,7 +211,9 @@ const RiskDashboard = ({ theme, setTheme }) => {
                             <div className={`flex items-center gap-4 px-6 py-3 rounded-xl border ${theme === 'dark' ? 'bg-brand-dark/40 border-brand-neon/20' : 'bg-white border-slate-200'}`}>
                                 <div className="text-right">
                                     <p className={`text-[8px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Estado de Cuenta</p>
-                                    <p className={`text-xs font-black uppercase ${theme === 'dark' ? 'text-brand-neon' : 'text-green-600'}`}>Socio Activo</p>
+                                    <p className={`text-xs font-black uppercase ${user?.is_vip == 1 ? 'text-brand-neon' : user?.plan === 'business' ? 'text-blue-500' : 'text-green-500'}`}>
+                                        {user?.is_vip == 1 ? 'Socio VIP' : user?.plan?.toUpperCase() || 'Socio Activo'}
+                                    </p>
                                 </div>
                                 <button
                                     onClick={handlePayment}

@@ -18,7 +18,6 @@ const Landing = ({ theme, setTheme }) => {
             <Header theme={theme} setTheme={setTheme} />
             <main>
                 <Hero theme={theme} />
-                <LogosSlider theme={theme} />
                 <ProblemChart theme={theme} />
                 <HowItWorks theme={theme} />
                 <Pricing theme={theme} />
@@ -29,6 +28,7 @@ const Landing = ({ theme, setTheme }) => {
                     <AccessForm theme={theme} />
                     <ReplyForm theme={theme} />
                 </div>
+                <LogosSlider theme={theme} />
             </main>
             <Footer theme={theme} />
         </div>

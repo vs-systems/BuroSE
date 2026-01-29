@@ -12,17 +12,30 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                             <ShieldCheck className="text-brand-neon" size={28} />
                             <span className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>BuroSE</span>
                         </div>
-                        <p className={`text-sm leading-relaxed max-w-xs font-medium ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                            El primer buró de crédito colaborativo para el gremio de la seguridad electrónica en Argentina.
+                        <p className={`text-sm leading-relaxed max-w-xs font-medium ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-50'}`}>
+                            El primer buró de crédito colaborativo para Clientes Privados de empresas en Argentina.
                         </p>
+                        <div className="mt-6">
+                            <a
+                                href="https://wa.me/5492235772165"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg shadow-green-600/20"
+                            >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.588-5.946 0-6.556 5.332-11.888 11.888-11.888 3.176 0 6.161 1.237 8.404 3.48s3.481 5.229 3.481 8.404c0 6.556-5.332 11.888-11.888 11.888-2.003 0-3.963-.505-5.704-1.467l-6.29 1.652zm6.541-4.008c1.517.901 3.13 1.353 4.786 1.353 5.093 0 9.237-4.144 9.237-9.237 0-2.469-.961-4.79-2.706-6.535s-4.066-2.707-6.531-2.707c-5.093 0-9.237 4.144-9.237 9.237 0 1.761.503 3.472 1.455 4.965l-1.025 3.743 3.821-1.003zm9.02-6.561c2.253.251 2.253.301 2.253.301.2.051.15.552.1.802-.301 1.556-1.154 2.158-2.258 2.308-.853.151-2.911-.703-3.964-1.255-1.053-.552-3.061-2.761-3.663-3.916-.602-1.155-.301-2.208.652-2.911.351-.301.652-.351.853-.351.2 0 .401.051.552.401.552 1.305 1.053 2.158 1.454 2.61.151.151.251.251.151.451-.051.2-.201.552-1.054 1.506z" />
+                                </svg>
+                                Contactar Soporte
+                            </a>
+                        </div>
                     </div>
 
                     <div className="text-center sm:text-left">
                         <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Plataforma</h4>
                         <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                            <li><a href="/#contact" className="hover:text-brand-neon transition-colors">Solicitar Registro</a></li>
-                            <li><a href="/#/risk-dashboard" className="hover:text-brand-neon transition-colors">Consulta de Riesgo</a></li>
+                            <li><a href="/#contact" className="hover:text-brand-neon transition-colors">Solicitar Registro (GRATIS)</a></li>
                             <li><a href="/#/login" className="hover:text-brand-neon transition-colors">Panel de Socios</a></li>
+                            <li><a href="/#/pricing" className="hover:text-brand-neon transition-colors">Planes y Precios</a></li>
                         </ul>
                     </div>
 
@@ -45,6 +58,12 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                                 VS Sistemas
                             </span>
                         </a>
+                        <div className="mt-8 pt-4 border-t border-white/5">
+                            <p className="text-[10px] font-black uppercase tracking-tighter text-brand-muted">
+                                Última Actualización:<br />
+                                <span className="text-brand-neon">2026-01-28 20:32</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -55,8 +74,8 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                         <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
                             Legales: legales@burose.com.ar
                         </a>
-                        <a href="mailto:somos@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
-                            Soporte: somos@burose.com.ar
+                        <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
+                            Soporte: legales@burose.com.ar
                         </a>
                     </div>
                     <p className="flex items-center">

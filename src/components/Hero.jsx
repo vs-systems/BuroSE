@@ -26,7 +26,7 @@ const Hero = ({ theme }) => {
 
                 <p className={`text-lg md:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed transition-colors duration-500 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-600'
                     }`}>
-                    El buró colaborativo especializado para Seguridad e Informática en Argentina.
+                    El buró colaborativo para Clientes Privados de empresas en Argentina.
                     Un apoyo estratégico único, fuera de las bases de datos convencionales.
                 </p>
 

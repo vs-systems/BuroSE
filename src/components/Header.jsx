@@ -121,9 +121,9 @@ const Header = ({ theme, setTheme }) => {
                                         setIsOpen(false);
                                         document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
                                     }}
-                                    className="w-full py-4 bg-brand-neon text-brand-darker font-bold rounded-xl shadow-lg shadow-brand-neon/20 active:scale-95 transition-transform"
+                                    className="w-full py-4 bg-brand-neon text-brand-darker font-black rounded-xl shadow-lg shadow-brand-neon/20 active:scale-95 transition-transform"
                                 >
-                                    Contacto / Solicitar Acceso
+                                    Contacto / Solicitar Registro
                                 </button>
                                 <a
                                     href="/#/admin"

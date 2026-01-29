@@ -65,6 +65,11 @@ try {
             $conn->exec("ALTER TABLE membership_companies ADD COLUMN api_token VARCHAR(255) DEFAULT NULL");
         }
 
+        $check_plan = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'plan'");
+        if ($check_plan && $check_plan->rowCount() == 0) {
+            $conn->exec("ALTER TABLE membership_companies ADD COLUMN plan VARCHAR(20) DEFAULT 'free'");
+        }
+
         // Nuevos campos para reportes (Enriquecimiento de datos)
         $new_report_cols = [
             'intencion_pago' => 'TINYINT DEFAULT 0',

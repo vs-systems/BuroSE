@@ -27,7 +27,7 @@ try {
     $expiry_date = date('Y-m-d', strtotime('+30 days'));
     $hashed_pass = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO membership_companies (cuit, password, razon_social, email, whatsapp, localidad, rubro, estado, expiry_date) VALUES (?, ?, ?, ?, ?, ?, ?, 'validado', ?)");
+    $stmt = $conn->prepare("INSERT INTO membership_companies (cuit, password, razon_social, email, whatsapp, localidad, rubro, estado, expiry_date, plan) VALUES (?, ?, ?, ?, ?, ?, ?, 'validado', ?, 'active')");
     if ($stmt->execute([$cuit, $hashed_pass, $name, $email, $whatsapp, $localidad, $rubro, $expiry_date])) {
         // Eliminar de solicitudes tras aprobar
         $stmtDel = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
