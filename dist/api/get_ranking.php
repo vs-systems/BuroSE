@@ -32,11 +32,57 @@ try {
     $consolidated = [];
     $usedCuits = [];
 
-    // Prioridad 1: Los forzados en su posición específica
+    // Prioridad 1: Los forzados con posición específica
     foreach ($forced as $f) {
-        $pos = $f['forced_position'] ? $f['forced_position'] - 1 : count($consolidated);
-        if ($pos < 0)
-            $pos = 0;
+        if ($f['forced_position'] !== null && $f['forced_position'] > 0) {
+            $pos = $f['forced_position'] - 1;
+            $item = [
+                "cuit" => $f['cuit'],
+                "full_name" => $f['full_name'],
+                "amount" => (float) $f['amount'],
+                "status" => $f['status'],
+                "is_forced" => true
+            ];
+            $consolidated[$pos] = $item;
+            $usedCuits[] = $f['cuit'];
+        }
+    }
+
+    // Prioridad 2: Deudores reales (calculados)
+    foreach ($real as $r) {
+        if (in_array($r['cuit'], $usedCuits))
+            continue;
+
+        // Buscar si tiene semáforo manual
+        $status = 'RED';
+        if (isset($manualStates[$r['cuit']])) {
+            $status = $manualStates[$r['cuit']]['status'];
+        }
+
+        $item = [
+            "cuit" => $r['cuit'],
+            "full_name" => $r['full_name'],
+            "amount" => (float) $r['amount'],
+            "status" => $status,
+            "is_forced" => false
+        ];
+
+        // Buscar el primer hueco vacío en consolidated
+        for ($i = 0; $i < 5; $i++) {
+            if (!isset($consolidated[$i])) {
+                $consolidated[$i] = $item;
+                $usedCuits[] = $r['cuit'];
+                break;
+            }
+        }
+        if (count($usedCuits) >= 5 && count(array_filter($consolidated)) >= 5)
+            break;
+    }
+
+    // Prioridad 3: Deudores forzados sin posición específica (relleno)
+    foreach ($forced as $f) {
+        if (in_array($f['cuit'], $usedCuits))
+            continue;
 
         $item = [
             "cuit" => $f['cuit'],
@@ -46,40 +92,19 @@ try {
             "is_forced" => true
         ];
 
-        // Si la posición ya está ocupada, lo movemos al final o buscamos espacio
-        if (!isset($consolidated[$pos])) {
-            $consolidated[$pos] = $item;
-        } else {
-            array_splice($consolidated, $pos, 0, [$item]);
+        for ($i = 0; $i < 5; $i++) {
+            if (!isset($consolidated[$i])) {
+                $consolidated[$i] = $item;
+                $usedCuits[] = $f['cuit'];
+                break;
+            }
         }
-        $usedCuits[] = $f['cuit'];
     }
 
-    // Prioridad 2: Deudores reales que no estén ya en la lista
-    foreach ($real as $r) {
-        if (count($consolidated) >= 5)
-            break;
-        if (in_array($r['cuit'], $usedCuits))
-            continue;
-
-        // Verificar si tiene un estado manual aunque no sea forzado
-        $status = 'RED';
-        if (isset($manualStates[$r['cuit']])) {
-            $status = $manualStates[$r['cuit']]['status'];
-        }
-
-        $consolidated[] = [
-            "cuit" => $r['cuit'],
-            "full_name" => $r['full_name'],
-            "amount" => (float) $r['amount'],
-            "status" => $status,
-            "is_forced" => false
-        ];
-        $usedCuits[] = $r['cuit'];
-    }
-
-    // Asegurar que consolidated es un array indexado 0...4
-    $finalRanking = array_slice(array_values($consolidated), 0, 5);
+    // Limpiar y ordenar por índice
+    ksort($consolidated);
+    $finalRanking = array_values($consolidated);
+    $finalRanking = array_slice($finalRanking, 0, 5);
 
     echo json_encode(["status" => "success", "data" => $finalRanking]);
 

@@ -34,23 +34,46 @@ try {
             echo json_encode(["status" => "error", "message" => "Socio no encontrado"]);
         }
     } elseif ($action === 'delete') {
-        // Eliminar definitivamente un SOCIO
-        $stmt = $conn->prepare("DELETE FROM membership_companies WHERE cuit = ?");
+        // Eliminar definitivamente un SOCIO (Si es VIP, preguntar antes o usar downgrade)
+        // Pero el admin pidió que si es VIP y se apreta eliminar, pase a socio activo.
+        $stmt = $conn->prepare("SELECT is_vip FROM membership_companies WHERE cuit = ?");
         $stmt->execute([$cuit]);
-        echo json_encode(["status" => "success", "message" => "Socio eliminado correctamente"]);
+        $socio = $stmt->fetch();
+
+        if ($socio && $socio['is_vip'] == 1) {
+            // Es VIP, lo pasamos a Socio Activo en lugar de borrar
+            $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 0, plan = 'active', expiry_date = DATE_ADD(NOW(), INTERVAL 30 DAY) WHERE cuit = ?");
+            $stmt->execute([$cuit]);
+            echo json_encode(["status" => "success", "message" => "El socio VIP ha sido degradado a Socio Activo (30 días de gracia)"]);
+        } else {
+            $stmt = $conn->prepare("DELETE FROM membership_companies WHERE cuit = ?");
+            $stmt->execute([$cuit]);
+            echo json_encode(["status" => "success", "message" => "Socio eliminado correctamente"]);
+        }
+    } elseif ($action === 'downgrade_vip') {
+        $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 0, plan = 'active', expiry_date = DATE_ADD(NOW(), INTERVAL 30 DAY) WHERE cuit = ?");
+        $stmt->execute([$cuit]);
+        echo json_encode(["status" => "success", "message" => "Socio degradado a Activo"]);
+    } elseif ($action === 'edit_socio') {
+        $new_razon = $data['razon_social'] ?? '';
+        $new_cuit = preg_replace('/\D/', '', $data['new_cuit'] ?? '');
+        $new_email = $data['email'] ?? '';
+
+        $stmt = $conn->prepare("UPDATE membership_companies SET razon_social = ?, cuit = ?, email = ? WHERE cuit = ?");
+        $stmt->execute([$new_razon, $new_cuit, $new_email, $cuit]);
+        echo json_encode(["status" => "success", "message" => "Datos del socio actualizados"]);
     } elseif ($action === 'delete_lead') {
         // Eliminar definitivamente un LEAD (Solicitud)
         $stmt = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
         $stmt->execute([$cuit]);
         echo json_encode(["status" => "success", "message" => "Solicitud/Lead eliminada correctamente"]);
     } elseif ($action === 'make_vip') {
-        // ... (existing code for make_vip)
         $stmtEmail = $conn->prepare("SELECT email, razon_social FROM membership_companies WHERE cuit = ?");
         $stmtEmail->execute([$cuit]);
         $member = $stmtEmail->fetch();
 
         if ($member) {
-            $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 1, expiry_date = NULL WHERE cuit = ?");
+            $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 1, plan = 'business', expiry_date = NULL WHERE cuit = ?");
             $stmt->execute([$cuit]);
 
             // Enviar Mail de Notificación
@@ -59,10 +82,10 @@ try {
             $body = "Hola " . $member['razon_social'] . ",\n\n";
             $body .= "Usted fue premiado con una cuenta vip, sin cargo de por vida en BuroSE.\n";
             $body .= "Gracias por confiar en nosotros.\n\n";
-            $body .= "Javier Gozzi - VS Sistemas";
+            $body .= "Javier Gozzi - BuroSE";
 
-            $headers = "From: info@burose.com.ar\r\n";
-            $headers .= "Reply-To: info@burose.com.ar\r\n";
+            $headers = "From: burosearg@gmail.com\r\n";
+            $headers .= "Reply-To: burosearg@gmail.com\r\n";
             $headers .= "X-Mailer: PHP/" . phpversion();
 
             @mail($to, $subject, $body, $headers);
@@ -88,9 +111,26 @@ try {
         echo json_encode(["status" => "success", "message" => "Reporte validado y publicado"]);
     } elseif ($action === 'delete_report') {
         $id = $data['id'] ?? null;
+
+        // Buscar archivos para eliminar
+        $stmt = $conn->prepare("SELECT evidencia_url FROM reports WHERE id = ?");
+        $stmt->execute([$id]);
+        $rep = $stmt->fetch();
+        if ($rep && !empty($rep['evidencia_url'])) {
+            $files = explode(',', $rep['evidencia_url']);
+            foreach ($files as $f) {
+                // El path guardado es "api/uploads/reports/..."
+                // Pero este script está en "api/", así que removemos "api/"
+                $localPath = str_replace('api/', '', $f);
+                if (file_exists($localPath)) {
+                    @unlink($localPath);
+                }
+            }
+        }
+
         $stmt = $conn->prepare("DELETE FROM reports WHERE id = ?");
         $stmt->execute([$id]);
-        echo json_encode(["status" => "success", "message" => "Reporte eliminado"]);
+        echo json_encode(["status" => "success", "message" => "Reporte y archivos eliminados"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Acción no válida"]);
     }

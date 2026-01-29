@@ -146,18 +146,11 @@ $is_authenticated = (
 );
 
 if (!$is_authenticated) {
-    // Notificación por mail para el administrador (somos@burose.com.ar)
-    $notify_email = "somos@burose.com.ar";
-    $subject = "Nueva Consulta (GUEST) BuroSE: " . $cuit;
-    $body = "Se ha realizado una consulta de riesgo (Invitado).\n\n";
-    $body .= "CUIT/DNI: $cuit\n";
-    $body .= "Nombre: " . ($scraped_name ?: "No identificado") . "\n";
-    $body .= "Nivel de Alerta: $alert_level\n";
-    $body .= "Fecha: " . date("Y-m-d H:i:s") . "\n";
-
-    $headers = "From: info@burose.com.ar\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion();
-    @mail($notify_email, $subject, $body, $headers);
+    // Notificar por mail (burosearg@gmail.com)
+    $to = "burosearg@gmail.com";
+    $subject = "CONSULTA GUEST - BuroSE";
+    $body = "Invitado buscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level\nFecha: " . date('Y-m-d H:i:s');
+    @mail($to, $subject, $body, "From: info@burose.com.ar");
 
     echo json_encode([
         "status" => "success",
@@ -179,19 +172,11 @@ if (!$is_authenticated) {
         ];
     }, $internal_reports);
 
-    // Notificación por mail para el administrador (somos@burose.com.ar)
-    $notify_email = "somos@burose.com.ar";
-    $subject = "Nueva Consulta BuroSE: " . $cuit;
-    $body = "Se ha realizado una consulta de riesgo.\n\n";
-    $body .= "CUIT/DNI: $cuit\n";
-    $body .= "Nombre: " . ($scraped_name ?: "No identificado") . "\n";
-    $body .= "Nivel de Alerta: $alert_level\n";
-    $body .= "Autenticado: " . ($is_authenticated ? "SÍ" : "NO") . "\n";
-    $body .= "Fecha: " . date("Y-m-d H:i:s") . "\n";
-
-    $headers = "From: info@burose.com.ar\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion();
-    @mail($notify_email, $subject, $body, $headers);
+    // Notificación por mail (burosearg@gmail.com)
+    $to = "burosearg@gmail.com";
+    $subject = "CONSULTA SOCIO - " . ($_SESSION['user_name'] ?? 'Desconocido');
+    $body = "Socio: " . ($_SESSION['user_name'] ?? 'Desconocido') . " (" . ($_SESSION['user_cuit'] ?? 'N/A') . ")\nBuscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level\nAuth: " . ($_SESSION['user_auth_type'] ?? 'direct');
+    @mail($to, $subject, $body, "From: info@burose.com.ar");
 
     echo json_encode([
         "status" => "success",

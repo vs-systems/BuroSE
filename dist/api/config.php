@@ -116,6 +116,19 @@ try {
                 $stmtIns->execute([$v[0], $v[1], $v[2]]);
             }
         }
+
+        // 4. Asegurar tabla de ranking
+        $conn->exec("CREATE TABLE IF NOT EXISTS debtor_rankings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            cuit VARCHAR(20) NOT NULL UNIQUE,
+            full_name VARCHAR(255) NOT NULL,
+            amount DECIMAL(15,2) DEFAULT 0,
+            status ENUM('GREEN', 'YELLOW', 'RED') DEFAULT 'RED',
+            is_forced TINYINT DEFAULT 0,
+            forced_position INT DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
     } catch (Exception $e_schema) {
         // Ignorar fallos de alter silenciosamente
     }

@@ -227,16 +227,17 @@ const AdminPanel = () => {
         } catch (e) { console.error(e); }
     };
 
-    const handleUserAction = async (id_or_cuit, action) => {
+    const handleUserAction = async (id_or_cuit, action, extraData = {}) => {
         if (!confirm('¿Confirma realizar esta acción?')) return;
         try {
             const resp = await fetch('api/admin_user_action.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    cuit: id_or_cuit, // Mantener compatibilidad nombres
-                    id: id_or_cuit,   // Nuevo ID para replicas/informes
-                    action
+                    cuit: id_or_cuit,
+                    id: id_or_cuit,
+                    action,
+                    ...extraData
                 }),
                 credentials: 'include'
             });
@@ -298,7 +299,8 @@ const AdminPanel = () => {
                     contacts: res.data.contacts || [],
                     replicas: res.data.replicas || [],
                     socios: res.data.socios || [],
-                    reports: res.data.reports || []
+                    reports: res.data.reports || [],
+                    stats: res.data.stats || { vip_count: 0, replica_count: 0, total_socios: 0, pending_leads: 0 }
                 });
             }
         } catch (e) { console.error(e); }
@@ -495,60 +497,61 @@ const AdminPanel = () => {
                 <main className="p-8 flex-1 overflow-y-auto">
                     {activeTab === 'contacts' ? (
                         <div className="grid gap-6">
-                            {data.contacts.map((c, idx) => (
-                                <div key={idx} className={`border p-6 rounded-3xl transition-all group ${theme === 'dark'
-                                    ? 'bg-brand-card border-brand-secondary hover:border-brand-neon/30'
-                                    : 'bg-white border-slate-100 shadow-md hover:shadow-xl'
-                                    }`}>
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h3 className={`text-lg font-black mb-1 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{c.nombre_social}</h3>
-                                            <p className={`text-xs flex items-center font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                                                <Clock size={12} className="mr-1" /> {new Date(c.created_at).toLocaleString()}
-                                            </p>
+                            <div className="flex items-center gap-2 mb-8">
+                                <Users className="text-brand-neon" size={20} />
+                                <h2 className={`text-xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Leads / Solicitudes Pendientes</h2>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Leads de Contacto */}
+                                {data.contacts.map((c, idx) => (
+                                    <div key={`contact-${idx}`} className={`group border p-8 rounded-3xl transition-all relative overflow-hidden ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-md'}`}>
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-brand-neon"></div>
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h3 className={`text-lg font-black mb-1 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{c.nombre_social}</h3>
+                                                <p className={`text-xs flex items-center font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                                                    <Clock size={12} className="mr-1" /> {new Date(c.created_at).toLocaleString()}
+                                                </p>
+                                            </div>
+                                            <span className="bg-brand-neon/10 text-brand-neon text-[10px] font-black px-4 py-1.5 rounded-full border border-brand-neon/20 uppercase">Nuevo Lead</span>
                                         </div>
-                                        <span className="bg-brand-neon/10 text-brand-neon text-[10px] font-black px-4 py-1.5 rounded-full border border-brand-neon/20 uppercase tracking-tighter">Nuevo Lead</span>
-                                    </div>
-                                    <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-                                        <div>
-                                            <p className={`text-xs font-black uppercase mb-1 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT</p>
-                                            <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{c.cuit}</p>
+                                        <div className="mt-6 flex flex-wrap gap-x-8 gap-y-4 text-xs">
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className="text-white">{c.cuit}</span></p>
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className="text-white">{c.email}</span></p>
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>WhatsApp: <span className="text-white">{c.whatsapp}</span></p>
                                         </div>
-                                        <div>
-                                            <p className={`text-xs font-black uppercase mb-1 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>WhatsApp</p>
-                                            <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{c.whatsapp}</p>
-                                        </div>
-                                        <div>
-                                            <p className={`text-xs font-black uppercase mb-1 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Email</p>
-                                            <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{c.email}</p>
-                                        </div>
-                                        <div>
-                                            <p className={`text-xs font-black uppercase mb-1 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Localidad</p>
-                                            <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{c.localidad}</p>
+                                        <div className="mt-6 pt-6 border-t border-white/5 flex gap-4">
+                                            <button onClick={() => handleApprove(c)} className="bg-brand-neon text-brand-darker text-[10px] font-black px-6 py-2.5 rounded-xl uppercase">Aprobar Socio</button>
+                                            <button onClick={() => handleUserAction(c.cuit, 'delete_lead')} className="bg-red-500/10 text-red-500 text-[10px] font-black px-6 py-2.5 rounded-xl uppercase border border-red-500/20">Descartar</button>
                                         </div>
                                     </div>
-                                    <div className={`mt-6 pt-6 border-t flex flex-col sm:flex-row justify-between items-center gap-4 ${theme === 'dark' ? 'border-brand-secondary/50' : 'border-slate-100'
-                                        }`}>
-                                        <div className="flex items-center space-x-6">
-                                            <p className={`text-[10px] uppercase font-black tracking-widest ${theme === 'dark' ? 'text-brand-text/40' : 'text-slate-400'}`}>{c.rubro}</p>
-                                            <button
-                                                onClick={() => handleApprove(c)}
-                                                className="bg-brand-neon hover:brightness-110 text-brand-darker text-[10px] font-black px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-brand-neon/20 uppercase active:scale-95"
-                                            >
-                                                Aprobar como Socio
-                                            </button>
-                                            <button
-                                                onClick={() => handleUserAction(c.cuit, 'delete_lead')}
-                                                className={`text-[10px] font-black px-4 py-2.5 rounded-xl transition-all uppercase border ${theme === 'dark' ? 'border-brand-alert/30 text-brand-alert hover:bg-brand-alert hover:text-white' : 'border-red-100 text-red-500 hover:bg-red-500 hover:text-white'}`}
-                                            >
-                                                Borrar Lead
-                                            </button>
+                                ))}
+
+                                {/* Leads de Réplica */}
+                                {data.replicas.filter(r => r.estado !== 'aprobado').map((r, idx) => (
+                                    <div key={`replica-${idx}`} className={`group border p-8 rounded-3xl transition-all relative overflow-hidden ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-md'}`}>
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-brand-alert"></div>
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h3 className={`text-lg font-black mb-1 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{r.nombre_sujeto}</h3>
+                                                <p className={`text-xs flex items-center font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                                                    <Clock size={12} className="mr-1" /> {new Date(r.created_at).toLocaleString()}
+                                                </p>
+                                            </div>
+                                            <span className="bg-brand-alert/10 text-brand-alert text-[10px] font-black px-4 py-1.5 rounded-full border border-brand-alert/20 uppercase">Réplica Pendiente</span>
                                         </div>
-                                        <p className="text-[10px] font-bold text-brand-neon opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Preferencia: {c.preferencia_contacto}</p>
+                                        <p className="mt-4 text-xs italic text-brand-text truncate opacity-70">"{r.descargo}"</p>
+                                        <div className="mt-6 pt-6 border-t border-white/5 flex gap-4">
+                                            <button onClick={() => setActiveTab('replicas')} className="bg-brand-secondary text-white text-[10px] font-black px-6 py-2.5 rounded-xl uppercase">Ver Detalle</button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                            {data.contacts.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay registros de contacto todavía.</p>}
+                                ))}
+
+                                {data.contacts.length === 0 && data.replicas.filter(r => r.estado !== 'aprobado').length === 0 && (
+                                    <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay nuevos leads o solicitudes.</p>
+                                )}
+                            </div>
                         </div>
                     ) : activeTab === 'replicas' ? (
                         <div className="grid gap-6">
@@ -750,6 +753,19 @@ const AdminPanel = () => {
                                                         {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
                                                     </button>
                                                     <button
+                                                        onClick={() => {
+                                                            const razon = prompt("Razón Social:", s.razon_social);
+                                                            const cuit_new = prompt("Cuit (Solo números):", s.cuit);
+                                                            const email = prompt("Email:", s.email);
+                                                            if (razon && cuit_new && email) {
+                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email });
+                                                            }
+                                                        }}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
+                                                    >
+                                                        Editar
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleUserAction(s.cuit, 'delete')}
                                                         className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
                                                     >
@@ -833,7 +849,34 @@ const AdminPanel = () => {
                                                     >
                                                         {s.api_token ? 'Refresh API' : 'Activar API'}
                                                     </button>
-                                                    <button onClick={() => handleUserAction(s.cuit, 'delete')} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
+                                                    <button
+                                                        onClick={() => {
+                                                            const razon = prompt("Razón Social:", s.razon_social);
+                                                            const cuit_new = prompt("Cuit (Solo números):", s.cuit);
+                                                            const email = prompt("Email:", s.email);
+                                                            if (razon && cuit_new && email) {
+                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email });
+                                                            }
+                                                        }}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
+                                                    >
+                                                        Editar
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm('¿Desea bajar este socio de VIP a Socio Activo?')) {
+                                                                handleUserAction(s.cuit, 'downgrade_vip');
+                                                            }
+                                                        }}
+                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white transition-all"
+                                                    >
+                                                        Downgrade
+                                                    </button>
+                                                    <button onClick={() => {
+                                                        if (confirm('¿Eliminar socio VIP? Se pasará a socio Activo automáticamente.')) {
+                                                            handleUserAction(s.cuit, 'delete');
+                                                        }
+                                                    }} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
                                                 </div>
                                             </div>
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
@@ -860,15 +903,19 @@ const AdminPanel = () => {
                         <div className="grid md:grid-cols-3 gap-8">
                             <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
                                 <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Total Socios</p>
-                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>{data.socios.length}</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>{data.stats?.total_socios || data.socios.length}</p>
                             </div>
                             <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
                                 <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Leads Pendientes</p>
-                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-alert' : 'text-red-500'}`}>{data.contacts.length}</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-alert' : 'text-red-500'}`}>{data.stats?.pending_leads || data.contacts.length}</p>
                             </div>
                             <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
-                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Socios Bloqueados</p>
-                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{data.socios.filter(s => s.estado === 'bloqueado').length}</p>
+                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Socios VIP</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-brand-neon' : 'text-green-500'}`}>{data.stats?.vip_count || 0}</p>
+                            </div>
+                            <div className={`p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-lg'}`}>
+                                <p className={`text-xs font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Réplicas Totales</p>
+                                <p className={`text-5xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{data.stats?.replica_count || 0}</p>
                             </div>
 
                             <div className={`md:col-span-3 p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>

@@ -35,7 +35,13 @@ try {
             "contacts" => $contacts,
             "replicas" => $replicas,
             "socios" => $socios,
-            "reports" => $reports
+            "reports" => $reports,
+            "stats" => [
+                "vip_count" => $conn->query("SELECT COUNT(*) FROM membership_companies WHERE is_vip = 1")->fetchColumn(),
+                "replica_count" => count($replicas),
+                "total_socios" => count($socios),
+                "pending_leads" => count($contacts)
+            ]
         ]
     ]);
 } catch (PDOException $e) {

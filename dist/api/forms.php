@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['city']
             ]);
 
-            // Notificar por mail
-            $to = "somos@burose.com.ar";
+            // Notificar por mail (legales@burose.com.ar)
+            $to = "legales@burose.com.ar";
             $subject = "Nueva Solicitud: Denunciantes / Acceso - " . $data['name'];
             $body = "Nombre: " . $data['name'] . "\n" .
                 "CUIT: " . $data['cuit'] . "\n" .
@@ -47,19 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "--- LEGAL ---\n" .
                 "Aceptó Términos: " . ($data['acceptTerms'] ? 'SÍ' : 'NO') . "\n" .
                 "Aceptó NDA: " . ($data['acceptNDA'] ? 'SÍ' : 'NO');
-            $headers = "From: no-reply@burose.com.ar";
+            $headers = "From: no-reply@burose.com.ar\r\n";
+            $headers .= "Bcc: burosearg@gmail.com\r\n";
             mail($to, $subject, $body, $headers);
 
             echo json_encode(["status" => "success", "message" => "Solicitud de contacto recibida"]);
         } elseif ($data['type'] === 'general_contact') {
-            // Nuevo Formulario de Contacto (General/Soporte/Consultas)
-            $to = "somos@burose.com.ar";
+            // Nuevo Formulario de Contacto (General)
+            $to = "legales@burose.com.ar";
             $subject = "Consulta Web BuroSE [" . $data['motivo'] . "] - " . $data['name'];
             $body = "De: " . $data['name'] . "\n" .
                 "Celular: " . $data['celular'] . "\n" .
                 "Motivo: " . $data['motivo'] . "\n\n" .
                 "Consulta:\n" . $data['consulta'];
-            $headers = "From: web@burose.com.ar";
+            $headers = "From: web@burose.com.ar\r\n";
+            $headers .= "Bcc: burosearg@gmail.com\r\n";
             mail($to, $subject, $body, $headers);
 
             echo json_encode(["status" => "success", "message" => "Consulta enviada correctamente. Nos contactaremos a la brevedad."]);
@@ -73,14 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['descargo']
             ]);
 
-            // Notificar por mail
-            $to = "somos@burose.com.ar";
+            // Notificar por mail (legales@burose.com.ar)
+            $to = "legales@burose.com.ar";
             $subject = "Solicitud de Derecho a Réplica - " . $data['name'];
             $body = "Nombre: " . $data['name'] . "\n" .
                 "CUIT/DNI: " . $data['cuit'] . "\n" .
                 "Email: " . $data['email'] . "\n" .
                 "Mensaje: " . $data['descargo'];
-            $headers = "From: legales@burose.com.ar";
+            $headers = "From: legales@burose.com.ar\r\n";
+            $headers .= "Bcc: burosearg@gmail.com\r\n";
             mail($to, $subject, $body, $headers);
 
             echo json_encode(["status" => "success", "message" => "Solicitud de réplica recibida para revisión"]);
