@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 
 const ReportUpload = ({ theme }) => {
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [formData, setFormData] = useState({
         debtor_name: '',
         debtor_cuit: '',
@@ -45,13 +45,14 @@ const ReportUpload = ({ theme }) => {
     };
 
     const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+        const selectedFiles = Array.from(e.target.files);
+        setFiles(selectedFiles);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file) {
-            setStatus({ type: 'error', message: 'Por favor, adjunte un archivo de respaldo (Factura/PDF).' });
+        if (files.length === 0) {
+            setStatus({ type: 'error', message: 'Por favor, adjunte al menos un archivo de respaldo.' });
             return;
         }
 
@@ -59,7 +60,9 @@ const ReportUpload = ({ theme }) => {
         setStatus({ type: '', message: '' });
 
         const data = new FormData();
-        data.append('report', file);
+        files.forEach((file, index) => {
+            data.append('report[]', file);
+        });
         data.append('debtor_name', formData.debtor_name);
         data.append('debtor_cuit', formData.debtor_cuit);
         data.append('debt_amount', formData.debt_amount);
@@ -81,8 +84,8 @@ const ReportUpload = ({ theme }) => {
             const result = await response.json();
 
             if (result.status === 'success') {
-                setStatus({ type: 'success', message: 'Reporte enviado con éxito para validación legal.' });
-                setFile(null);
+                setStatus({ type: 'success', message: result.message });
+                setFiles([]);
                 setFormData({
                     debtor_name: '', debtor_cuit: '', debt_amount: '', description: '',
                     intencion_pago: false, instancia_judicial: false,
@@ -143,12 +146,16 @@ const ReportUpload = ({ theme }) => {
                         />
                     </div>
                     <div>
-                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Evidencia (PDF / JPG / PNG)</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Evidencia (PDF, Imagen, Office, TXT)</label>
                         <div className="relative">
                             <input
-                                type="file" required onChange={handleFileChange}
+                                type="file" multiple required onChange={handleFileChange}
+                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                                 className={`w-full border rounded-xl px-4 py-2.5 text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:uppercase file:bg-brand-neon file:text-brand-darker cursor-pointer ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-brand-muted' : 'bg-slate-50 border-slate-100 text-slate-500'}`}
                             />
+                            {files.length > 0 && (
+                                <p className="mt-2 text-[10px] font-black uppercase text-brand-neon">{files.length} archivos seleccionados</p>
+                            )}
                         </div>
                     </div>
                 </div>

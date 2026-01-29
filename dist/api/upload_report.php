@@ -32,60 +32,76 @@ if (empty($debtor_name) || empty($debtor_cuit) || empty($debt_amount)) {
     exit();
 }
 
-if (!isset($_FILES['report'])) {
-    echo json_encode(["status" => "error", "message" => "No se recibió el archivo de respaldo"]);
-    exit();
-}
-
-$file = $_FILES['report'];
-$fileName = time() . '_' . basename($file['name']);
-$uploadDir = 'uploads/reports/'; // Relativo al script public/api/
+$uploadDir = 'uploads/reports/';
 
 // Crear directorio si no existe
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
 
-$targetPath = $uploadDir . $fileName;
-$allowedExts = ['jpg', 'jpeg', 'png', 'pdf'];
-$fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+$uploadedPaths = [];
+$allowedExts = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'];
 
-if (in_array($fileExt, $allowedExts)) {
-    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        try {
-            // Insertar en la tabla 'reports'
-            $stmt = $conn->prepare("INSERT INTO reports (reporter_id, cuit_denunciado, nombre_denunciado, monto, descripcion, evidencia_url, estado, intencion_pago, instancia_judicial, domicilio_particular, domicilio_comercial, celular_contacto, provincia, localidad, fecha_denuncia) VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $reporter_id,
-                $debtor_cuit,
-                $debtor_name,
-                $debt_amount,
-                $description,
-                'api/uploads/reports/' . $fileName,
-                $intencion_pago,
-                $instancia_judicial,
-                $domicilio_particular,
-                $domicilio_comercial,
-                $celular_contacto,
-                $provincia,
-                $localidad,
-                date('Y-m-d')
-            ]);
+// Manejar múltiples archivos (o uno solo)
+$files = $_FILES['report'] ?? null;
+if (!$files) {
+    echo json_encode(["status" => "error", "message" => "No se recibieron archivos de respaldo"]);
+    exit();
+}
 
-            // Notificación por mail (somos@burose.com.ar)
-            $to = "somos@burose.com.ar";
-            $subject = "NUEVO REPORTE CARGADO - BuroSE";
-            $body = "Socio: $member_name\nDeudor: $debtor_name ($debtor_cuit)\nMonto: $debt_amount\nLink: https://burose.com.ar/api/uploads/reports/$fileName";
-            @mail($to, $subject, $body, "From: no-reply@burose.com.ar");
+// Normalizar $_FILES para manejar uno o varios
+$fileNames = is_array($files['name']) ? $files['name'] : [$files['name']];
+$fileTmps = is_array($files['tmp_name']) ? $files['tmp_name'] : [$files['tmp_name']];
 
-            echo json_encode(["status" => "success", "message" => "Reporte cargado correctamente para revisión"]);
-        } catch (PDOException $e) {
-            echo json_encode(["status" => "error", "message" => "Error de base de datos: " . $e->getMessage()]);
+for ($i = 0; $i < count($fileNames); $i++) {
+    if (empty($fileNames[$i]))
+        continue;
+
+    $ext = strtolower(pathinfo($fileNames[$i], PATHINFO_EXTENSION));
+    if (in_array($ext, $allowedExts)) {
+        $newName = time() . '_' . $i . '_' . basename($fileNames[$i]);
+        if (move_uploaded_file($fileTmps[$i], $uploadDir . $newName)) {
+            $uploadedPaths[] = 'api/uploads/reports/' . $newName;
         }
-    } else {
-        echo json_encode(["status" => "error", "message" => "Error al guardar el archivo en el servidor"]);
     }
-} else {
-    echo json_encode(["status" => "error", "message" => "Formato de archivo no permitido"]);
+}
+
+if (empty($uploadedPaths)) {
+    echo json_encode(["status" => "error", "message" => "Ningún archivo válido fue subido"]);
+    exit();
+}
+
+$evidencia_url = implode(',', $uploadedPaths);
+
+try {
+    // Insertar en la tabla 'reports'
+    $stmt = $conn->prepare("INSERT INTO reports (reporter_id, cuit_denunciado, nombre_denunciado, monto, descripcion, evidencia_url, estado, intencion_pago, instancia_judicial, domicilio_particular, domicilio_comercial, celular_contacto, provincia, localidad, fecha_denuncia) VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([
+        $reporter_id,
+        $debtor_cuit,
+        $debtor_name,
+        $debt_amount,
+        $description,
+        $evidencia_url,
+        $intencion_pago,
+        $instancia_judicial,
+        $domicilio_particular,
+        $domicilio_comercial,
+        $celular_contacto,
+        $provincia,
+        $localidad,
+        date('Y-m-d')
+    ]);
+
+    // Notificación por mail (somos@burose.com.ar)
+    $to = "somos@burose.com.ar";
+    $subject = "NUEVO REPORTE CARGADO - BuroSE";
+    $body = "Socio: $member_name\nDeudor: $debtor_name ($debtor_cuit)\nMonto: $debt_amount\nArchivos: " . count($uploadedPaths) . "\nLinks:\n" . implode("\n", array_map(function ($p) {
+        return "https://burose.com.ar/" . $p; }, $uploadedPaths));
+    @mail($to, $subject, $body, "From: no-reply@burose.com.ar");
+
+    echo json_encode(["status" => "success", "message" => "Reporte cargado correctamente para revisión (" . count($uploadedPaths) . " archivos)"]);
+} catch (PDOException $e) {
+    echo json_encode(["status" => "error", "message" => "Error de base de datos: " . $e->getMessage()]);
 }
 ?>

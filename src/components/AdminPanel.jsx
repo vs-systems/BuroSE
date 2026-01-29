@@ -625,18 +625,19 @@ const AdminPanel = () => {
                                     </div>
 
                                     <div className="flex flex-wrap gap-4 items-center justify-between pt-6 border-t border-white/5">
-                                        <div className="flex gap-4">
-                                            {report.evidencia_url && (
+                                        <div className="flex flex-wrap gap-4">
+                                            {report.evidencia_url && report.evidencia_url.split(',').map((url, i) => (
                                                 <a
-                                                    href={report.evidencia_url}
+                                                    key={i}
+                                                    href={url.startsWith('http') ? url : `/${url}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center space-x-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
                                                 >
                                                     <Download size={14} />
-                                                    <span>Descargar Prueba</span>
+                                                    <span>Prueba {i + 1}</span>
                                                 </a>
-                                            )}
+                                            ))}
                                         </div>
                                         <div className="flex gap-3">
                                             {report.estado !== 'validado' && (

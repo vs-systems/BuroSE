@@ -69,6 +69,8 @@ try {
         $rep_fields = [
             'monto' => "DECIMAL(15,2) DEFAULT 0",
             'fecha_denuncia' => "DATE DEFAULT NULL",
+            'created_at' => "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            'evidencia_url' => "TEXT",
             'intencion_pago' => "TINYINT DEFAULT 0",
             'instancia_judicial' => "TINYINT DEFAULT 0",
             'domicilio_particular' => "VARCHAR(255) DEFAULT NULL",
@@ -81,7 +83,6 @@ try {
             $check = $conn->query("SHOW COLUMNS FROM reports LIKE '$f'");
             if ($check && $check->rowCount() == 0) {
                 if ($f === 'monto') {
-                    // Si no existe monto, tal vez se llama amount?
                     $check_alt = $conn->query("SHOW COLUMNS FROM reports LIKE 'amount'");
                     if ($check_alt && $check_alt->rowCount() > 0) {
                         $conn->exec("ALTER TABLE reports CHANGE COLUMN amount monto DECIMAL(15,2) DEFAULT 0");
@@ -91,6 +92,11 @@ try {
                 } else {
                     $conn->exec("ALTER TABLE reports ADD COLUMN $f $d");
                 }
+            } else {
+                // Si existe pero queremos cambiar el tipo (ej: evidencia_url a TEXT)
+                if ($f === 'evidencia_url') {
+                    $conn->exec("ALTER TABLE reports MODIFY COLUMN evidencia_url TEXT");
+                }
             }
         }
         $conn->exec("UPDATE reports SET fecha_denuncia = DATE(created_at) WHERE fecha_denuncia IS NULL");
@@ -98,7 +104,7 @@ try {
         // Restaurar VIPs (Si no existen, recrearlos)
         $vips = [
             ['Biosegur', '20111111111', 'info@biosegur.com.ar'],
-            ['Javier Gozzi', '20222222222', 'sistemas@burose.com.ar'],
+            ['Javier Gozzi', '20255621867', 'sistemas@burose.com.ar'], // CUIT Corregido
             ['DyR Sistemas', '30333333333', 'info@dyrsistemas.com.ar'],
             ['Block Seguridad', '30444444444', 'info@block.com.ar']
         ];

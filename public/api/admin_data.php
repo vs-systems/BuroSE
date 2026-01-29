@@ -24,7 +24,7 @@ try {
 
     // Obtener reportes cargados
     try {
-        $reports = $conn->query("SELECT r.*, mc.razon_social as reporter_name FROM reports r LEFT JOIN membership_companies mc ON r.reporter_id = mc.id ORDER BY r.created_at DESC")->fetchAll();
+        $reports = $conn->query("SELECT r.*, mc.razon_social as reporter_name FROM reports r LEFT JOIN membership_companies mc ON r.reporter_id = mc.id ORDER BY r.id DESC")->fetchAll();
     } catch (Exception $e_rep) {
         $reports = [];
     }
