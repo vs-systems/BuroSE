@@ -101,7 +101,8 @@ try {
         }
         $conn->exec("UPDATE reports SET fecha_denuncia = DATE(created_at) WHERE fecha_denuncia IS NULL");
 
-        // Restaurar VIPs (Si no existen, recrearlos)
+        /*
+        // Restaurar VIPs (DESHABILITADO: Para permitir borrar duplicados)
         $vips = [
             ['Biosegur', '20111111111', 'info@biosegur.com.ar'],
             ['Javier Gozzi', '20255621867', 'sistemas@burose.com.ar'], // CUIT Corregido
@@ -116,6 +117,7 @@ try {
                 $stmtIns->execute([$v[0], $v[1], $v[2]]);
             }
         }
+        */
 
         // 4. Asegurar tabla de ranking
         $conn->exec("CREATE TABLE IF NOT EXISTS debtor_rankings (
