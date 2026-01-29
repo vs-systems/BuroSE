@@ -88,21 +88,23 @@ try {
             }
         }
 
-        // Estado para replicas
-        $check_rep = $conn->query("SHOW COLUMNS FROM replica_requests LIKE 'estado'");
-        if ($check_rep && $check_rep->rowCount() == 0) {
-            $conn->exec("ALTER TABLE replica_requests ADD COLUMN estado VARCHAR(20) DEFAULT 'pendiente'");
+        // Esquema para reports (Asegurar que coincida con lo que usa el sitio)
+        $conn->exec("ALTER TABLE reports MODIFY COLUMN monto DECIMAL(12,2) DEFAULT 0");
+        $check_fd = $conn->query("SHOW COLUMNS FROM reports LIKE 'fecha_denuncia'");
+        if ($check_fd && $check_fd->rowCount() == 0) {
+            $conn->exec("ALTER TABLE reports ADD COLUMN fecha_denuncia DATE DEFAULT NULL");
         }
+        $conn->exec("UPDATE reports SET fecha_denuncia = DATE(created_at) WHERE fecha_denuncia IS NULL");
 
         // Reparación de VIPs (Asegurar que los socios estratégicos sean VIP)
-        $vips_to_ensure = ['Biosegur', 'Javier Gozzi', 'DyR Sistemas', 'Block Seguridad'];
+        $vips_to_ensure = ['Biosegur', 'Gozzi', 'DyR', 'Block', 'Sistemas']; // Más corto para LIKE
         foreach ($vips_to_ensure as $v_name) {
-            $stmtV = $conn->prepare("UPDATE membership_companies SET is_vip = 1, plan = 'business', expiry_date = NULL WHERE razon_social LIKE ?");
+            $stmtV = $conn->prepare("UPDATE membership_companies SET is_vip = 1, plan = 'business', expiry_date = NULL, estado = 'validado' WHERE razon_social LIKE ?");
             $stmtV->execute(["%$v_name%"]);
         }
 
     } catch (Exception $e_schema) {
-        // Ignorar
+        // Ignorar fallos de alter (ya existen)
     }
 
 } catch (PDOException $e) {

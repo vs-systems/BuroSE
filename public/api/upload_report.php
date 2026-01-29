@@ -54,7 +54,7 @@ if (in_array($fileExt, $allowedExts)) {
     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
         try {
             // Insertar en la tabla 'reports'
-            $stmt = $conn->prepare("INSERT INTO reports (reporter_id, cuit_denunciado, nombre_denunciado, monto, descripcion, evidencia_url, estado, intencion_pago, instancia_judicial, domicilio_particular, domicilio_comercial, celular_contacto, provincia, localidad) VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO reports (reporter_id, cuit_denunciado, nombre_denunciado, monto, descripcion, evidencia_url, estado, intencion_pago, instancia_judicial, domicilio_particular, domicilio_comercial, celular_contacto, provincia, localidad, fecha_denuncia) VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $reporter_id,
                 $debtor_cuit,
@@ -68,14 +68,15 @@ if (in_array($fileExt, $allowedExts)) {
                 $domicilio_comercial,
                 $celular_contacto,
                 $provincia,
-                $localidad
+                $localidad,
+                date('Y-m-d')
             ]);
 
-            // Opcional: Notificar por mail (puedes mantenerlo o quitarlo para no saturar)
-            $to = "burosearg@gmail.com";
+            // Notificación por mail (somos@burose.com.ar)
+            $to = "somos@burose.com.ar";
             $subject = "NUEVO REPORTE CARGADO - BuroSE";
             $body = "Socio: $member_name\nDeudor: $debtor_name ($debtor_cuit)\nMonto: $debt_amount\nLink: https://burose.com.ar/api/uploads/reports/$fileName";
-            mail($to, $subject, $body, "From: no-reply@burose.com.ar");
+            @mail($to, $subject, $body, "From: no-reply@burose.com.ar");
 
             echo json_encode(["status" => "success", "message" => "Reporte cargado correctamente para revisión"]);
         } catch (PDOException $e) {
