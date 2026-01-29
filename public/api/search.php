@@ -111,12 +111,14 @@ if ($bcra_response['success'] && $bcra_response['data']) {
     $bcra_results = $bcra_response['data'];
     $bcra_normalized["found"] = true;
 
-    // El API puede devolver periodos directamente si venimos de results
-    $periodos = $bcra_results['periodos'] ?? (isset($bcra_results[0]['periodo']) ? $bcra_results : null);
+    // Estructura BCRA: results es una lista de resultados por periodo
+    // Cada elemento tiene: cuit, denominacion, periodo, entidades[]
+    $periodos = $bcra_results; // El API devuelve directamente el array de periodos en 'results'
 
-    if ($periodos) {
-        $ultimo = reset($periodos);
-        if (isset($ultimo['entidades'])) {
+    if (is_array($periodos) && count($periodos) > 0) {
+        // Tomamos el periodo más reciente
+        $ultimo = $periodos[0];
+        if (isset($ultimo['entidades']) && is_array($ultimo['entidades'])) {
             foreach ($ultimo['entidades'] as $b) {
                 $bcra_normalized["entidades"][] = [
                     "entidad" => $b['denominacion'],
@@ -133,15 +135,21 @@ if ($bcra_response['success'] && $bcra_response['data']) {
     }
 }
 
-// 4. Determinar Nivel de Riesgo
-// RED si tiene deudas internas o SIT > 1 en BCRA o Deuda Total > 0 (según el requerimiento del usuario de reportar deudas)
+// 4. Contador de Consultas Recientes (Contador de Socios interesados)
+$stmtCount = $conn->prepare("SELECT COUNT(DISTINCT user_id) FROM search_logs WHERE cuit_searched = ? AND created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)");
+$stmtCount->execute([$cuit]);
+$recent_consultants = $stmtCount->fetchColumn();
+
+// 5. Determinar Nivel de Riesgo
 $has_internal_risk = ($total_internal_debt > 0);
 $has_bcra_risk = ($bcra_normalized["max_situacion"] > 1);
 $has_bcra_debt = ($bcra_normalized["deuda_total"] > 0);
 
 $alert_level = "GREEN";
-if ($has_internal_risk || $has_bcra_risk || $has_bcra_debt) {
+if ($has_internal_risk || $has_bcra_risk) {
     $alert_level = "RED";
+} elseif ($has_bcra_debt) {
+    $alert_level = "YELLOW";
 }
 
 // 5. Verificar sesión y Créditos
@@ -248,6 +256,7 @@ if (!$is_authenticated) {
         "cuit" => $cuit,
         "name" => $scraped_name ?: null,
         "alert_level" => $alert_level,
+        "recent_consultants" => $recent_consultants,
         "has_risk" => ($has_internal_risk || $has_bcra_risk),
         "message" => "Regístrese para ver el detalle de los reportes y montos."
     ]);
@@ -275,6 +284,7 @@ if (!$is_authenticated) {
         "authenticated" => true,
         "cuit" => $cuit,
         "name" => $scraped_name ?: null,
+        "recent_consultants" => $recent_consultants,
         "internal" => [
             "count" => count($internal_reports),
             "total_debt" => $total_internal_debt,
