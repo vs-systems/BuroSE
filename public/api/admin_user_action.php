@@ -80,7 +80,7 @@ try {
 
             log_activity($conn, 0, 'Admin', 'MAKE_VIP', "Socio $cuit convertido a VIP");
 
-            // Enviar Mail de Notificación
+            /* Enviar Mail de Notificación deshabilitado por spam
             $to = $member['email'];
             $subject = "¡Premio VIP BuroSE - Acceso de por vida!";
             $body = "Hola " . $member['razon_social'] . ",\n\n";
@@ -93,8 +93,9 @@ try {
             $headers .= "X-Mailer: PHP/" . phpversion();
 
             @mail($to, $subject, $body, $headers);
+            */
 
-            echo json_encode(["status" => "success", "message" => "Socio convertido a VIP and notificado por email correctamente."]);
+            echo json_encode(["status" => "success", "message" => "Socio convertido a VIP correctamente."]);
         } else {
             echo json_encode(["status" => "error", "message" => "Socio no encontrado"]);
         }

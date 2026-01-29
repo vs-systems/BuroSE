@@ -86,7 +86,7 @@ if (isset($payment['status']) && $payment['status'] === 'approved') {
             $stmtUpd->execute([$expiry_date, $cuit]);
         }
 
-        // Enviar Email de Bienvenida / Confirmación
+        /* Enviar Email de Bienvenida / Confirmación deshabilitado por spam
         $to = $user['email'];
         $subject = "¡Bienvenido a BuroSE! Pago Confirmado";
         $body = "Hola " . $user['razon_social'] . ",\n\n";
@@ -104,6 +104,7 @@ if (isset($payment['status']) && $payment['status'] === 'approved') {
         $headers .= "Bcc: burosearg@gmail.com\r\n"; // Copia de control
 
         @mail($to, $subject, $body, $headers);
+        */
 
     } catch (Exception $e) {
         file_put_contents("mp_errors.log", "Error DB: " . $e->getMessage() . "\n", FILE_APPEND);

@@ -93,12 +93,13 @@ try {
         date('Y-m-d')
     ]);
 
-    // Notificación por mail (burosearg@gmail.com)
+    /* Notificación por mail deshabilitada por spam
     $to = "burosearg@gmail.com";
     $subject = "NUEVO REPORTE CARGADO - BuroSE";
     $body = "Socio: $member_name\nDeudor: $debtor_name ($debtor_cuit)\nMonto: $debt_amount\nArchivos: " . count($uploadedPaths) . "\nLinks:\n" . implode("\n", array_map(function ($p) {
         return "https://burose.com.ar/" . $p; }, $uploadedPaths));
     @mail($to, $subject, $body, "From: no-reply@burose.com.ar");
+    */
 
     echo json_encode(["status" => "success", "message" => "Reporte cargado correctamente para revisión (" . count($uploadedPaths) . " archivos)"]);
 } catch (PDOException $e) {

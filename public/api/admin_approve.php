@@ -59,7 +59,7 @@ try {
         $stmtDel = $conn->prepare("DELETE FROM contact_submissions WHERE cuit = ?");
         $stmtDel->execute([$cuit]);
 
-        // Notificar por mail
+        /* Notificar por mail deshabilitado por spam
         $notify_email = "somos@burose.com.ar";
         $subject = "Socio Aprobado ($plan): $name";
         $body = "Se ha dado el alta a un nuevo socio en BuroSE.\n\n";
@@ -70,6 +70,7 @@ try {
         $body .= "Vencimiento: " . ($expiry_date ?: 'N/A') . "\n";
         $headers = "From: admin@burose.com.ar";
         @mail($notify_email, $subject, $body, $headers);
+        */
 
         echo json_encode(["status" => "success", "message" => "Socio aprobado correctamente como $plan."]);
     }

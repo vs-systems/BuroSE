@@ -274,11 +274,12 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
 }
 
 if (!$is_authenticated) {
-    // Notificar por mail (burosearg@gmail.com)
+    /* Notificación de búsqueda Guest deshabilitada por volumen de spam
     $to = "burosearg@gmail.com";
     $subject = "CONSULTA GUEST - BuroSE";
     $body = "Invitado buscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level\nFecha: " . date('Y-m-d H:i:s');
     @mail($to, $subject, $body, "From: info@burose.com.ar");
+    */
 
     echo json_encode([
         "status" => "success",
@@ -301,11 +302,12 @@ if (!$is_authenticated) {
         ];
     }, $internal_reports);
 
-    // Notificación por mail (burosearg@gmail.com)
+    /* Notificación de búsqueda Socio deshabilitada por volumen de spam
     $to = "burosearg@gmail.com";
     $subject = "CONSULTA SOCIO - " . $user_name;
     $body = "Socio: " . $user_name . " (" . ($_SESSION['member_cuit'] ?? 'N/A') . ")\nBuscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level";
     @mail($to, $subject, $body, "From: info@burose.com.ar");
+    */
 
     try {
         log_activity($conn, $user_id, $user_name, 'SEARCH_SOCIO', "Buscó: $cuit ($scraped_name), Alerta: $alert_level");
