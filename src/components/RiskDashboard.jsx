@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard, Lock, Users, Sun, Moon, Monitor } from 'lucide-react';
+import { Calendar, Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard, Lock, Users, Sun, Moon, Monitor } from 'lucide-react';
+
+const getGoogleCalendarUrl = (title, startDate, details) => {
+    if (!startDate) return '#';
+    const start = new Date(startDate).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const end = new Date(new Date(startDate).getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
+};
 import ReportUpload from './ReportUpload';
 import DebtorRanking from './DebtorRanking';
 
@@ -277,6 +284,19 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                 <p className={`text-xs font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
                                     SESIÓN DE SOCIO ACTIVA • CUIT {user?.cuit}
                                 </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[10px] font-black tracking-widest text-brand-neon uppercase">Vencimiento: {user?.is_vip == 1 ? 'PERPETUO' : (user?.expiry_date || 'N/A')}</span>
+                                    {user?.is_vip != 1 && user?.expiry_date && (
+                                        <a
+                                            href={getGoogleCalendarUrl(`VENCIMIENTO PLAN BuroSE`, user.expiry_date, `Tu plan de BuroSE vence hoy. Recuerda renovar para no perder tus beneficios.`)}
+                                            target="_blank" rel="noopener noreferrer"
+                                            className="text-brand-neon hover:text-white transition-colors"
+                                            title="Agendar vencimiento en Google Calendar"
+                                        >
+                                            <Calendar size={12} />
+                                        </a>
+                                    )}
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-wrap gap-4">
@@ -448,8 +468,15 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl ${theme === 'dark' ? 'bg-brand-neon text-brand-darker' : 'bg-blue-600 text-white'}`}>
                                         {(result.name || 'B').charAt(0)}
                                     </div>
-                                    <div>
+                                    <div className="flex flex-col">
                                         <h3 className={`text-2xl md:text-3xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{result.name || 'Empresa No Identificada'}</h3>
+                                        <a
+                                            href={getGoogleCalendarUrl(`CONSULTA: ${result.cuit} - ${result.name}`, new Date().toISOString(), `Consulta de riesgo BuroSE.\nCUIT: ${result.cuit}\nEstado: ${result.risk_level}\nScore: ${result.score}`)}
+                                            target="_blank" rel="noopener noreferrer"
+                                            className="text-brand-neon hover:text-white transition-colors flex items-center gap-2 mt-1 lowercase text-[10px] font-bold"
+                                        >
+                                            <Calendar size={12} /> Marcar consulta en mi Google Calendar
+                                        </a>
                                         <div className="flex flex-wrap items-center gap-3 mt-1">
                                             <span className={`text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT: {result.cuit}</span>
                                             <span className="w-1 h-1 rounded-full bg-brand-muted opacity-30"></span>

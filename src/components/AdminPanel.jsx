@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle, Menu, X, ChevronDown, Monitor, CheckCircle2 } from 'lucide-react';
+import { Calendar, LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle, Menu, X, ChevronDown, Monitor, CheckCircle2 } from 'lucide-react';
+
+const getGoogleCalendarUrl = (title, startDate, details) => {
+    if (!startDate) return '#';
+    const start = new Date(startDate).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const end = new Date(new Date(startDate).getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
+};
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
@@ -416,11 +423,33 @@ const SocioList = ({ data, filterFn, theme, searchSocio, setSearchSocio, handleU
                             </div>
                             <SocioActionButtons s={s} handlePlanChange={handlePlanChange} handleUserAction={handleUserAction} theme={theme} />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4 border-t border-white/5 text-[10px] font-bold uppercase tracking-widest text-brand-muted">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 pt-4 border-t border-white/5 text-[10px] font-bold uppercase tracking-widest text-brand-muted">
                             <div><p className="opacity-50 mb-1">CUIT</p><p className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</p></div>
                             <div><p className="opacity-50 mb-1">Email</p><p className={theme === 'dark' ? 'text-white truncate' : 'text-slate-900 truncate'}>{s.email}</p></div>
-                            <div><p className="opacity-50 mb-1">Vencimiento</p><p className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.is_vip == 1 ? 'PERPETUO' : s.expiry_date || 'N/A'}</p></div>
+                            <div>
+                                <p className="opacity-50 mb-1">Vencimiento</p>
+                                <p className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.is_vip == 1 ? 'PERPETUO' : s.expiry_date || 'N/A'}</p>
+                                {s.is_vip != 1 && s.expiry_date && (
+                                    <a
+                                        href={getGoogleCalendarUrl(`VENCIMIENTO: ${s.cuit} - ${s.razon_social}`, s.expiry_date, `Vencimiento de plan BuroSE para ${s.razon_social}`)}
+                                        target="_blank" rel="noopener noreferrer"
+                                        className="text-brand-neon hover:text-white transition-colors flex items-center gap-1 mt-1 lowercase text-[8px]"
+                                    >
+                                        <Calendar size={10} /> + Google Calendar
+                                    </a>
+                                )}
+                            </div>
                             <div><p className="opacity-50 mb-1">Créditos (Mes/Extra)</p><p className="text-brand-neon">{s.is_vip == 1 ? '∞' : `${s.creds_monthly} / ${s.creds_package}`}</p></div>
+                            <div>
+                                <p className="opacity-50 mb-1">Cita ALTA</p>
+                                <a
+                                    href={getGoogleCalendarUrl(`ALTA: ${s.cuit} - ${s.razon_social}`, s.created_at || new Date().toISOString(), `Alta de cuenta BuroSE para ${s.razon_social}`)}
+                                    target="_blank" rel="noopener noreferrer"
+                                    className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-brand-neon text-brand-neon' : 'bg-slate-50 border-slate-200 hover:border-brand-neon text-blue-600'}`}
+                                >
+                                    <Calendar size={12} /> Google Cal
+                                </a>
+                            </div>
                         </div>
                     </div>
                 ))}

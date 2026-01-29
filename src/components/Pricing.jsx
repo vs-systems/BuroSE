@@ -24,7 +24,8 @@ const Pricing = ({ theme }) => {
             desc: "Ideal para pequeñas empresas y seguimiento puntual.",
             features: [
                 "2 Consultas por semana",
-                "Carga de Deuda (¡Suma créditos!)",
+                "Carga de Informe aprobado (¡Suma créditos!)",
+                "Compra de paquetes adicionales",
                 "Sin costo de mantenimiento",
                 "Acceso a Score BuroSE"
             ],
@@ -39,6 +40,7 @@ const Pricing = ({ theme }) => {
             desc: "La mejor relación costo-beneficio para tu negocio.",
             features: [
                 "25 Consultas Mensuales",
+                "Carga de Informe aprobado (¡Suma créditos!)",
                 "20% Off en Legales y Recupero",
                 "10% Off en Bases Especiales",
                 "Soporte por Email incluido",

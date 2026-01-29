@@ -118,18 +118,22 @@ try {
         $stmt = $conn->prepare("UPDATE reports SET estado = 'validado' WHERE id = ?");
         $stmt->execute([$id]);
 
-        // 2. Acreditar Premio (1 Consulta Extra)
-        $stmtReporter = $conn->prepare("SELECT reporter_id FROM reports WHERE id = ?");
+        // 2. Acreditar Premio (Gratis +2, Socio +4)
+        $stmtReporter = $conn->prepare("SELECT r.reporter_id, mc.plan FROM reports r LEFT JOIN membership_companies mc ON r.reporter_id = mc.id WHERE r.id = ?");
         $stmtReporter->execute([$id]);
-        $reporter_id = $stmtReporter->fetchColumn();
+        $reporter = $stmtReporter->fetch(PDO::FETCH_ASSOC);
 
-        if ($reporter_id) {
-            // Sumamos 1 crédito al paquete (los créditos de paquete no se resetean semanalmente como los free)
-            $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + 1, reports_submitted_count = reports_submitted_count + 1 WHERE id = ?")->execute([$reporter_id]);
+        if ($reporter && $reporter['reporter_id']) {
+            $bonus = ($reporter['plan'] === 'free') ? 2 : 4;
+            // Sumamos los créditos al paquete (creds_package)
+            $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + ?, reports_submitted_count = reports_submitted_count + 1 WHERE id = ?")
+                ->execute([$bonus, $reporter['reporter_id']]);
+
+            log_activity($conn, 0, 'Admin', 'APPROVE_REPORT', "ID Reporte: $id, acreditado $bonus créditos a ID: " . $reporter['reporter_id']);
+            echo json_encode(["status" => "success", "message" => "Reporte validado y $bonus créditos acreditados al Miembro"]);
+        } else {
+            echo json_encode(["status" => "success", "message" => "Reporte validado (Reportero no encontrado)"]);
         }
-
-        log_activity($conn, 0, 'Admin', 'APPROVE_REPORT', "ID Reporte: $id, acreditado a ID: $reporter_id");
-        echo json_encode(["status" => "success", "message" => "Reporte validado y 1 crédito acreditado al Miembro"]);
     } elseif ($action === 'update_credits') {
         // Fix para recibir 'credits' y 'type' del frontend, o 'creds_monthly'/'creds_package'
         $creditsValue = intval($data['credits'] ?? 0);
