@@ -50,62 +50,68 @@ try {
 
     // Inicialización suave de esquema (Solo si es necesario)
     try {
-        $check = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'expiry_date'");
-        if ($check && $check->rowCount() == 0) {
-            $conn->exec("ALTER TABLE membership_companies ADD COLUMN expiry_date DATE DEFAULT NULL");
-        }
-
-        $check_vip = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'is_vip'");
-        if ($check_vip && $check_vip->rowCount() == 0) {
-            $conn->exec("ALTER TABLE membership_companies ADD COLUMN is_vip TINYINT DEFAULT 0");
-        }
-
-        $check_token = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'api_token'");
-        if ($check_token && $check_token->rowCount() == 0) {
-            $conn->exec("ALTER TABLE membership_companies ADD COLUMN api_token VARCHAR(255) DEFAULT NULL");
-        }
-
-        $check_plan = $conn->query("SHOW COLUMNS FROM membership_companies LIKE 'plan'");
-        if ($check_plan && $check_plan->rowCount() == 0) {
-            $conn->exec("ALTER TABLE membership_companies ADD COLUMN plan VARCHAR(20) DEFAULT 'free'");
-        }
-
-        // Nuevos campos para reportes (Enriquecimiento de datos)
-        // Nuevos campos para reportes (Enriquecimiento de datos)
-        $new_report_cols = [
-            'intencion_pago' => 'TINYINT DEFAULT 0',
-            'instancia_judicial' => 'TINYINT DEFAULT 0',
-            'domicilio_particular' => 'VARCHAR(255) DEFAULT NULL',
-            'domicilio_comercial' => 'VARCHAR(255) DEFAULT NULL',
-            'celular_contacto' => 'VARCHAR(50) DEFAULT NULL',
-            'provincia' => 'VARCHAR(100) DEFAULT NULL',
-            'localidad' => 'VARCHAR(100) DEFAULT NULL'
+        // Normalizar membership_companies
+        $mc_fields = [
+            'is_vip' => "TINYINT DEFAULT 0",
+            'expiry_date' => "DATE DEFAULT NULL",
+            'plan' => "VARCHAR(50) DEFAULT 'free'",
+            'api_token' => "VARCHAR(255) DEFAULT NULL",
+            'password' => "VARCHAR(255) DEFAULT NULL"
         ];
-        foreach ($new_report_cols as $col => $type) {
-            $check = $conn->query("SHOW COLUMNS FROM reports LIKE '$col'");
+        foreach ($mc_fields as $f => $d) {
+            $check = $conn->query("SHOW COLUMNS FROM membership_companies LIKE '$f'");
             if ($check && $check->rowCount() == 0) {
-                $conn->exec("ALTER TABLE reports ADD COLUMN $col $type");
+                $conn->exec("ALTER TABLE membership_companies ADD COLUMN $f $d");
             }
         }
 
-        // Esquema para reports (Asegurar que coincida con lo que usa el sitio)
-        $conn->exec("ALTER TABLE reports MODIFY COLUMN monto DECIMAL(12,2) DEFAULT 0");
-        $conn->exec("ALTER TABLE reports MODIFY COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
-        $check_fd = $conn->query("SHOW COLUMNS FROM reports LIKE 'fecha_denuncia'");
-        if ($check_fd && $check_fd->rowCount() == 0) {
-            $conn->exec("ALTER TABLE reports ADD COLUMN fecha_denuncia DATE DEFAULT NULL");
+        // Normalizar reports
+        $rep_fields = [
+            'monto' => "DECIMAL(15,2) DEFAULT 0",
+            'fecha_denuncia' => "DATE DEFAULT NULL",
+            'intencion_pago' => "TINYINT DEFAULT 0",
+            'instancia_judicial' => "TINYINT DEFAULT 0",
+            'domicilio_particular' => "VARCHAR(255) DEFAULT NULL",
+            'domicilio_comercial' => "VARCHAR(255) DEFAULT NULL",
+            'celular_contacto' => "VARCHAR(50) DEFAULT NULL",
+            'provincia' => "VARCHAR(100) DEFAULT NULL",
+            'localidad' => "VARCHAR(100) DEFAULT NULL"
+        ];
+        foreach ($rep_fields as $f => $d) {
+            $check = $conn->query("SHOW COLUMNS FROM reports LIKE '$f'");
+            if ($check && $check->rowCount() == 0) {
+                if ($f === 'monto') {
+                    // Si no existe monto, tal vez se llama amount?
+                    $check_alt = $conn->query("SHOW COLUMNS FROM reports LIKE 'amount'");
+                    if ($check_alt && $check_alt->rowCount() > 0) {
+                        $conn->exec("ALTER TABLE reports CHANGE COLUMN amount monto DECIMAL(15,2) DEFAULT 0");
+                    } else {
+                        $conn->exec("ALTER TABLE reports ADD COLUMN monto DECIMAL(15,2) DEFAULT 0");
+                    }
+                } else {
+                    $conn->exec("ALTER TABLE reports ADD COLUMN $f $d");
+                }
+            }
         }
         $conn->exec("UPDATE reports SET fecha_denuncia = DATE(created_at) WHERE fecha_denuncia IS NULL");
 
-        // Reparación de VIPs (Asegurar que los socios estratégicos sean VIP)
-        $vips_to_ensure = ['Biosegur', 'Gozzi', 'DyR', 'Block', 'Sistemas']; // Más corto para LIKE
-        foreach ($vips_to_ensure as $v_name) {
-            $stmtV = $conn->prepare("UPDATE membership_companies SET is_vip = 1, plan = 'business', expiry_date = NULL, estado = 'validado' WHERE razon_social LIKE ?");
-            $stmtV->execute(["%$v_name%"]);
+        // Restaurar VIPs (Si no existen, recrearlos)
+        $vips = [
+            ['Biosegur', '20111111111', 'info@biosegur.com.ar'],
+            ['Javier Gozzi', '20222222222', 'sistemas@burose.com.ar'],
+            ['DyR Sistemas', '30333333333', 'info@dyrsistemas.com.ar'],
+            ['Block Seguridad', '30444444444', 'info@block.com.ar']
+        ];
+        foreach ($vips as $v) {
+            $stmt = $conn->prepare("UPDATE membership_companies SET is_vip = 1, plan = 'business', expiry_date = NULL, estado = 'validado' WHERE razon_social LIKE ?");
+            $stmt->execute(["%{$v[0]}%"]);
+            if ($stmt->rowCount() == 0) {
+                $stmtIns = $conn->prepare("INSERT IGNORE INTO membership_companies (razon_social, cuit, email, is_vip, plan, estado) VALUES (?, ?, ?, 1, 'business', 'validado')");
+                $stmtIns->execute([$v[0], $v[1], $v[2]]);
+            }
         }
-
     } catch (Exception $e_schema) {
-        // Ignorar fallos de alter (ya existen)
+        // Ignorar fallos de alter silenciosamente
     }
 
 } catch (PDOException $e) {

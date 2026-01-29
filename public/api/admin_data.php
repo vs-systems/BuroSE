@@ -14,21 +14,20 @@ if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
 
 try {
     // Obtener solicitudes de acceso
-    $stmt1 = $conn->query("SELECT * FROM contact_submissions ORDER BY created_at DESC");
-    $contacts = $stmt1->fetchAll();
+    $contacts = $conn->query("SELECT * FROM contact_submissions ORDER BY created_at DESC")->fetchAll();
 
     // Obtener solicitudes de derecho a réplica
-    $stmt2 = $conn->query("SELECT * FROM replica_requests ORDER BY created_at DESC");
-    $replicas = $stmt2->fetchAll();
+    $replicas = $conn->query("SELECT * FROM replica_requests ORDER BY created_at DESC")->fetchAll();
 
     // Obtener socios activos/registrados
-    $stmt3 = $conn->query("SELECT * FROM membership_companies ORDER BY created_at DESC");
-    $socios = $stmt3->fetchAll();
+    $socios = $conn->query("SELECT * FROM membership_companies ORDER BY created_at DESC")->fetchAll();
 
-    // Obtener reportes cargados por asociados
-    $stmt4 = $conn->query("SELECT r.*, mc.razon_social as reporter_name FROM reports r LEFT JOIN membership_companies mc ON
-r.reporter_id = mc.id ORDER BY r.created_at DESC");
-    $reports = $stmt4->fetchAll();
+    // Obtener reportes cargados
+    try {
+        $reports = $conn->query("SELECT r.*, mc.razon_social as reporter_name FROM reports r LEFT JOIN membership_companies mc ON r.reporter_id = mc.id ORDER BY r.created_at DESC")->fetchAll();
+    } catch (Exception $e_rep) {
+        $reports = [];
+    }
 
     echo json_encode([
         "status" => "success",
@@ -40,6 +39,7 @@ r.reporter_id = mc.id ORDER BY r.created_at DESC");
         ]
     ]);
 } catch (PDOException $e) {
+    http_response_code(500);
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }
 ?>
