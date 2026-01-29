@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle, Menu, X, ChevronDown } from 'lucide-react';
+import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle, Menu, X, ChevronDown, Monitor, CheckCircle2 } from 'lucide-react';
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
@@ -144,22 +144,22 @@ const RankingManager = ({ theme }) => {
             <form onSubmit={handleSave} className={`border p-8 rounded-3xl grid md:grid-cols-3 lg:grid-cols-6 gap-6 items-end transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-xl'
                 }`}>
                 <div className="lg:col-span-2">
-                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">Nombre / Razón Social</label>
+                    <label className={`block text-[10px] font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>Nombre / Razón Social</label>
                     <input type="text" value={newItem.full_name} onChange={e => setNewItem({ ...newItem, full_name: e.target.value })}
                         className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`} required />
                 </div>
                 <div>
-                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">CUIT (sin guiones)</label>
+                    <label className={`block text-[10px] font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>CUIT (sin guiones)</label>
                     <input type="text" value={newItem.cuit} onChange={e => setNewItem({ ...newItem, cuit: e.target.value })}
                         className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`} required />
                 </div>
                 <div>
-                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">Monto Deuda</label>
+                    <label className={`block text-[10px] font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>Monto Deuda</label>
                     <input type="number" value={newItem.amount} onChange={e => setNewItem({ ...newItem, amount: e.target.value })}
                         className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`} required />
                 </div>
                 <div>
-                    <label className="block text-[10px] font-black uppercase mb-2 text-brand-muted tracking-widest">Semáforo</label>
+                    <label className={`block text-[10px] font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>Semáforo</label>
                     <select value={newItem.status} onChange={e => setNewItem({ ...newItem, status: e.target.value })}
                         className={`w-full border rounded-xl px-4 py-3 outline-none focus:border-brand-neon transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`}>
                         <option value="RED">Rojo (Peligroso)</option>
@@ -181,7 +181,7 @@ const RankingManager = ({ theme }) => {
                                 }`} />
                             <div>
                                 <h4 className={`font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{r.full_name}</h4>
-                                <p className="text-[10px] font-bold text-brand-muted">CUIT: {r.cuit} • ${parseFloat(r.amount).toLocaleString('es-AR')}</p>
+                                <p className={`text-[10px] font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>CUIT: {r.cuit} • ${parseFloat(r.amount).toLocaleString('es-AR')}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -865,9 +865,9 @@ const AdminPanel = () => {
                                             <span className="bg-brand-neon/10 text-brand-neon text-[10px] font-black px-4 py-1.5 rounded-full border border-brand-neon/20 uppercase">Nuevo Lead</span>
                                         </div>
                                         <div className="mt-6 flex flex-wrap gap-x-8 gap-y-4 text-xs">
-                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className="text-white">{c.cuit}</span></p>
-                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className="text-white">{c.email}</span></p>
-                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>WhatsApp: <span className="text-white">{c.whatsapp}</span></p>
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{c.cuit}</span></p>
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{c.email}</span></p>
+                                            <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>WhatsApp: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{c.whatsapp}</span></p>
                                         </div>
                                         <div className="mt-6 pt-6 border-t border-white/5 flex gap-4">
                                             <button onClick={() => handleApprove(c, 'active')} className="bg-brand-neon text-brand-darker text-[10px] font-black px-6 py-2.5 rounded-xl uppercase">Aprobar Socio</button>
@@ -1062,6 +1062,47 @@ const AdminPanel = () => {
                     ) : activeTab === 'config' ? (
                         <div className="space-y-12 pb-20">
                             <ManualReportForm theme={theme} onComplete={fetchData} />
+
+                            <div className={`p-8 rounded-3xl border mb-12 transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary shadow-lg shadow-brand-neon/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="bg-brand-neon p-2 rounded-lg"><Monitor className="text-brand-darker" size={20} /></div>
+                                    <h3 className={`text-xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Apariencia <span className="text-brand-neon">Visual</span></h3>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                                    <div>
+                                        <p className={`text-sm font-bold leading-relaxed mb-6 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                                            Elige cómo quieres ver el panel de administración. El modo autómata sincronizará el Brillo con la configuración de tu sistema operativo.
+                                        </p>
+                                        <div className="flex flex-wrap gap-3">
+                                            {[
+                                                { id: 'light', name: 'Claro', icon: Sun, color: 'text-blue-600', bg: 'bg-blue-600/10' },
+                                                { id: 'dark', name: 'Oscuro', icon: Moon, color: 'text-brand-neon', bg: 'bg-brand-neon/10' },
+                                                { id: 'system', name: 'Autómata', icon: Monitor, color: 'text-purple-500', bg: 'bg-purple-500/10' }
+                                            ].map((t) => (
+                                                <button
+                                                    key={t.id}
+                                                    onClick={() => setTheme(t.id)}
+                                                    className={`px-6 py-4 rounded-2xl flex items-center gap-3 transition-all border-2 ${theme === t.id
+                                                        ? (t.id === 'dark' ? 'border-brand-neon bg-brand-neon/5' : t.id === 'light' ? 'border-blue-600 bg-blue-50' : 'border-purple-500 bg-purple-50')
+                                                        : (theme === 'dark' ? 'border-brand-secondary bg-brand-dark hover:border-white/20' : 'border-slate-100 bg-slate-50 hover:border-slate-300')
+                                                        }`}
+                                                >
+                                                    <t.icon className={t.color} size={20} />
+                                                    <span className={`text-xs font-black uppercase tracking-widest ${theme === t.id ? (theme === 'dark' ? 'text-white' : 'text-slate-900') : 'text-brand-muted'}`}>{t.name}</span>
+                                                    {theme === t.id && <CheckCircle2 className="text-green-500" size={16} />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className={`p-6 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center text-center ${theme === 'dark' ? 'border-brand-secondary/30 bg-brand-neon/5' : 'border-slate-200 bg-blue-50/30'}`}>
+                                        <div className={`w-12 h-12 rounded-full mb-4 flex items-center justify-center ${theme === 'dark' ? 'bg-brand-neon text-brand-darker' : 'bg-blue-600 text-white'}`}>
+                                            <ShieldCheck size={24} />
+                                        </div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Vista Previa del Tema</p>
+                                        <p className="text-[9px] font-bold mt-1 max-w-[150px]">Los cambios se guardan localmente en tu dispositivo.</p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div className={`p-8 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
                                 <h3 className="text-xl font-black uppercase mb-6 tracking-tighter">Ajustes <span className="text-brand-neon">Globales</span></h3>

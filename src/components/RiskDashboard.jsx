@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard, Lock, Users } from 'lucide-react';
+import { Search, ShieldAlert, ShieldCheck, ShieldX, TrendingUp, Landmark, FileText, AlertTriangle, BookOpen, Wallet, CreditCard, Lock, Users, Sun, Moon, Monitor } from 'lucide-react';
 import ReportUpload from './ReportUpload';
 import DebtorRanking from './DebtorRanking';
 
@@ -134,6 +134,29 @@ const RiskDashboard = ({ theme, setTheme }) => {
                         </div>
                     </div>
                     <div className="flex gap-4 items-center">
+                        <div className={`flex items-center gap-1 p-1 rounded-xl border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+                            <button
+                                onClick={() => setTheme('light')}
+                                className={`p-1.5 rounded-lg transition-all ${theme === 'light' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                title="Modo Claro"
+                            >
+                                <Sun size={14} />
+                            </button>
+                            <button
+                                onClick={() => setTheme('dark')}
+                                className={`p-1.5 rounded-lg transition-all ${theme === 'dark' ? 'bg-brand-neon text-brand-darker shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                                title="Modo Oscuro"
+                            >
+                                <Moon size={14} />
+                            </button>
+                            <button
+                                onClick={() => setTheme('system')}
+                                className={`p-1.5 rounded-lg transition-all ${theme === 'system' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-white'}`}
+                                title="Modo Sistema"
+                            >
+                                <Monitor size={14} />
+                            </button>
+                        </div>
                         <button
                             onClick={() => setShowingSecurity(!showingSecurity)}
                             className={`p-2 rounded-lg transition-all ${theme === 'dark' ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50'}`}
@@ -365,18 +388,12 @@ const RiskDashboard = ({ theme, setTheme }) => {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <a href="/#/login" className="bg-blue-600 text-white font-black py-4 px-8 rounded-xl uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-blue-600/20">Iniciar Sesión</a>
-                                <button
-                                    onClick={() => {
-                                        if (window.location.hash === '#/risk-dashboard') {
-                                            window.location.href = '/#contact';
-                                        } else {
-                                            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
-                                        }
-                                    }}
-                                    className="bg-brand-neon text-brand-darker font-black py-4 px-8 rounded-xl uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-brand-neon/20"
+                                <a
+                                    href="/#/registro-gratis"
+                                    className="bg-brand-neon text-brand-darker font-black py-4 px-8 rounded-xl uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-brand-neon/20 inline-block text-center"
                                 >
                                     Solicitar Acceso (Gratis)
-                                </button>
+                                </a>
                             </div>
                         </div>
                     )}
@@ -550,7 +567,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                 <div className="p-12 rounded-3xl bg-brand-dark/40 border border-white/5 backdrop-blur-sm text-center">
                                     <Lock size={32} className="mx-auto mb-4 text-brand-alert" />
                                     <p className="text-xs font-black uppercase tracking-widest mb-6 opacity-60">DETALLE DE INCIDENCIAS BLOQUEADO</p>
-                                    <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="bg-brand-neon text-brand-darker font-black py-4 px-10 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-brand-neon/10">Registrarse para ver detalles</button>
+                                    <a href="/#/registro-gratis" className="bg-brand-neon text-brand-darker font-black py-4 px-10 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-brand-neon/10 inline-block">Registrarse para ver detalles</a>
                                 </div>
                             )}
                         </div>

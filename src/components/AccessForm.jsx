@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, Rocket, ShieldCheck, Mail, MapPin, Briefcase } from 'lucide-react';
 import { calculateCUITDigit, getDeviceFingerprint } from '../utils/argentinaUtils';
 
-const AccessForm = ({ theme, defaultPlan = 'business' }) => {
+const AccessForm = ({ theme, defaultPlan = 'business', title = 'Denunciantes / Acceso', subtitle = 'Únete a la red colaborativa. Exclusivo para empresas del gremio y denuncias comerciales.' }) => {
     const [formData, setFormData] = useState({
         name: '',
         cuit: '',
@@ -104,9 +104,9 @@ const AccessForm = ({ theme, defaultPlan = 'business' }) => {
                 }`}></div>
 
             <div className="relative z-10">
-                <h3 className={`text-2xl font-black mb-2 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Denunciantes / Acceso</h3>
+                <h3 className={`text-2xl font-black mb-2 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{title}</h3>
                 <p className={`text-sm mb-8 font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                    Únete a la red colaborativa. Exclusivo para empresas del gremio y denuncias comerciales.
+                    {subtitle}
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -183,7 +183,7 @@ const AccessForm = ({ theme, defaultPlan = 'business' }) => {
                                     <option value="Particular">Particular</option>
                                     <option value="Otro">Otro</option>
                                 </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" size={16} />
+                                <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`} size={16} />
                             </div>
                         </div>
                     </div>
@@ -229,7 +229,7 @@ const AccessForm = ({ theme, defaultPlan = 'business' }) => {
                         Solicitar Acceso <ArrowRight size={20} />
                     </button>
 
-                    <p className="text-[9px] text-center font-black uppercase tracking-widest text-brand-muted opacity-50">
+                    <p className={`text-[9px] text-center font-black uppercase tracking-widest opacity-50 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
                         Sujeto a validación comercial • BuroSE Compliance
                     </p>
                 </form>

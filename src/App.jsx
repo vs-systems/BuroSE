@@ -11,18 +11,37 @@ import Replica from './components/legal/Replica';
 import Manual from './components/Manual';
 import LegalRecovery from './components/legal/LegalRecovery';
 import LegalServices from './components/LegalServices';
+import RegistrationPage from './components/RegistrationPage';
+
 function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
     useEffect(() => {
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-            document.documentElement.style.backgroundColor = '#0a0b10'; // brand-darker
-        } else {
-            document.documentElement.classList.remove('dark');
-            document.documentElement.style.backgroundColor = '#f8fafc'; // slate-50
-        }
+        const applyTheme = (themeMode) => {
+            let actualTheme = themeMode;
+            if (themeMode === 'system') {
+                actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            if (actualTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.documentElement.style.backgroundColor = '#0a0b10';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.style.backgroundColor = '#f8fafc';
+            }
+        };
+
+        applyTheme(theme);
         localStorage.setItem('theme', theme);
+
+        // Listener for system theme changes if set to 'system'
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = () => {
+            if (theme === 'system') applyTheme('system');
+        };
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
     }, [theme]);
 
     // Protección de código (Deterrentes)
@@ -54,6 +73,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing theme={theme} setTheme={setTheme} />} />
                 <Route path="/risk-dashboard" element={<RiskDashboard theme={theme} setTheme={setTheme} />} />
+                <Route path="/registro-gratis" element={<RegistrationPage theme={theme} setTheme={setTheme} />} />
                 <Route path="/admin" element={<AdminPanel theme={theme} setTheme={setTheme} />} />
                 <Route path="/config" element={<AdminPanel theme={theme} setTheme={setTheme} />} />
                 <Route path="/login" element={<MemberLogin theme={theme} setTheme={setTheme} />} />
