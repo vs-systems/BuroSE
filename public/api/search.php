@@ -221,7 +221,7 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
                 $can_search = true;
                 $consumption_type = 'package';
             } else {
-                echo json_encode(["status" => "error", "message" => "Límite semanal alcanzado (1/1). Suba un informe de deuda validado para obtener créditos extra o adquiera un paquete."]);
+                echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Límite semanal alcanzado (1/1). Suba un informe de deuda validado para obtener créditos extra o adquiera un paquete."]);
                 exit();
             }
         } else {
@@ -239,11 +239,11 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
                     $can_search = true;
                     $consumption_type = 'package';
                 } else {
-                    echo json_encode(["status" => "error", "message" => "Sus créditos adicionales han vencido. Por favor, renueve su saldo."]);
+                    echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Sus créditos adicionales han vencido. Por favor, renueve su saldo."]);
                     exit();
                 }
             } else {
-                echo json_encode(["status" => "error", "message" => "Sin créditos disponibles. Suscripción agotada."]);
+                echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Sin créditos disponibles. Suscripción agotada."]);
                 exit();
             }
         }

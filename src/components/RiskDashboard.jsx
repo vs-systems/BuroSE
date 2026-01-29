@@ -44,11 +44,25 @@ const RiskDashboard = ({ theme, setTheme }) => {
         if (e) e.preventDefault();
         setLoading(true);
         setError('');
+        setResult(null); // Limpiar resultado previo antes de nueva búsqueda
         try {
             const fingerprint = typeof window !== 'undefined' ? await import('../utils/argentinaUtils').then(u => u.getDeviceFingerprint()) : '';
             const response = await fetch(`api/search.php?cuit=${cuit}&fingerprint=${fingerprint}`, { credentials: 'include' });
             const data = await response.json();
-            setResult(data);
+
+            if (data.status === 'error') {
+                setError(data.message);
+                if (data.err_code === 'OUT_OF_CREDITS') {
+                    // Abrir precios en nueva pestaña tras breve delay para que lean el mensaje
+                    setTimeout(() => {
+                        window.open('/#/pricing', '_blank');
+                    }, 1500);
+                }
+            } else {
+                setResult(data);
+                // Refrescar auth para ver créditos actualizados
+                checkAuth();
+            }
         } catch (error) {
             console.error('Error searching:', error);
             setError('Error de conexión con el servidor.');
@@ -349,6 +363,21 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                     <div className="bg-brand-neon/10 px-3 py-2 rounded-lg text-[10px] font-black text-brand-neon uppercase flex items-center">Calc CUIT</div>
                                 </div>
                             </div>
+
+                            {/* Mensaje de Error */}
+                            {error && (
+                                <div className="max-w-2xl mx-auto mb-6 animate-in fade-in zoom-in duration-300">
+                                    <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-4 text-left">
+                                        <div className="bg-red-500 p-2 rounded-lg shrink-0">
+                                            <ShieldX className="text-white" size={20} />
+                                        </div>
+                                        <p className="text-xs font-bold text-red-500 leading-relaxed">
+                                            {error}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
                                 <input
                                     type="text"

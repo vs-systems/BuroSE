@@ -84,6 +84,7 @@ function App() {
                 <Route path="/manual" element={<Manual theme={theme} setTheme={setTheme} />} />
                 <Route path="/legal-recovery" element={<LegalRecovery theme={theme} setTheme={setTheme} />} />
                 <Route path="/legal-services" element={<LegalServices theme={theme} setTheme={setTheme} />} />
+                <Route path="/pricing" element={<Landing theme={theme} setTheme={setTheme} initialSection="pricing" />} />
             </Routes>
         </Router>
     );

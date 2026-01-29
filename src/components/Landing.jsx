@@ -25,7 +25,13 @@ const Landing = ({ theme, setTheme }) => {
                 if (res.status === 'success') setSettings(res.data);
             })
             .catch(e => console.error("Error fetching settings:", e));
-    }, []);
+
+        if (initialSection === 'pricing') {
+            setTimeout(() => {
+                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+    }, [initialSection]);
 
     return (
         <div className={`min-h-screen font-sans transition-colors duration-300 ${theme === 'dark' ? 'bg-brand-darker text-brand-text' : 'bg-slate-50 text-slate-900'}`}>
