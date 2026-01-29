@@ -11,18 +11,20 @@ import LogosSlider from './LogosSlider';
 import Pricing from './Pricing';
 import Manuals from './Manuals';
 import Footer from './Footer';
+import ContactModal from './ContactModal';
 
 const Landing = ({ theme, setTheme }) => {
+    const [isContactOpen, setIsContactOpen] = useState(false);
+
     return (
         <div className={`min-h-screen font-sans transition-colors duration-300 ${theme === 'dark' ? 'bg-brand-darker text-brand-text' : 'bg-slate-50 text-slate-900'}`}>
-            <Header theme={theme} setTheme={setTheme} />
+            <Header theme={theme} setTheme={setTheme} openContact={() => setIsContactOpen(true)} />
             <main>
                 <Hero theme={theme} />
                 <ProblemChart theme={theme} />
                 <HowItWorks theme={theme} />
                 <Pricing theme={theme} />
                 <Manuals theme={theme} />
-                {/* El buscador público ha sido removido por política de registro obligatorio */}
                 <Legal theme={theme} />
                 <div id="contact" className={`container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 transition-colors ${theme === 'dark' ? 'bg-transparent' : 'bg-slate-50'}`}>
                     <AccessForm theme={theme} />
@@ -30,7 +32,8 @@ const Landing = ({ theme, setTheme }) => {
                 </div>
                 <LogosSlider theme={theme} />
             </main>
-            <Footer theme={theme} />
+            <Footer theme={theme} openContact={() => setIsContactOpen(true)} />
+            <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} theme={theme} />
         </div>
     );
 };

@@ -93,6 +93,14 @@ try {
         if ($check_rep && $check_rep->rowCount() == 0) {
             $conn->exec("ALTER TABLE replica_requests ADD COLUMN estado VARCHAR(20) DEFAULT 'pendiente'");
         }
+
+        // Reparación de VIPs (Asegurar que los socios estratégicos sean VIP)
+        $vips_to_ensure = ['Biosegur', 'Javier Gozzi', 'DyR Sistemas', 'Block Seguridad'];
+        foreach ($vips_to_ensure as $v_name) {
+            $stmtV = $conn->prepare("UPDATE membership_companies SET is_vip = 1, plan = 'business', expiry_date = NULL WHERE razon_social LIKE ?");
+            $stmtV->execute(["%$v_name%"]);
+        }
+
     } catch (Exception $e_schema) {
         // Ignorar
     }

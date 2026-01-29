@@ -11,7 +11,7 @@ const Replica = ({ theme, setTheme }) => {
                     <h4 className="font-black text-brand-neon uppercase tracking-widest text-sm mb-4">PASO A PASO PARA EJERCER SU DERECHO:</h4>
                     <ol className="list-decimal pl-5 space-y-4">
                         <li>
-                            <strong>Solicitud:</strong> Envíe un correo electrónico a <a href="mailto:somos@burose.com.ar" className="text-brand-neon font-bold hover:underline">somos@burose.com.ar</a> con el asunto "DERECHO A RÉPLICA - CUIT [Número]".
+                            <strong>Solicitud:</strong> Envíe un correo electrónico a <a href="mailto:legales@burose.com.ar" className="text-brand-neon font-bold hover:underline">legales@burose.com.ar</a> con el asunto "DERECHO A RÉPLICA - CUIT [Número]".
                         </li>
                         <li>
                             <strong>Documentación Requerida:</strong>

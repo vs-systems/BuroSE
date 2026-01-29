@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle } from 'lucide-react';
+import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle, Menu, X } from 'lucide-react';
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
@@ -210,6 +210,7 @@ const AdminPanel = () => {
     const [searchSocio, setSearchSocio] = useState('');
     const [socioFilter, setSocioFilter] = useState('all'); // 'all', 'validado', 'bloqueado'
     const [theme, setTheme] = useState('dark');
+    const [isNavOpen, setIsNavOpen] = useState(false);
 
     useEffect(() => {
         checkSession();
@@ -400,94 +401,50 @@ const AdminPanel = () => {
     return (
         <div className={`min-h-screen flex transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker text-brand-text' : 'bg-slate-50 text-slate-900'
             }`}>
+            {/* Sidebar Mobile Overlay */}
+            {isNavOpen && (
+                <div
+                    className="fixed inset-0 bg-brand-darker/80 backdrop-blur-sm z-[40] md:hidden"
+                    onClick={() => setIsNavOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <div className={`w-64 border-r flex flex-col sticky top-0 h-screen transition-colors ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-xl'
-                }`}>
-                <div className={`p-6 border-b ${theme === 'dark' ? 'border-brand-secondary' : 'border-slate-100'}`}>
-                    <h1 className={`text-xl font-black tracking-widest uppercase italic bg-gradient-to-r from-brand-neon to-blue-500 bg-clip-text text-transparent`}>BuroSE</h1>
-                    <p className={`text-[10px] font-bold tracking-widest uppercase mt-1 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>Control Hub</p>
+            <div className={`fixed md:sticky top-0 h-screen z-[50] transition-all duration-300 border-r flex flex-col ${isNavOpen ? 'translate-x-0 w-72 shadow-2xl' : '-translate-x-full w-0 md:translate-x-0 md:w-64'
+                } ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-xl'
+                } overflow-hidden`}>
+                <div className={`p-6 border-b flex items-center justify-between ${theme === 'dark' ? 'border-brand-secondary' : 'border-slate-100'}`}>
+                    <div>
+                        <h1 className={`text-xl font-black tracking-widest uppercase italic bg-gradient-to-r from-brand-neon to-blue-500 bg-clip-text text-transparent`}>BuroSE</h1>
+                        <p className={`text-[10px] font-bold tracking-widest uppercase mt-1 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>Control Hub</p>
+                    </div>
+                    <button onClick={() => setIsNavOpen(false)} className="md:hidden p-2 text-brand-muted hover:text-white">
+                        <X size={20} />
+                    </button>
                 </div>
-                <nav className="flex-1 p-4 space-y-2">
-                    <button
-                        onClick={() => setActiveTab('contacts')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'contacts'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <Users size={18} />
-                        <span>Leads/Accesos</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('replicas')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'replicas'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <MessageSquare size={18} />
-                        <span>Réplicas</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('logos')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'logos'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <Globe size={18} />
-                        <span>Asociados</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('socios')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'socios'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <Users size={18} />
-                        <span>Socios Activos</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('reports')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'reports'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <FileText size={18} />
-                        <span>Informes Deuda</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('vip')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'vip'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <ShieldCheck size={18} />
-                        <span>Socios VIP</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('stats')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'stats'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <RefreshCcw size={18} />
-                        <span>Estadísticas</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('ranking')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'ranking'
-                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
-                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
-                            }`}
-                    >
-                        <Trophy size={18} />
-                        <span>Ranking Nacional</span>
-                    </button>
+                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                    {[
+                        { id: 'contacts', label: 'Leads/Accesos', icon: Users },
+                        { id: 'socios', label: 'Socios Activos', icon: Users },
+                        { id: 'vip', label: 'Socios VIP', icon: ShieldCheck },
+                        { id: 'reports', label: 'Informes Deuda', icon: FileText },
+                        { id: 'replicas', label: 'Réplicas', icon: MessageSquare },
+                        { id: 'stats', label: 'Estadísticas', icon: RefreshCcw },
+                        { id: 'ranking', label: 'Ranking Nac.', icon: Trophy },
+                        { id: 'logos', label: 'Asociados', icon: Globe },
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => { setActiveTab(tab.id); setIsNavOpen(false); }}
+                            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === tab.id
+                                ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                                : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                                }`}
+                        >
+                            <tab.icon size={18} />
+                            <span className="whitespace-nowrap">{tab.label}</span>
+                        </button>
+                    ))}
                 </nav>
                 <div className={`p-4 border-t ${theme === 'dark' ? 'border-brand-secondary' : 'border-slate-100'}`}>
                     <button
@@ -500,22 +457,32 @@ const AdminPanel = () => {
                     </button>
                     <button
                         onClick={handleLogout}
-                        className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl transition-all font-black uppercase text-[10px] tracking-widest ${theme === 'dark' ? 'text-brand-alert hover:bg-brand-alert/10' : 'text-red-600 hover:bg-red-50 border border-red-100'
-                            }`}
+                        className="w-full flex items-center justify-center space-x-3 px-4 py-4 rounded-xl text-brand-alert hover:bg-brand-alert/10 transition-all font-black uppercase tracking-widest text-[10px]"
                     >
-                        <LogOut size={16} />
+                        <LogOut size={18} />
                         <span>Cerrar Sesión</span>
                     </button>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                <header className={`border-b p-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-10 w-full transition-colors ${theme === 'dark' ? 'bg-brand-dark/80 border-brand-secondary' : 'bg-white/80 border-slate-100 shadow-sm'
+            <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden relative">
+                <header className={`sticky top-0 z-[30] h-20 border-b flex items-center justify-between px-6 md:px-10 transition-colors ${theme === 'dark' ? 'bg-brand-dark/90 backdrop-blur-md border-brand-secondary' : 'bg-white/90 backdrop-blur-md border-slate-100 shadow-sm'
                     }`}>
-                    <h2 className={`text-2xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                        {activeTab === 'contacts' ? 'Leads / Solicitudes' : activeTab === 'replicas' ? 'Solicitudes de Réplica' : activeTab === 'socios' ? 'Gestión de Socios' : activeTab === 'reports' ? 'Gestión de Informes' : activeTab === 'vip' ? 'Socios VIP (Perpetuos)' : activeTab === 'stats' ? 'Panel de Control' : activeTab === 'ranking' ? 'Ranking de Deudores' : 'Gestión de Asociados'}
-                    </h2>
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setIsNavOpen(true)} className="md:hidden p-2 rounded-lg bg-brand-neon/10 text-brand-neon">
+                            <Menu size={24} />
+                        </button>
+                        <div>
+                            <h2 className={`text-xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                                {activeTab.toUpperCase()}
+                            </h2>
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-neon animate-pulse"></span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Admin Activo</span>
+                            </div>
+                        </div>
+                    </div>
                     <button
                         onClick={fetchData} disabled={loading}
                         className={`p-2 rounded-full transition-all ${theme === 'dark' ? 'text-brand-neon hover:bg-brand-neon/10' : 'text-blue-600 hover:bg-blue-50'

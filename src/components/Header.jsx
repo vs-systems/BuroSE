@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X, ShieldCheck, Sun, Moon } from 'lucide-react';
 
-const Header = ({ theme, setTheme }) => {
+const Header = ({ theme, setTheme, openContact }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleTheme = () => {
@@ -76,7 +76,7 @@ const Header = ({ theme, setTheme }) => {
                         </a>
 
                         <button
-                            onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                            onClick={openContact}
                             className="px-5 py-2 bg-brand-neon text-brand-darker font-bold rounded-lg hover:brightness-110 hover:scale-105 transition-all shadow-lg shadow-brand-neon/20"
                         >
                             Contacto
@@ -119,7 +119,7 @@ const Header = ({ theme, setTheme }) => {
                                 <button
                                     onClick={() => {
                                         setIsOpen(false);
-                                        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+                                        openContact();
                                     }}
                                     className="w-full py-4 bg-brand-neon text-brand-darker font-black rounded-xl shadow-lg shadow-brand-neon/20 active:scale-95 transition-transform"
                                 >

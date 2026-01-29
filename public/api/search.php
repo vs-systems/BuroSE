@@ -146,7 +146,19 @@ $is_authenticated = (
 );
 
 if (!$is_authenticated) {
-    // Modo GUEST: Información limitada para incentivar registro
+    // Notificación por mail para el administrador (somos@burose.com.ar)
+    $notify_email = "somos@burose.com.ar";
+    $subject = "Nueva Consulta (GUEST) BuroSE: " . $cuit;
+    $body = "Se ha realizado una consulta de riesgo (Invitado).\n\n";
+    $body .= "CUIT/DNI: $cuit\n";
+    $body .= "Nombre: " . ($scraped_name ?: "No identificado") . "\n";
+    $body .= "Nivel de Alerta: $alert_level\n";
+    $body .= "Fecha: " . date("Y-m-d H:i:s") . "\n";
+
+    $headers = "From: info@burose.com.ar\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+    @mail($notify_email, $subject, $body, $headers);
+
     echo json_encode([
         "status" => "success",
         "authenticated" => false,
@@ -167,7 +179,20 @@ if (!$is_authenticated) {
         ];
     }, $internal_reports);
 
-    // Modo FULL: Información detallada para socios/admin
+    // Notificación por mail para el administrador (somos@burose.com.ar)
+    $notify_email = "somos@burose.com.ar";
+    $subject = "Nueva Consulta BuroSE: " . $cuit;
+    $body = "Se ha realizado una consulta de riesgo.\n\n";
+    $body .= "CUIT/DNI: $cuit\n";
+    $body .= "Nombre: " . ($scraped_name ?: "No identificado") . "\n";
+    $body .= "Nivel de Alerta: $alert_level\n";
+    $body .= "Autenticado: " . ($is_authenticated ? "SÍ" : "NO") . "\n";
+    $body .= "Fecha: " . date("Y-m-d H:i:s") . "\n";
+
+    $headers = "From: info@burose.com.ar\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+    @mail($notify_email, $subject, $body, $headers);
+
     echo json_encode([
         "status" => "success",
         "authenticated" => true,

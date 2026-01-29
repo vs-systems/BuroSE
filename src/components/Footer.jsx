@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-const Footer = ({ theme, openModal, legalDocs }) => {
+const Footer = ({ theme, openContact }) => {
     return (
         <footer className={`transition-colors duration-500 py-16 border-t ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]'
             }`}>
@@ -33,9 +33,9 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                     <div className="text-center sm:text-left">
                         <h4 className={`font-black uppercase tracking-widest text-xs mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Plataforma</h4>
                         <ul className={`space-y-4 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
-                            <li><a href="/#contact" className="hover:text-brand-neon transition-colors">Solicitar Registro (GRATIS)</a></li>
+                            <li><button onClick={openContact} className="hover:text-brand-neon transition-colors">Solicitar Registro (GRATIS)</button></li>
                             <li><a href="/#/login" className="hover:text-brand-neon transition-colors">Panel de Socios</a></li>
-                            <li><a href="/#/pricing" className="hover:text-brand-neon transition-colors">Planes y Precios</a></li>
+                            <li><button onClick={() => document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })} className="hover:text-brand-neon transition-colors">Planes y Precios</button></li>
                         </ul>
                     </div>
 
@@ -61,7 +61,7 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                         <div className="mt-8 pt-4 border-t border-white/5">
                             <p className="text-[10px] font-black uppercase tracking-tighter text-brand-muted">
                                 Última Actualización:<br />
-                                <span className="text-brand-neon">2026-01-28 20:32</span>
+                                <span className="text-brand-neon">2026-01-28 23:35</span>
                             </p>
                         </div>
                     </div>
@@ -74,8 +74,8 @@ const Footer = ({ theme, openModal, legalDocs }) => {
                         <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
                             Legales: legales@burose.com.ar
                         </a>
-                        <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
-                            Soporte: legales@burose.com.ar
+                        <a href="mailto:sistemas@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
+                            Soporte: sistemas@burose.com.ar
                         </a>
                     </div>
                     <p className="flex items-center">
