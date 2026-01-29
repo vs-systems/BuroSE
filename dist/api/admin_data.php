@@ -40,7 +40,8 @@ try {
                 "vip_count" => $conn->query("SELECT COUNT(*) FROM membership_companies WHERE is_vip = 1")->fetchColumn(),
                 "replica_count" => count($replicas),
                 "total_socios" => count($socios),
-                "pending_leads" => count($contacts)
+                "pending_leads" => count($contacts),
+                "gremio_distribution" => $conn->query("SELECT gremio, COUNT(*) as count FROM membership_companies WHERE gremio IS NOT NULL AND gremio != '' GROUP BY gremio")->fetchAll(PDO::FETCH_ASSOC)
             ]
         ]
     ]);

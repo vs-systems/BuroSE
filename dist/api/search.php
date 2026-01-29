@@ -139,11 +139,91 @@ if ($has_internal_risk || $has_bcra_risk || $has_bcra_debt) {
     $alert_level = "RED";
 }
 
-// 5. Verificar sesión (Usuario socio o Administrador)
-$is_authenticated = (
-    (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true) ||
-    (isset($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true)
-);
+// 5. Verificar sesión y Créditos
+$is_authenticated = false;
+$user_id = $_SESSION['user_id'] ?? null;
+$user_plan = 'guest';
+
+if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id) {
+    // Buscar datos actualizados del usuario
+    $stmtUser = $conn->prepare("SELECT id, plan, creds_monthly, creds_package, creds_package_expiry, fingerprint, last_ip FROM membership_companies WHERE id = ?");
+    $stmtUser->execute([$user_id]);
+    $dbUser = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+    if ($dbUser) {
+        $is_authenticated = true;
+        $user_plan = $dbUser['plan'];
+
+        // --- LOGICA DE CREDITOS ---
+        $can_search = false;
+        $consumption_type = null;
+
+        if ($user_plan === 'free') {
+            // Límite Gratuito: 2 por semana
+            // Verificamos consultas en los últimos 7 días
+            $stmtCheckFree = $conn->prepare("SELECT COUNT(*) FROM search_logs WHERE user_id = ? AND timestamp > DATE_SUB(NOW(), INTERVAL 7 DAY)");
+            $stmtCheckFree->execute([$user_id]);
+            $countLastWeek = $stmtCheckFree->fetchColumn();
+
+            if ($countLastWeek < 2) {
+                // Verificar Anti-Abuso (IP/Fingerprint)
+                $ip = $_SERVER['REMOTE_ADDR'];
+                $stmtCheckAbuse = $conn->prepare("SELECT id FROM membership_companies WHERE (fingerprint = ? OR last_ip = ?) AND id != ? AND plan = 'free' LIMIT 1");
+                $stmtCheckAbuse->execute([$dbUser['fingerprint'], $ip, $user_id]);
+                if ($stmtCheckAbuse->fetch()) {
+                    echo json_encode(["status" => "error", "message" => "Detección de múltiples cuentas. Su acceso ha sido restringido."]);
+                    exit();
+                }
+                $can_search = true;
+                $consumption_type = 'weekly_free';
+            } else {
+                echo json_encode(["status" => "error", "message" => "Límite semanal alcanzado (2/2). Vuelva en 7 días o adquiera un paquete."]);
+                exit();
+            }
+        } else {
+            // Socio BuroSE / Business / API
+            // 1. Mensuales (Prioridad 1)
+            if ($dbUser['creds_monthly'] > 0) {
+                $can_search = true;
+                $consumption_type = 'monthly';
+            }
+            // 2. Paquetes (Prioridad 2)
+            elseif ($dbUser['creds_package'] > 0) {
+                // Verificar vencimiento
+                $expiry = $dbUser['creds_package_expiry'];
+                if (!$expiry || $expiry >= date('Y-m-d')) {
+                    $can_search = true;
+                    $consumption_type = 'package';
+                } else {
+                    echo json_encode(["status" => "error", "message" => "Sus créditos adicionales han vencido. Por favor, renueve su saldo."]);
+                    exit();
+                }
+            } else {
+                echo json_encode(["status" => "error", "message" => "Sin créditos disponibles. Suscripción agotada."]);
+                exit();
+            }
+        }
+
+        if ($can_search) {
+            // Consumir Crédito
+            if ($consumption_type === 'monthly') {
+                $conn->prepare("UPDATE membership_companies SET creds_monthly = creds_monthly - 1 WHERE id = ?")->execute([$user_id]);
+            } elseif ($consumption_type === 'package') {
+                $conn->prepare("UPDATE membership_companies SET creds_package = creds_package - 1 WHERE id = ?")->execute([$user_id]);
+            }
+
+            // Log de búsqueda
+            $stmtLog = $conn->prepare("INSERT INTO search_logs (user_id, cuit_searched, consumption_type, ip_address) VALUES (?, ?, ?, ?)");
+            $stmtLog->execute([$user_id, $cuit, $consumption_type, $_SERVER['REMOTE_ADDR']]);
+
+            // Actualizar IP
+            $conn->prepare("UPDATE membership_companies SET last_ip = ? WHERE id = ?")->execute([$_SERVER['REMOTE_ADDR'], $user_id]);
+        }
+    }
+} elseif (isset($_SESSION['admin_logged']) && $_SESSION['admin_logged'] === true) {
+    $is_authenticated = true;
+    $user_plan = 'admin';
+}
 
 if (!$is_authenticated) {
     // Notificar por mail (burosearg@gmail.com)

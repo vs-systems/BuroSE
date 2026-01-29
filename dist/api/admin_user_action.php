@@ -59,9 +59,10 @@ try {
         $new_razon = $data['razon_social'] ?? '';
         $new_cuit = preg_replace('/\D/', '', $data['new_cuit'] ?? '');
         $new_email = $data['email'] ?? '';
+        $new_gremio = $data['gremio'] ?? '';
 
-        $stmt = $conn->prepare("UPDATE membership_companies SET razon_social = ?, cuit = ?, email = ? WHERE cuit = ?");
-        $stmt->execute([$new_razon, $new_cuit, $new_email, $cuit]);
+        $stmt = $conn->prepare("UPDATE membership_companies SET razon_social = ?, cuit = ?, email = ?, gremio = ? WHERE cuit = ?");
+        $stmt->execute([$new_razon, $new_cuit, $new_email, $new_gremio, $cuit]);
         echo json_encode(["status" => "success", "message" => "Datos del socio actualizados"]);
     } elseif ($action === 'delete_lead') {
         // Eliminar definitivamente un LEAD (Solicitud)
@@ -107,9 +108,22 @@ try {
         echo json_encode(["status" => "success", "message" => "Réplica eliminada"]);
     } elseif ($action === 'approve_report') {
         $id = $data['id'] ?? null;
+
+        // 1. Validar reporte
         $stmt = $conn->prepare("UPDATE reports SET estado = 'validado' WHERE id = ?");
         $stmt->execute([$id]);
-        echo json_encode(["status" => "success", "message" => "Reporte validado y publicado"]);
+
+        // 2. Acreditar Premio (1 Consulta Extra)
+        $stmtReporter = $conn->prepare("SELECT reporter_id FROM reports WHERE id = ?");
+        $stmtReporter->execute([$id]);
+        $reporter_id = $stmtReporter->fetchColumn();
+
+        if ($reporter_id) {
+            // Sumamos 1 crédito al paquete (los créditos de paquete no se resetean semanalmente como los free)
+            $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + 1 WHERE id = ?")->execute([$reporter_id]);
+        }
+
+        echo json_encode(["status" => "success", "message" => "Reporte validado y 1 crédito acreditado al Miembro"]);
     } elseif ($action === 'delete_report') {
         $id = $data['id'] ?? null;
 

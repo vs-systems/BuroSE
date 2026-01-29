@@ -56,7 +56,13 @@ try {
             'expiry_date' => "DATE DEFAULT NULL",
             'plan' => "VARCHAR(50) DEFAULT 'free'",
             'api_token' => "VARCHAR(255) DEFAULT NULL",
-            'password' => "VARCHAR(255) DEFAULT NULL"
+            'password' => "VARCHAR(255) DEFAULT NULL",
+            'gremio' => "VARCHAR(100) DEFAULT NULL",
+            'creds_monthly' => "INT DEFAULT 0",
+            'creds_package' => "INT DEFAULT 0",
+            'creds_package_expiry' => "DATE DEFAULT NULL",
+            'fingerprint' => "VARCHAR(255) DEFAULT NULL",
+            'last_ip' => "VARCHAR(100) DEFAULT NULL"
         ];
         foreach ($mc_fields as $f => $d) {
             $check = $conn->query("SHOW COLUMNS FROM membership_companies LIKE '$f'");
