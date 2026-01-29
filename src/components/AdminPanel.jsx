@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle, Menu, X } from 'lucide-react';
+import { LogIn, Users, MessageSquare, LogOut, RefreshCcw, Search, Clock, Plus, Trash2, Globe, Image as ImageIcon, Sun, Moon, ShieldCheck, Trophy, Save, FileText, Download, Landmark, TrendingUp, AlertTriangle, Menu, X, ChevronDown } from 'lucide-react';
 
 const LogosManager = ({ theme }) => {
     const [logos, setLogos] = useState([]);
@@ -276,6 +276,142 @@ const ManualReportForm = ({ theme, onComplete }) => {
     );
 };
 
+const SocioActionButtons = ({ s, handlePlanChange, handleUserAction, theme }) => (
+    <div className="flex flex-wrap gap-2">
+        {s.plan === 'free' && (
+            <>
+                <button
+                    onClick={() => handlePlanChange(s.cuit, 'business')}
+                    className="bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                    Pasar a Socio
+                </button>
+                <button
+                    onClick={() => { if (confirm('¿Hacerlo VIP?')) handleUserAction(s.cuit, 'make_vip'); }}
+                    className="bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                    Hacer VIP
+                </button>
+            </>
+        )}
+        {s.plan !== 'free' && s.is_vip != 1 && (
+            <button
+                onClick={() => handlePlanChange(s.cuit, 'free')}
+                className="bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+                Pasar a Gratis
+            </button>
+        )}
+        <button
+            onClick={() => {
+                const newCredits = prompt("Ajustar Créditos Extra (Bonus):", s.creds_package || 0);
+                if (newCredits !== null) handleUserAction(s.cuit, 'update_credits', { credits: newCredits, type: 'package' });
+            }}
+            className={`px-3 py-1.5 border rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-brand-neon' : 'bg-slate-50 border-slate-200 hover:border-brand-neon'}`}
+        >
+            Créditos
+        </button>
+        <button
+            onClick={() => handleUserAction(s.cuit, 'block')}
+            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${s.estado === 'bloqueado' ? 'bg-red-500 text-white' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'}`}
+        >
+            {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
+        </button>
+        <button
+            onClick={() => handleUserAction(s.cuit, 'delete')}
+            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${theme === 'dark' ? 'bg-white/5 text-slate-400 hover:bg-red-600 hover:text-white' : 'bg-slate-50 text-slate-400 hover:bg-red-600 hover:text-white'}`}
+        >
+            Borrar
+        </button>
+    </div>
+);
+
+const SocioList = ({ data, filterFn, theme, searchSocio, setSearchSocio, handleUserAction, handlePlanChange, showCreate = false, fetchData }) => (
+    <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 w-full">
+            <div className="flex flex-1 gap-4 w-full">
+                <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted opacity-50" size={16} />
+                    <input
+                        type="text"
+                        placeholder="Buscar por CUIT o Razón Social..."
+                        value={searchSocio}
+                        onChange={(e) => setSearchSocio(e.target.value)}
+                        className={`w-full pl-12 pr-4 py-2.5 rounded-xl border-2 outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white focus:border-brand-neon' : 'bg-white border-slate-100 focus:border-brand-neon'}`}
+                    />
+                </div>
+            </div>
+            {showCreate && (
+                <button
+                    onClick={() => {
+                        const razon = prompt("Razón Social:");
+                        const cuit = prompt("CUIT (sin guiones):");
+                        const email = prompt("Email:");
+                        const pass = prompt("Contraseña (o dejar vacío para default):", cuit);
+                        const plan = prompt("Plan (free/active/business):", "active");
+
+                        if (razon && cuit && email) {
+                            fetch('api/admin_create_socio.php', {
+                                method: 'POST',
+                                body: JSON.stringify({ razon_social: razon, cuit: cuit.replace(/\D/g, ''), email, pass, plan }),
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include'
+                            }).then(r => r.json()).then(res => { alert(res.message); fetchData(); });
+                        }
+                    }}
+                    className="bg-brand-neon text-brand-darker font-black px-6 py-2.5 rounded-xl text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
+                >
+                    <Plus size={16} /> Alta Manual
+                </button>
+            )}
+        </div>
+        <div className="grid gap-6">
+            {data.socios
+                .filter(filterFn)
+                .filter(s => s.cuit.includes(searchSocio) || (s.razon_social || '').toLowerCase().includes(searchSocio.toLowerCase()))
+                .map((s, idx) => (
+                    <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
+                        ? 'bg-brand-card border-brand-secondary shadow-lg shadow-black/20'
+                        : 'bg-white border-slate-100 shadow-md'
+                        } ${s.estado === 'bloqueado' ? 'opacity-60 grayscale-[0.5]' : ''}`}>
+                        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mb-4">
+                            <div className="flex items-center gap-4">
+                                <div className={`p-3 rounded-2xl ${s.is_vip == 1 ? 'bg-brand-neon/10' : 'bg-white/5'}`}>
+                                    {s.is_vip == 1 ? <ShieldCheck className="text-brand-neon" size={20} /> : <Users className="text-brand-muted" size={20} />}
+                                </div>
+                                <div>
+                                    <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
+                                    <div className="flex gap-2 items-center mt-1">
+                                        <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${s.is_vip == 1 ? 'bg-brand-neon text-brand-darker' : s.plan === 'free' ? 'bg-slate-500 text-white' : 'bg-blue-600 text-white'}`}>
+                                            {s.is_vip == 1 ? 'VIP' : s.plan?.toUpperCase()}
+                                        </span>
+                                        <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${s.estado === 'bloqueado' ? 'bg-red-500 text-white' : 'bg-green-500/20 text-green-500'}`}>
+                                            {s.estado.toUpperCase()}
+                                        </span>
+                                        {s.gremio && <span className="text-[8px] font-black text-brand-muted uppercase border border-white/10 px-2 py-0.5 rounded">{s.gremio}</span>}
+                                    </div>
+                                </div>
+                            </div>
+                            <SocioActionButtons s={s} handlePlanChange={handlePlanChange} handleUserAction={handleUserAction} theme={theme} />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4 border-t border-white/5 text-[10px] font-bold uppercase tracking-widest text-brand-muted">
+                            <div><p className="opacity-50 mb-1">CUIT</p><p className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</p></div>
+                            <div><p className="opacity-50 mb-1">Email</p><p className={theme === 'dark' ? 'text-white truncate' : 'text-slate-900 truncate'}>{s.email}</p></div>
+                            <div><p className="opacity-50 mb-1">Vencimiento</p><p className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.is_vip == 1 ? 'PERPETUO' : s.expiry_date || 'N/A'}</p></div>
+                            <div><p className="opacity-50 mb-1">Créditos (Mes/Extra)</p><p className="text-brand-neon">{s.is_vip == 1 ? '∞' : `${s.creds_monthly} / ${s.creds_package}`}</p></div>
+                        </div>
+                    </div>
+                ))}
+            {data.socios.filter(filterFn).length === 0 && (
+                <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-3xl">
+                    <Users className="mx-auto text-brand-muted opacity-20 mb-4" size={48} />
+                    <p className="italic text-brand-muted">No se encontraron resultados en esta categoría.</p>
+                </div>
+            )}
+        </div>
+    </div>
+);
+
 const AdminPanel = () => {
     const [isLogged, setIsLogged] = useState(false);
     const [user, setUser] = useState('');
@@ -288,9 +424,16 @@ const AdminPanel = () => {
     const [theme, setTheme] = useState('dark');
     const [isNavOpen, setIsNavOpen] = useState(false);
 
+    const [isSociosOpen, setIsSociosOpen] = useState(true);
+
     useEffect(() => {
         checkSession();
     }, []);
+
+    const handlePlanChange = async (cuit, newPlan) => {
+        if (!confirm(`¿Cambiar plan a ${newPlan}?`)) return;
+        handleUserAction(cuit, 'update_plan', { plan: newPlan });
+    };
 
     const checkSession = async () => {
         try {
@@ -503,16 +646,60 @@ const AdminPanel = () => {
                     </button>
                 </div>
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                    <button
+                        onClick={() => { setActiveTab('contacts'); setIsNavOpen(false); }}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'contacts'
+                            ? 'bg-brand-neon text-brand-darker font-black shadow-lg shadow-brand-neon/20'
+                            : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                            }`}
+                    >
+                        <Users size={18} />
+                        <span className="whitespace-nowrap">Leads/Accesos</span>
+                    </button>
+
+                    <div className="space-y-1">
+                        <button
+                            onClick={() => setIsSociosOpen(!isSociosOpen)}
+                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${['socios', 'gratuitos', 'vip', 'blocked'].includes(activeTab)
+                                ? 'bg-white/5 text-white font-bold'
+                                : (theme === 'dark' ? 'text-brand-muted hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                                }`}
+                        >
+                            <div className="flex items-center space-x-3">
+                                <Users size={18} />
+                                <span className="whitespace-nowrap uppercase tracking-widest text-[10px]">Socios</span>
+                            </div>
+                            <ChevronDown size={14} className={`transition-transform ${isSociosOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isSociosOpen && (
+                            <div className="pl-4 space-y-1 mt-1 border-l border-white/5 ml-4">
+                                {[
+                                    { id: 'socios', label: 'Socios Activos' },
+                                    { id: 'gratuitos', label: 'Cuentas Gratuitas' },
+                                    { id: 'vip', label: 'Socios VIP' },
+                                    { id: 'blocked', label: 'Cuentas Bloqueadas' },
+                                ].map((sub) => (
+                                    <button
+                                        key={sub.id}
+                                        onClick={() => { setActiveTab(sub.id); setIsNavOpen(false); }}
+                                        className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-xs transition-all ${activeTab === sub.id
+                                            ? 'text-brand-neon font-black'
+                                            : 'text-slate-500 hover:text-white'
+                                            }`}
+                                    >
+                                        <span className={`w-1 h-1 rounded-full ${activeTab === sub.id ? 'bg-brand-neon' : 'bg-slate-600'}`}></span>
+                                        <span>{sub.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     {[
-                        { id: 'contacts', label: 'Leads/Accesos', icon: Users },
-                        { id: 'socios', label: 'Socios Activos', icon: Users },
-                        { id: 'gratuitos', label: 'Cuentas Gratuitas', icon: Users },
-                        { id: 'vip', label: 'Socios VIP', icon: ShieldCheck },
                         { id: 'reports', label: 'Informes Deuda', icon: FileText },
                         { id: 'replicas', label: 'Réplicas', icon: MessageSquare },
-                        { id: 'stats', label: 'Informes', icon: Landmark },
-                        { id: 'ranking', label: 'Ranking Nac.', icon: Trophy },
-                        { id: 'logos', label: 'Asociados', icon: Globe },
+                        { id: 'stats', label: 'Estadísticas', icon: Landmark },
                         { id: 'config', label: 'Configuración', icon: Save },
                     ].map((tab) => (
                         <button
@@ -559,8 +746,11 @@ const AdminPanel = () => {
                             <h2 className={`text-xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {activeTab === 'stats' ? 'INFORMES ESTRATÉGICOS' :
                                     activeTab === 'gratuitos' ? 'CUENTAS GRATUITAS' :
-                                        activeTab === 'config' ? 'CONFIGURACIÓN DEL SISTEMA' :
-                                            activeTab.toUpperCase()}
+                                        activeTab === 'vip' ? 'SOCIOS VIP' :
+                                            activeTab === 'socios' ? 'SOCIOS ACTIVOS' :
+                                                activeTab === 'blocked' ? 'CUENTAS BLOQUEADAS' :
+                                                    activeTab === 'config' ? 'CONFIGURACIÓN DEL SISTEMA' :
+                                                        activeTab.toUpperCase()}
                             </h2>
                             <div className="flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-neon animate-pulse"></span>
@@ -748,323 +938,50 @@ const AdminPanel = () => {
                             {data.reports.length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No se han cargado informes de morosos.</p>}
                         </div>
                     ) : activeTab === 'socios' ? (
-                        <div className="space-y-6">
-                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 w-full">
-                                <div className="flex flex-1 gap-4 w-full">
-                                    <div className="relative flex-1">
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted opacity-50" size={16} />
-                                        <input
-                                            type="text"
-                                            placeholder="Buscar CUIT (solo números)..."
-                                            value={searchSocio}
-                                            onChange={(e) => setSearchSocio(e.target.value.replace(/\D/g, ''))}
-                                            className={`w-full pl-12 pr-4 py-2.5 rounded-xl border-2 outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white focus:border-brand-neon' : 'bg-white border-slate-100 focus:border-brand-neon'}`}
-                                        />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {['all', 'validado', 'bloqueado'].map(f => (
-                                            <button
-                                                key={f}
-                                                onClick={() => setSocioFilter(f)}
-                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${socioFilter === f
-                                                    ? 'bg-brand-neon text-brand-darker shadow-lg'
-                                                    : (theme === 'dark' ? 'bg-brand-secondary text-brand-muted hover:bg-brand-secondary/80' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')
-                                                    }`}
-                                            >
-                                                {f === 'all' ? 'Todos' : f === 'validado' ? 'Activos' : 'Bloqueados'}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => {
-                                        const razon = prompt("Razón Social:");
-                                        const cuit = prompt("CUIT (sin guiones):");
-                                        const email = prompt("Email:");
-                                        const pass = prompt("Contraseña (o dejar vacío para default):", cuit);
-                                        const days = prompt("Días de membresía (ej: 365 para un año):", "365");
-
-                                        if (razon && cuit && email) {
-                                            fetch('api/admin_create_socio.php', {
-                                                method: 'POST',
-                                                body: JSON.stringify({ razon_social: razon, cuit: cuit.replace(/\D/g, ''), email, pass, expiry_days: days }),
-                                                headers: { 'Content-Type': 'application/json' },
-                                                credentials: 'include'
-                                            }).then(r => r.json()).then(data => {
-                                                alert(data.message);
-                                                fetchData();
-                                            });
-                                        }
-                                    }}
-                                    className="bg-brand-neon text-brand-darker font-black px-6 py-2.5 rounded-xl text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
-                                >
-                                    <Plus size={16} /> Crear Socio Manual
-                                </button>
-                            </div>
-                            <div className="grid gap-6">
-                                {data.socios
-                                    .filter(s => s.is_vip != 1 && (socioFilter === 'all' || s.estado === socioFilter) && (s.cuit.includes(searchSocio) || (s.razon_social || '').toLowerCase().includes(searchSocio.toLowerCase())))
-                                    .map((s, idx) => (
-                                        <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark'
-                                            ? 'bg-brand-card border-brand-secondary'
-                                            : 'bg-white border-slate-100 shadow-md'
-                                            } ${s.estado === 'bloqueado' ? 'opacity-60 border-brand-alert' : ''}`}>
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleApiAction(s.cuit, 'generate')}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all"
-                                                    >
-                                                        {s.api_token ? 'Refresh API' : 'Activar API'}
-                                                    </button>
-                                                    {s.api_token && (
-                                                        <button
-                                                            onClick={() => handleUserAction(s.cuit, 'disable_api')}
-                                                            className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white transition-all"
-                                                        >
-                                                            Desactivar API
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => {
-                                                            if (confirm('¿Convertir a este socio en VIP? Tendrá acceso perpetuo sin vencimiento.')) {
-                                                                handleUserAction(s.cuit, 'make_vip');
-                                                            }
-                                                        }}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker transition-all"
-                                                    >
-                                                        Hacer VIP
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleUserAction(s.cuit, 'block')}
-                                                        className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${s.estado === 'bloqueado'
-                                                            ? 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white'
-                                                            : 'bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white'}`}
-                                                    >
-                                                        {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            const razon = prompt("Razón Social:", s.razon_social);
-                                                            const cuit_new = prompt("Cuit (Solo números):", s.cuit);
-                                                            const email = prompt("Email:", s.email);
-                                                            const gremio = prompt("Gremio:", s.gremio || "");
-                                                            if (razon && cuit_new && email) {
-                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email, gremio });
-                                                            }
-                                                        }}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
-                                                    >
-                                                        Editar
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleUserAction(s.cuit, 'delete')}
-                                                        className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-                                                    >
-                                                        Eliminar
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
-                                                <div className="flex items-center gap-2">
-                                                    <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Cuenta:</p>
-                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${s.plan === 'business' ? 'bg-blue-500 text-white' :
-                                                        s.plan === 'active' ? 'bg-green-500 text-white' :
-                                                            'bg-slate-500 text-white'
-                                                        }`}>
-                                                        {s.plan?.toUpperCase() || 'FREE'}
-                                                    </span>
-                                                    {s.gremio && <span className="bg-brand-neon/10 text-brand-neon px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">{s.gremio}</span>}
-                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${s.estado === 'bloqueado' ? 'bg-red-500 text-white' : 'bg-brand-neon text-brand-darker'
-                                                        }`}>
-                                                        {s.estado.toUpperCase()}
-                                                    </span>
-                                                    <button
-                                                        onClick={() => {
-                                                            const monthly = prompt("Créditos Mensuales:", s.creds_monthly || 0);
-                                                            const package_creds = prompt("Créditos Paquete/Extra:", s.creds_package || 0);
-                                                            if (monthly !== null && package_creds !== null) {
-                                                                handleUserAction(s.cuit, 'update_credits', { creds_monthly: monthly, creds_package: package_creds });
-                                                            }
-                                                        }}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker transition-all"
-                                                    >
-                                                        Gestionar Créditos ({s.creds_monthly || 0} / {s.creds_package || 0})
-                                                    </button>
-                                                </div>
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.expiry_date || 'N/A'}</span></p>
-                                            </div>
-                                            {s.api_token && (
-                                                <div className="mt-4 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex justify-between items-center">
-                                                    <code className="text-[10px] text-blue-500 font-mono">TOKEN API: {s.api_token}</code>
-                                                    <button onClick={() => navigator.clipboard.writeText(s.api_token)} className="text-[10px] font-black uppercase text-blue-500">Copiar</button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                {data.socios.filter(s => s.is_vip != 1).length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios registrados.</p>}
-                            </div>
-                        </div>
-                    ) : activeTab === 'vip' ? (
-                        <div className="space-y-6">
-                            <div className="flex justify-end mb-8">
-                                <button
-                                    onClick={() => {
-                                        const razon = prompt("Razón Social VIP:");
-                                        const cuit = prompt("CUIT (sin guiones):");
-                                        const email = prompt("Email:");
-                                        const pass = prompt("Contraseña (o dejar vacío para default):", cuit);
-
-                                        if (razon && cuit && email) {
-                                            fetch('api/admin_create_socio.php', {
-                                                method: 'POST',
-                                                body: JSON.stringify({ razon_social: razon, cuit, email, pass, is_vip: 1 }),
-                                                headers: { 'Content-Type': 'application/json' },
-                                                credentials: 'include'
-                                            }).then(r => r.json()).then(data => {
-                                                alert(data.message);
-                                                fetchData();
-                                            });
-                                        }
-                                    }}
-                                    className="bg-brand-neon text-brand-darker font-black px-6 py-2 rounded-xl text-[10px] uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform"
-                                >
-                                    <Plus size={16} /> Alta Socio VIP
-                                </button>
-                            </div>
-                            <div className="grid gap-6">
-                                {data.socios
-                                    .filter(s => s.is_vip == 1)
-                                    .map((s, idx) => (
-                                        <div key={idx} className={`border p-6 rounded-3xl transition-all border-l-4 border-l-brand-neon ${theme === 'dark'
-                                            ? 'bg-brand-card border-brand-secondary shadow-lg shadow-brand-neon/5'
-                                            : 'bg-white border-slate-100 shadow-md'
-                                            }`}>
-                                            <div className="flex justify-between items-center mb-4">
-                                                <div>
-                                                    <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
-                                                    <span className="text-[8px] font-black uppercase bg-brand-neon/20 text-brand-neon px-2 py-0.5 rounded tracking-widest">Socio Estratégico / VIP</span>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleApiAction(s.cuit, 'generate')}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all"
-                                                    >
-                                                        {s.api_token ? 'Refresh API' : 'Activar API'}
-                                                    </button>
-                                                    {s.api_token && (
-                                                        <button
-                                                            onClick={() => handleUserAction(s.cuit, 'disable_api')}
-                                                            className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white transition-all"
-                                                        >
-                                                            Desactivar API
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => {
-                                                            const razon = prompt("Razón Social:", s.razon_social);
-                                                            const cuit_new = prompt("Cuit (Solo números):", s.cuit);
-                                                            const email = prompt("Email:", s.email);
-                                                            const gremio = prompt("Gremio:", s.gremio || "");
-                                                            if (razon && cuit_new && email) {
-                                                                handleUserAction(s.cuit, 'edit_socio', { razon_social: razon, new_cuit: cuit_new, email, gremio });
-                                                            }
-                                                        }}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
-                                                    >
-                                                        Editar
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (confirm('¿Desea bajar este socio de VIP a Socio Activo?')) {
-                                                                handleUserAction(s.cuit, 'downgrade_vip');
-                                                            }
-                                                        }}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white transition-all"
-                                                    >
-                                                        Downgrade
-                                                    </button>
-                                                    <button onClick={() => {
-                                                        if (confirm('¿Eliminar socio VIP? Se pasará a socio Activo automáticamente.')) {
-                                                            handleUserAction(s.cuit, 'delete');
-                                                        }
-                                                    }} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-bold">
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>CUIT: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.cuit}</span></p>
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Email: <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{s.email}</span></p>
-                                                <div className="flex items-center gap-2">
-                                                    <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Estado:</p>
-                                                    <span className="bg-brand-neon text-brand-darker px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">PERPETUO / VIP</span>
-                                                </div>
-                                                <p className={theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}>Vence: <span className="text-slate-400 italic">Nunca</span></p>
-                                            </div>
-                                            {s.api_token && (
-                                                <div className="mt-4 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex justify-between items-center">
-                                                    <code className="text-[10px] text-blue-500 font-mono">TOKEN API: {s.api_token}</code>
-                                                    <button onClick={() => navigator.clipboard.writeText(s.api_token)} className="text-[10px] font-black uppercase text-blue-500">Copiar</button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                {data.socios.filter(s => s.is_vip == 1).length === 0 && <p className={`text-center py-20 italic ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>No hay socios VIP registrados.</p>}
-                            </div>
-                        </div>
+                        <SocioList
+                            data={data}
+                            filterFn={s => s.plan !== 'free' && s.is_vip != 1 && s.estado !== 'bloqueado'}
+                            theme={theme}
+                            searchSocio={searchSocio}
+                            setSearchSocio={setSearchSocio}
+                            handleUserAction={handleUserAction}
+                            handlePlanChange={handlePlanChange}
+                            showCreate={true}
+                            fetchData={fetchData}
+                        />
                     ) : activeTab === 'gratuitos' ? (
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-center mb-8">
-                                <div className="relative flex-1 max-w-md">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted opacity-50" size={16} />
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar cuenta gratuita..."
-                                        value={searchSocio}
-                                        onChange={(e) => setSearchSocio(e.target.value)}
-                                        className={`w-full pl-12 pr-4 py-2.5 rounded-xl border-2 outline-none transition-all ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white focus:border-brand-neon' : 'bg-white border-slate-100 focus:border-brand-neon'}`}
-                                    />
-                                </div>
-                            </div>
-                            <div className="grid gap-6">
-                                {data.socios
-                                    .filter(s => s.plan === 'free' && (s.cuit.includes(searchSocio) || (s.razon_social || '').toLowerCase().includes(searchSocio.toLowerCase())))
-                                    .map((s, idx) => (
-                                        <div key={idx} className={`border p-6 rounded-3xl transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-md'}`}>
-                                            <div className="flex justify-between items-center mb-4">
-                                                <div>
-                                                    <h3 className={`text-lg font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{s.razon_social}</h3>
-                                                    <p className="text-[10px] font-bold text-brand-muted">Email: {s.email} | CUIT: {s.cuit}</p>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => {
-                                                            const package_creds = prompt("Créditos Extra (Bonus/Venta):", s.creds_package || 0);
-                                                            if (package_creds !== null) {
-                                                                handleUserAction(s.cuit, 'update_credits', { creds_monthly: 0, creds_package: package_creds });
-                                                            }
-                                                        }}
-                                                        className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker transition-all"
-                                                    >
-                                                        Gestionar Créditos ({s.creds_package || 0})
-                                                    </button>
-                                                    <button onClick={() => handleUserAction(s.cuit, 'block')} className="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-brand-alert/10 text-brand-alert hover:bg-brand-alert hover:text-white transition-all">
-                                                        {s.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}
-                                                    </button>
-                                                    <button onClick={() => handleUserAction(s.cuit, 'delete')} className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Eliminar</button>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-4 text-[10px] font-bold">
-                                                <span className="bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded uppercase">Reportes Subidos: {s.reports_submitted_count || 0}</span>
-                                                <span className="bg-brand-neon/10 text-brand-neon px-2 py-0.5 rounded uppercase">Créditos Extra: {s.creds_package || 0}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                {data.socios.filter(s => s.plan === 'free').length === 0 && <p className="text-center py-20 italic text-brand-muted">No hay cuentas gratuitas registradas.</p>}
-                            </div>
-                        </div>
+                        <SocioList
+                            data={data}
+                            filterFn={s => s.plan === 'free' && s.estado !== 'bloqueado'}
+                            theme={theme}
+                            searchSocio={searchSocio}
+                            setSearchSocio={setSearchSocio}
+                            handleUserAction={handleUserAction}
+                            handlePlanChange={handlePlanChange}
+                            fetchData={fetchData}
+                        />
+                    ) : activeTab === 'vip' ? (
+                        <SocioList
+                            data={data}
+                            filterFn={s => s.is_vip == 1}
+                            theme={theme}
+                            searchSocio={searchSocio}
+                            setSearchSocio={setSearchSocio}
+                            handleUserAction={handleUserAction}
+                            handlePlanChange={handlePlanChange}
+                            fetchData={fetchData}
+                        />
+                    ) : activeTab === 'blocked' ? (
+                        <SocioList
+                            data={data}
+                            filterFn={s => s.estado === 'bloqueado'}
+                            theme={theme}
+                            searchSocio={searchSocio}
+                            setSearchSocio={setSearchSocio}
+                            handleUserAction={handleUserAction}
+                            handlePlanChange={handlePlanChange}
+                            fetchData={fetchData}
+                        />
                     ) : activeTab === 'config' ? (
                         <div className="space-y-12 pb-20">
                             <ManualReportForm theme={theme} onComplete={fetchData} />
@@ -1182,10 +1099,10 @@ const AdminPanel = () => {
                                 </div>
                             </div>
                         </div>
-                    ) : activeTab === 'ranking' ? (
-                        <RankingManager theme={theme} />
                     ) : (
-                        <LogosManager theme={theme} />
+                        <div className="flex items-center justify-center py-20">
+                            <p className="text-brand-muted italic uppercase tracking-widest text-xs">Seleccione una opción del menú</p>
+                        </div>
                     )}
                 </main>
             </div>

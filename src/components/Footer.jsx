@@ -70,7 +70,10 @@ const Footer = ({ theme, openContact, settings }) => {
 
                 <div className={`border-t pt-10 flex flex-col lg:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase tracking-widest transition-colors ${theme === 'dark' ? 'border-brand-secondary text-brand-muted/60' : 'border-slate-100 text-slate-400'
                     }`}>
-                    <p className="text-center lg:text-left">&copy; {new Date().getFullYear()} BuroSE. Todos los derechos reservados.</p>
+                    <p className="text-center lg:text-left">
+                        &copy; {new Date().getFullYear()} BuroSE. Todos los derechos reservados.
+                        <span className="ml-4 opacity-40">Version: 2026_01_03</span>
+                    </p>
                     <div className="flex flex-wrap justify-center gap-8">
                         <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
                             Legales: legales@burose.com.ar
