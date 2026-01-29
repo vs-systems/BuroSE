@@ -2,6 +2,17 @@
 // search.php - Motor de Inteligencia Comercial BuroSE
 require_once 'config.php';
 
+// Global error handler for JSON responses
+set_exception_handler(function ($e) {
+    @file_put_contents('critical_errors.log', date('[Y-m-d H:i:s] ') . $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL, FILE_APPEND);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Error interno del servidor",
+        "debug" => $e->getMessage()
+    ]);
+    exit();
+});
+
 if (!isset($_GET['cuit'])) {
     echo json_encode(["status" => "error", "message" => "Falta el CUIT/DNI"]);
     exit();
@@ -136,9 +147,14 @@ if ($bcra_response['success'] && $bcra_response['data']) {
 }
 
 // 4. Contador de Consultas Recientes (Contador de Socios interesados)
-$stmtCount = $conn->prepare("SELECT COUNT(DISTINCT user_id) FROM search_logs WHERE cuit_searched = ? AND created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)");
-$stmtCount->execute([$cuit]);
-$recent_consultants = $stmtCount->fetchColumn();
+$recent_consultants = 0;
+try {
+    $stmtCount = $conn->prepare("SELECT COUNT(DISTINCT user_id) FROM search_logs WHERE cuit_searched = ? AND created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)");
+    $stmtCount->execute([$cuit]);
+    $recent_consultants = $stmtCount->fetchColumn();
+} catch (Exception $e_logs) {
+    $recent_consultants = 0;
+}
 
 // 5. Determinar Nivel de Riesgo
 $has_internal_risk = ($total_internal_debt > 0);
@@ -175,9 +191,14 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
         if ($user_plan === 'free') {
             // Límite Gratuito: 1 por semana
             // Verificamos consultas en los últimos 7 días
-            $stmtCheckFree = $conn->prepare("SELECT COUNT(*) FROM search_logs WHERE user_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)");
-            $stmtCheckFree->execute([$user_id]);
-            $countLastWeek = $stmtCheckFree->fetchColumn();
+            $countLastWeek = 99; // Default restrictiva si falla la tabla
+            try {
+                $stmtCheckFree = $conn->prepare("SELECT COUNT(*) FROM search_logs WHERE user_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)");
+                $stmtCheckFree->execute([$user_id]);
+                $countLastWeek = $stmtCheckFree->fetchColumn();
+            } catch (Exception $e_check_free) {
+                // Si falla la tabla de logs, dejamos pasar si tiene créditos de paquete
+            }
 
             if ($countLastWeek < 1) {
                 // Verificar Anti-Abuso (IP/Fingerprint)
@@ -231,8 +252,12 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
             }
 
             // Log de búsqueda
-            $stmtLog = $conn->prepare("INSERT INTO search_logs (user_id, cuit_searched, consumption_type, ip_address) VALUES (?, ?, ?, ?)");
-            $stmtLog->execute([$user_id, $cuit, $consumption_type, $_SERVER['REMOTE_ADDR']]);
+            try {
+                $stmtLog = $conn->prepare("INSERT INTO search_logs (user_id, cuit_searched, consumption_type, ip_address) VALUES (?, ?, ?, ?)");
+                $stmtLog->execute([$user_id, $cuit, $consumption_type, $_SERVER['REMOTE_ADDR']]);
+            } catch (Exception $e_log_search) {
+                // Silencioso
+            }
 
             // Actualizar IP
             $conn->prepare("UPDATE membership_companies SET last_ip = ? WHERE id = ?")->execute([$_SERVER['REMOTE_ADDR'], $user_id]);
