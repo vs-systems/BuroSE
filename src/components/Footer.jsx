@@ -60,6 +60,7 @@ const Footer = ({ theme, openContact, settings }) => {
                             </span>
                         </a>
                         <div className="mt-8 pt-4 border-t border-white/5">
+                            <p className="text-[10px] font-black tracking-[0.5em] text-white/20 uppercase">Fintech Engine V8 | BuroSE Collaborative System</p>
                             <p className="text-[10px] font-black uppercase tracking-tighter text-brand-muted">
                                 Última Actualización:<br />
                                 <span className="text-brand-neon">{settings?.footer_update_date || '2026-01-29 00:00'}</span>
