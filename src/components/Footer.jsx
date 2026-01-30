@@ -72,7 +72,7 @@ const Footer = ({ theme, openContact, settings }) => {
                     }`}>
                     <p className="text-center lg:text-left">
                         &copy; {new Date().getFullYear()} BuroSE. Todos los derechos reservados.
-                        <span className={`ml-4 font-bold ${theme === 'dark' ? 'text-white/40' : 'text-slate-400'}`}>Version: 2026_01_29_V6</span>
+                        <span className={`ml-4 font-bold ${theme === 'dark' ? 'text-white/40' : 'text-slate-400'}`}>Version: 2026_01_29_V7</span>
                     </p>
                     <div className="flex flex-wrap justify-center gap-8">
                         <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">

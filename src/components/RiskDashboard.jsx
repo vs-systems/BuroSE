@@ -11,6 +11,7 @@ import ReportUpload from './ReportUpload';
 import DebtorRanking from './DebtorRanking';
 
 const RiskDashboard = ({ theme, setTheme }) => {
+    // Versión 29/01/2026 - Con timeout de seguridad y restricción de búsqueda
     const [cuit, setCuit] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
