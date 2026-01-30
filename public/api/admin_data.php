@@ -51,7 +51,8 @@ try {
                 "replica_count" => count($replicas),
                 "total_socios" => count($socios),
                 "pending_leads" => count($contacts),
-                "gremio_distribution" => $conn->query("SELECT gremio, COUNT(*) as count FROM membership_companies WHERE gremio IS NOT NULL AND gremio != '' GROUP BY gremio")->fetchAll(PDO::FETCH_ASSOC)
+                "gremio_distribution" => $conn->query("SELECT gremio, COUNT(*) as count FROM membership_companies WHERE gremio IS NOT NULL AND gremio != '' GROUP BY gremio")->fetchAll(PDO::FETCH_ASSOC),
+                "province_distribution" => $conn->query("SELECT provincia, COUNT(*) as count FROM reports WHERE provincia IS NOT NULL AND provincia != '' GROUP BY provincia")->fetchAll(PDO::FETCH_ASSOC)
             ]
         ]
     ]);

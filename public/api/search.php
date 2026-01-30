@@ -282,14 +282,10 @@ if (!$is_authenticated) {
     */
 
     echo json_encode([
-        "status" => "success",
+        "status" => "error",
         "authenticated" => false,
-        "cuit" => $cuit,
-        "name" => $scraped_name ?: null,
-        "alert_level" => $alert_level,
-        "recent_consultants" => $recent_consultants,
-        "has_risk" => ($has_internal_risk || $has_bcra_risk),
-        "message" => "Regístrese para ver el detalle de los reportes y montos."
+        "err_code" => "AUTH_REQUIRED",
+        "message" => "Acceso restringido. Por favor, inicie sesión o regístrese para realizar consultas."
     ]);
 } else {
     // Limpiar reportes internos para cumplir con políticas de privacidad

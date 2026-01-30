@@ -67,6 +67,25 @@ const Pricing = ({ theme }) => {
         }
     ];
 
+    const handlePayment = async (type = 'subscription') => {
+        try {
+            const response = await fetch(`api/mp_checkout.php?type=${type}`, { credentials: 'include' });
+            if (response.status === 403) {
+                alert("Para realizar compras debe iniciar sesión.");
+                window.location.hash = '/login';
+                return;
+            }
+            const data = await response.json();
+            if (data.init_point) {
+                window.location.href = data.init_point;
+            } else {
+                alert("Error al generar el link de pago.");
+            }
+        } catch (err) {
+            alert("Error de conexión.");
+        }
+    };
+
     return (
         <section id="pricing" className={`py-24 relative overflow-hidden transition-colors duration-500 ${theme === 'dark' ? 'bg-brand-darker' : 'bg-white'
             }`}>
@@ -121,7 +140,10 @@ const Pricing = ({ theme }) => {
                             </ul>
 
                             <button
-                                onClick={() => window.location.hash = '/risk-dashboard'}
+                                onClick={() => {
+                                    if (plan.name === "Socio BuroSE") handlePayment('subscription');
+                                    else window.location.hash = '/risk-dashboard';
+                                }}
                                 className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${plan.popular || plan.name === 'Empresa & API'
                                     ? 'bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20'
                                     : (theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')
@@ -147,7 +169,7 @@ const Pricing = ({ theme }) => {
                                         <div className="flex items-center gap-4">
                                             <span className="font-black text-xl">${t.price.toLocaleString('es-AR')}</span>
                                             <button
-                                                onClick={() => window.location.hash = '/risk-dashboard'}
+                                                onClick={() => handlePayment(`topup${t.qty}`)}
                                                 className="bg-brand-neon text-brand-darker px-4 py-2 rounded-lg text-[10px] font-black uppercase"
                                             >
                                                 Comprar
@@ -168,7 +190,7 @@ const Pricing = ({ theme }) => {
                                         <div className="flex items-center gap-4">
                                             <span className={`font-black text-xl ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>${t.price.toLocaleString('es-AR')}</span>
                                             <button
-                                                onClick={() => window.location.hash = '/risk-dashboard'}
+                                                onClick={() => handlePayment(`topup${t.qty}`)}
                                                 className={`${theme === 'dark' ? 'bg-brand-neon text-brand-darker' : 'bg-slate-900 text-white'} px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all`}
                                             >
                                                 Comprar

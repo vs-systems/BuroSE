@@ -1227,6 +1227,44 @@ const AdminPanel = () => {
                                 </div>
                             </div>
 
+                            <div className={`md:col-span-3 p-10 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>
+                                <div className="flex items-center gap-3 mb-8">
+                                    <div className="bg-blue-600 p-2 rounded-lg"><Globe className="text-white" size={20} /></div>
+                                    <h3 className={`text-xl font-black uppercase tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Distribución por Provincia</h3>
+                                </div>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                                    <div className="space-y-6">
+                                        {(data.stats?.province_distribution || []).sort((a, b) => b.count - a.count).map((p, i) => {
+                                            const total = (data.stats?.province_distribution || []).reduce((acc, curr) => acc + parseInt(curr.count), 0);
+                                            const percent = Math.round((parseInt(p.count) / total) * 100);
+                                            return (
+                                                <div key={i} className="group">
+                                                    <div className="flex justify-between items-end mb-2">
+                                                        <span className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}>{p.provincia}</span>
+                                                        <span className="text-blue-500 font-black text-xs">{percent}% ({p.count})</span>
+                                                    </div>
+                                                    <div className={`h-2 rounded-full overflow-hidden ${theme === 'dark' ? 'bg-white/5' : 'bg-slate-100'}`}>
+                                                        <div
+                                                            className="h-full bg-blue-500 transition-all duration-1000 group-hover:brightness-125"
+                                                            style={{ width: `${percent}%` }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                        {(data.stats?.province_distribution || []).length === 0 && <p className="italic text-slate-400 text-sm font-medium">No hay datos geográficos disponibles aún.</p>}
+                                    </div>
+                                    <div className="hidden lg:flex justify-center">
+                                        <div className="relative w-64 h-64 rounded-full border-8 border-blue-500/20 flex items-center justify-center">
+                                            <div className="text-center">
+                                                <p className="text-4xl font-black text-white">{data.reports?.length || 0}</p>
+                                                <p className="text-[10px] font-black uppercase text-blue-500">Informes Totales</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className={`md:col-span-3 p-8 rounded-3xl border transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-100 shadow-xl'}`}>
                                 <h3 className={`text-xl font-black uppercase mb-8 tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Calendario de Vencimientos</h3>
                                 <div className="space-y-4">

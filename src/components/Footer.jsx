@@ -3,7 +3,7 @@ import { ShieldCheck } from 'lucide-react';
 
 const Footer = ({ theme, openContact, settings }) => {
     return (
-        <footer className={`transition-colors duration-500 py-16 border-t ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]'
+        <footer id="contact-footer" className={`transition-colors duration-500 py-16 border-t ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]'
             }`}>
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">

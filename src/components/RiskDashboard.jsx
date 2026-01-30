@@ -27,6 +27,32 @@ const RiskDashboard = ({ theme, setTheme }) => {
         checkAuth();
     }, []);
 
+    useEffect(() => {
+        if (isAuthenticated === false) {
+            window.location.hash = '/login';
+            return;
+        }
+        if (!isAuthenticated) return;
+
+        let timeout;
+        const resetTimer = () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                alert("Sesión cerrada por inactividad (15 min).");
+                handleLogout();
+            }, 15 * 60 * 1000);
+        };
+
+        const events = ['mousemove', 'keydown', 'scroll', 'touchstart'];
+        events.forEach(event => window.addEventListener(event, resetTimer));
+        resetTimer();
+
+        return () => {
+            events.forEach(event => window.removeEventListener(event, resetTimer));
+            clearTimeout(timeout);
+        };
+    }, [isAuthenticated]);
+
     const checkAuth = async () => {
         try {
             const response = await fetch('api/check_session.php', { credentials: 'include' });
