@@ -103,6 +103,96 @@ const LogosManager = ({ theme }) => {
     );
 };
 
+const RenaperLookup = ({ theme }) => {
+    const [dni, setDni] = useState('');
+    const [gender, setGender] = useState('M');
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        if (dni.length < 7) return;
+        setLoading(true);
+        setResult(null);
+        try {
+            const res = await fetch(`api/admin_renaper.php?dni=${dni}&gender=${gender}`);
+            const data = await res.json();
+            if (data.respuesta) {
+                setResult(data.respuesta);
+            } else {
+                alert(data.message || "No se encontraron resultados");
+            }
+        } catch (err) {
+            alert("Error al conectar con la API");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className={`p-8 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
+            <div className="flex items-center gap-3 mb-6">
+                <div className="bg-blue-600 p-2 rounded-lg"><Search className="text-white" size={20} /></div>
+                <h3 className="text-xl font-black uppercase tracking-tighter">Test <span className="text-brand-neon">API Renaper</span></h3>
+            </div>
+
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4 mb-8">
+                <input
+                    type="text" placeholder="DNI (sin puntos)"
+                    value={dni} onChange={e => setDni(e.target.value.replace(/\D/g, ''))}
+                    className={`flex-1 px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                    required
+                />
+                <select
+                    value={gender} onChange={e => setGender(e.target.value)}
+                    className={`px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                >
+                    <option value="M">Masculino (M)</option>
+                    <option value="F">Femenino (F)</option>
+                    <option value="X">No Binario (X)</option>
+                </select>
+                <button
+                    disabled={loading}
+                    className="bg-blue-600 text-white font-black px-8 py-3 rounded-xl uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-lg shadow-blue-600/20"
+                >
+                    {loading ? 'Consultando...' : 'Consultar'}
+                </button>
+            </form>
+
+            {result && (
+                <div className={`p-6 rounded-2xl border animate-in fade-in zoom-in duration-300 ${theme === 'dark' ? 'bg-brand-dark/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-[10px] font-black text-brand-muted uppercase">Nombre Completo</p>
+                            <p className="font-black uppercase text-brand-neon">{result.nombres} {result.apellido}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-brand-muted uppercase">CUIL</p>
+                            <p className="font-bold">{result.cuil}</p>
+                        </div>
+                        <div className="md:col-span-2">
+                            <p className="text-[10px] font-black text-brand-muted uppercase">Domicilio Fiscal/DNI</p>
+                            <p className="font-bold uppercase text-xs">
+                                {result.calle} {result.numeroCalle} {result.piso} {result.departamento}
+                                <br />
+                                {result.ciudad}, {result.provincia} ({result.cpostal})
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-brand-muted uppercase">Fecha de Nacimiento</p>
+                            <p className="font-bold">{result.fechaNacimiento}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-brand-muted uppercase">Origen</p>
+                            <p className="font-bold text-xs">{result.origenf}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const RankingManager = ({ theme }) => {
     const [rankings, setRankings] = useState([]);
     const [newItem, setNewItem] = useState({ cuit: '', full_name: '', amount: '', status: 'RED', is_forced: 1, forced_position: '' });
@@ -1165,6 +1255,11 @@ const AdminPanel = () => {
                             <div className="space-y-6">
                                 <h3 className="text-2xl font-black uppercase tracking-tighter">Ranking de <span className="text-brand-alert">Deudores</span></h3>
                                 <RankingManager theme={theme} />
+                            </div>
+
+                            <div className="space-y-6">
+                                <h3 className="text-2xl font-black uppercase tracking-tighter">Prueba de <span className="text-blue-500">Integración Externa</span></h3>
+                                <RenaperLookup theme={theme} />
                             </div>
                         </div>
                     ) : activeTab === 'stats' ? (
