@@ -54,10 +54,9 @@ function consultar_bcra($cuit)
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    // Siguiendo parámetros de bcra/index.php (sin UA, sin FollowLocation redundante)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 25); // Aumentado por lentitud de la API oficial
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
@@ -74,7 +73,7 @@ function consultar_bcra($cuit)
     if ($httpCode == 404) {
         return [
             "success" => true,
-            "data" => null,
+            "data" => "SIN_DEUDAS", // Standarizado con bcra/index.php
             "not_found" => true
         ];
     }
@@ -123,17 +122,16 @@ $bcra_normalized = [
     "message" => $bcra_response['message'] ?? null
 ];
 
-if ($bcra_response['success'] && $bcra_response['data']) {
+if ($bcra_response['success'] && is_array($bcra_response['data'])) {
     $bcra_results = $bcra_response['data'];
     $bcra_normalized["found"] = true;
 
     // Estructura BCRA: results contiene un objeto con la llave 'periodos'
-    // Cada periodo contiene la lista de entidades
     $periodos = $bcra_results['periodos'] ?? [];
 
     if (is_array($periodos) && count($periodos) > 0) {
-        // Tomamos el periodo más reciente (el primero)
-        $ultimo = $periodos[0];
+        // Tomamos el periodo más reciente (con mayor robustez)
+        $ultimo = reset($periodos);
         if (isset($ultimo['entidades']) && is_array($ultimo['entidades'])) {
             foreach ($ultimo['entidades'] as $b) {
                 $bcra_normalized["entidades"][] = [
@@ -149,6 +147,8 @@ if ($bcra_response['success'] && $bcra_response['data']) {
             }
         }
     }
+} elseif ($bcra_response['data'] === "SIN_DEUDAS") {
+    $bcra_normalized["found"] = true;
 }
 
 // 4. Contador de Consultas Recientes (Contador de Socios interesados)

@@ -677,9 +677,16 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="col-span-full py-16 text-center opacity-30">
-                                            <Landmark size={48} className="mx-auto mb-4" strokeWidth={1} />
-                                            <p className="font-bold italic text-xs">No se registran deudas en el sistema financiero oficial.</p>
+                                        <div className="col-span-full py-16 text-center opacity-70">
+                                            <Landmark size={48} className={`mx-auto mb-4 ${theme === 'dark' ? 'text-white/20' : 'text-slate-200'}`} strokeWidth={1} />
+                                            {result.bcra?.success ? (
+                                                <p className={`font-bold italic text-xs ${theme === 'dark' ? 'text-brand-neon' : 'text-green-600'}`}>✅ No se registran deudas en el sistema financiero oficial.</p>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    <p className="font-bold italic text-xs text-brand-alert">⚠️ El servicio del BCRA no respondió a tiempo.</p>
+                                                    <p className="text-[10px] opacity-60">Esto puede deberse a mantenimiento en los servidores oficiales. Reintente en unos minutos.</p>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
