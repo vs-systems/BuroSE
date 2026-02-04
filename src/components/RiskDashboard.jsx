@@ -9,6 +9,7 @@ const getGoogleCalendarUrl = (title, startDate, details) => {
 };
 import ReportUpload from './ReportUpload';
 import DebtorRanking from './DebtorRanking';
+import MemberReportsList from './MemberReportsList';
 
 const RiskDashboard = ({ theme, setTheme }) => {
     // Versión 29/01/2026 - Con timeout de seguridad y restricción de búsqueda
@@ -699,11 +700,7 @@ const RiskDashboard = ({ theme, setTheme }) => {
                 {isAuthenticated && (
                     <>
                         <ReportUpload theme={theme} />
-                        <div className="mt-12 text-center">
-                            <p className={`text-xs font-black uppercase tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                                Historial de Reportes disponible próximamente
-                            </p>
-                        </div>
+                        <MemberReportsList theme={theme} />
                     </>
                 )}
             </div>

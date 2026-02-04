@@ -528,6 +528,7 @@ const AdminPanel = () => {
     const [isNavOpen, setIsNavOpen] = useState(false);
 
     const [isSociosOpen, setIsSociosOpen] = useState(true);
+    const [editingReport, setEditingReport] = useState(null);
 
     useEffect(() => {
         checkSession();
@@ -605,6 +606,29 @@ const AdminPanel = () => {
                 fetchData();
             } else {
                 alert('Credenciales incorrectas');
+            }
+        } catch (e) { alert('Error de conexión'); }
+        setLoading(false);
+    };
+
+    const handleEditReport = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const resp = await fetch('api/admin_user_action.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'update_report',
+                    ...editingReport
+                }),
+                credentials: 'include'
+            });
+            const res = await resp.json();
+            alert(res.message);
+            if (res.status === 'success') {
+                setEditingReport(null);
+                fetchData();
             }
         } catch (e) { alert('Error de conexión'); }
         setLoading(false);
@@ -976,8 +1000,29 @@ const AdminPanel = () => {
                                     }`}>
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
-                                            <h3 className={`text-xl font-black mb-1 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{report.nombre_denunciado}</h3>
-                                            <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT: {report.cuit_denunciado}</p>
+                                            {editingReport?.id === report.id ? (
+                                                <input
+                                                    type="text"
+                                                    value={editingReport.nombre_denunciado}
+                                                    onChange={e => setEditingReport({ ...editingReport, nombre_denunciado: e.target.value })}
+                                                    className={`text-xl font-black mb-1 uppercase tracking-tight w-full p-2 rounded border focus:border-brand-neon outline-none ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`}
+                                                />
+                                            ) : (
+                                                <h3 className={`text-xl font-black mb-1 uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{report.nombre_denunciado}</h3>
+                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>CUIT: </p>
+                                                {editingReport?.id === report.id ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editingReport.cuit_denunciado}
+                                                        onChange={e => setEditingReport({ ...editingReport, cuit_denunciado: e.target.value.replace(/\D/g, '') })}
+                                                        className={`text-[10px] font-black uppercase tracking-[0.2em] p-1 rounded border focus:border-brand-neon outline-none ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`}
+                                                    />
+                                                ) : (
+                                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>{report.cuit_denunciado}</p>
+                                                )}
+                                            </div>
                                         </div>
                                         <span className={`text-[10px] font-black px-4 py-1.5 rounded-full border uppercase tracking-widest ${report.estado === 'validado' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 animate-pulse'
                                             }`}>
@@ -988,7 +1033,19 @@ const AdminPanel = () => {
                                     <div className="grid md:grid-cols-3 gap-8 mb-8">
                                         <div>
                                             <p className={`text-[8px] font-black uppercase mb-1 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Monto Deuda</p>
-                                            <p className="text-2xl font-black text-brand-neon">$ {parseFloat(report.monto).toLocaleString('es-AR')}</p>
+                                            {editingReport?.id === report.id ? (
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-brand-neon font-black">$</span>
+                                                    <input
+                                                        type="number"
+                                                        value={editingReport.monto}
+                                                        onChange={e => setEditingReport({ ...editingReport, monto: e.target.value })}
+                                                        className={`text-2xl font-black text-brand-neon w-full p-2 rounded border focus:border-brand-neon outline-none ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <p className="text-2xl font-black text-brand-neon">$ {parseFloat(report.monto).toLocaleString('es-AR')}</p>
+                                            )}
                                         </div>
                                         <div>
                                             <p className={`text-[8px] font-black uppercase mb-1 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Reportado por</p>
@@ -1002,18 +1059,26 @@ const AdminPanel = () => {
 
                                     <div className={`p-5 rounded-2xl border mb-8 ${theme === 'dark' ? 'bg-brand-dark/50 border-brand-secondary/50' : 'bg-slate-50 border-slate-200'}`}>
                                         <p className={`text-[8px] font-black uppercase mb-2 ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Descripción Interna</p>
-                                        <p className={`text-xs italic ${theme === 'dark' ? 'text-brand-text' : 'text-slate-600'}`}>{report.descripcion || 'Sin descripción'}</p>
+                                        {editingReport?.id === report.id ? (
+                                            <textarea
+                                                value={editingReport.descripcion}
+                                                onChange={e => setEditingReport({ ...editingReport, descripcion: e.target.value })}
+                                                className={`text-xs italic w-full p-3 rounded border focus:border-brand-neon outline-none h-24 resize-none ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-200'}`}
+                                            />
+                                        ) : (
+                                            <p className={`text-xs italic ${theme === 'dark' ? 'text-brand-text' : 'text-slate-600'}`}>{report.descripcion || 'Sin descripción'}</p>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-wrap gap-4 items-center justify-between pt-6 border-t border-white/5">
                                         <div className="flex flex-wrap gap-4">
-                                            {report.evidencia_url && report.evidencia_url.split(',').map((url, i) => (
+                                            {!editingReport && report.evidencia_url && report.evidencia_url.split(',').map((url, i) => (
                                                 <a
                                                     key={i}
                                                     href={url.startsWith('http') ? url : `/${url}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center space-x-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
+                                                    className="flex items-center space-x-2 bg-blue-500/10 text-blue-500 hover:bg-blue-600 hover:text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
                                                 >
                                                     <Download size={14} />
                                                     <span>Prueba {i + 1}</span>
@@ -1021,20 +1086,45 @@ const AdminPanel = () => {
                                             ))}
                                         </div>
                                         <div className="flex gap-3">
-                                            {report.estado !== 'validado' && (
-                                                <button
-                                                    onClick={() => handleUserAction(report.id, 'approve_report')}
-                                                    className="bg-brand-neon text-brand-darker hover:brightness-110 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shadow-lg shadow-brand-neon/20"
-                                                >
-                                                    Aprobar Informe
-                                                </button>
+                                            {editingReport?.id === report.id ? (
+                                                <>
+                                                    <button
+                                                        onClick={handleEditReport}
+                                                        className="bg-brand-neon text-brand-darker hover:brightness-110 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shadow-lg shadow-brand-neon/20"
+                                                    >
+                                                        Guardar Cambios
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setEditingReport(null)}
+                                                        className="bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        onClick={() => setEditingReport({ ...report })}
+                                                        className="bg-blue-500/10 text-blue-500 hover:bg-blue-600 hover:text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
+                                                    >
+                                                        Editar Datos
+                                                    </button>
+                                                    {report.estado !== 'validado' && (
+                                                        <button
+                                                            onClick={() => handleUserAction(report.id, 'approve_report')}
+                                                            className="bg-brand-neon text-brand-darker hover:brightness-110 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shadow-lg shadow-brand-neon/20"
+                                                        >
+                                                            Aprobar Informe
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => handleUserAction(report.id, 'delete_report')}
+                                                        className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                </>
                                             )}
-                                            <button
-                                                onClick={() => handleUserAction(report.id, 'delete_report')}
-                                                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all"
-                                            >
-                                                Eliminar
-                                            </button>
                                         </div>
                                     </div>
                                 </div>

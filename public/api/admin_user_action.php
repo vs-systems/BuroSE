@@ -198,6 +198,23 @@ try {
         $stmt = $conn->prepare("DELETE FROM reports WHERE id = ?");
         $stmt->execute([$id]);
         echo json_encode(["status" => "success", "message" => "Reporte y archivos eliminados"]);
+    } elseif ($action === 'update_report') {
+        $id = $data['id'] ?? null;
+        $cuit = preg_replace('/\D/', '', $data['cuit_denunciado'] ?? '');
+        $nombre = $data['nombre_denunciado'] ?? '';
+        $monto = $data['monto'] ?? 0;
+        $descripcion = $data['descripcion'] ?? '';
+
+        if (!$id || empty($cuit) || empty($nombre)) {
+            echo json_encode(["status" => "error", "message" => "Faltan parámetros requeridos"]);
+            exit();
+        }
+
+        $stmt = $conn->prepare("UPDATE reports SET cuit_denunciado = ?, nombre_denunciado = ?, monto = ?, descripcion = ? WHERE id = ?");
+        $stmt->execute([$cuit, $nombre, $monto, $descripcion, $id]);
+
+        log_activity($conn, 0, 'Admin', 'UPDATE_REPORT', "Reporte ID: $id actualizado");
+        echo json_encode(["status" => "success", "message" => "Reporte actualizado correctamente"]);
     } elseif ($action === 'disable_api') {
         $stmt = $conn->prepare("UPDATE membership_companies SET api_token = NULL WHERE cuit = ?");
         $stmt->execute([$cuit]);
