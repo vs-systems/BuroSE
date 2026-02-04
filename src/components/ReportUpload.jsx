@@ -146,7 +146,7 @@ const ReportUpload = ({ theme }) => {
                         />
                     </div>
                     <div>
-                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Evidencia (PDF, Imagen, Office, TXT)</label>
+                        <label className={`block text-xs font-black uppercase mb-2 tracking-widest ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>Evidencia (Factura, DNI denunciado, etc.)</label>
                         <div className="relative">
                             <input
                                 type="file" multiple required onChange={handleFileChange}
@@ -273,7 +273,7 @@ const ReportUpload = ({ theme }) => {
                         </div>
                         <input type="checkbox" className="hidden" required checked={formData.acceptLegal} onChange={e => setFormData({ ...formData, acceptLegal: e.target.checked })} />
                         <div className={`text-xs font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-text/80' : 'text-slate-600'}`}>
-                            <strong>Declaración Jurada:</strong> Confirmo que la información cargada es veraz. Entiendo que es <u>indispensable</u> adjuntar copia de la Factura o Remito impago para respaldar la operación. La documentación falsa implicará la suspensión definitiva de la cuenta.
+                            <strong>Declaración Jurada:</strong> Confirmo que la información cargada es veraz. Entiendo que es <u>indispensable</u> adjuntar copia de la Factura, DNI o Remito impago para respaldar la operación. La documentación falsa implicará la suspensión definitiva de la cuenta. <strong>BuroSE podrá contactarlo para solicitar información adicional si fuera necesario.</strong>
                         </div>
                     </label>
                 </div>

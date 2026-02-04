@@ -106,6 +106,17 @@ $stmt = $conn->prepare("SELECT r.*, mc.razon_social as reporter_name
 $stmt->execute([$cuit]);
 $internal_reports = $stmt->fetchAll();
 
+// Mejorar identificación del sujeto: Si no hay nombre de socio/scraper, buscar en reportes internos
+if (empty($scraped_name) && !empty($internal_reports)) {
+    // Tomar el nombre del reporte más reciente que lo tenga
+    foreach ($internal_reports as $rep) {
+        if (!empty($rep['nombre_denunciado'])) {
+            $scraped_name = strtoupper($rep['nombre_denunciado']);
+            break;
+        }
+    }
+}
+
 $total_internal_debt = 0;
 foreach ($internal_reports as $report) {
     $total_internal_debt += $report['monto'];

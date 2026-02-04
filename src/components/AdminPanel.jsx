@@ -292,6 +292,9 @@ const ManualReportForm = ({ theme, onComplete }) => {
                     value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })}
                     className={`md:col-span-2 px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon h-32 ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
                 ></textarea>
+                <p className={`md:col-span-2 text-[10px] font-bold uppercase tracking-widest leading-relaxed ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                    Nota: Se recomienda adjuntar copia de DNI en caso de personas físicas. BuroSE contactará al denunciante si se requiere información de respaldo adicional para validar el registro.
+                </p>
                 <div className="md:col-span-2 flex justify-end">
                     <button
                         disabled={loading}
