@@ -620,6 +620,7 @@ const AdminPanel = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'update_report',
+                    cuit: editingReport.id,
                     ...editingReport
                 }),
                 credentials: 'include'
