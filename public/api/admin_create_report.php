@@ -43,6 +43,12 @@ try {
         $descripcion
     ]);
 
+    // Notificación por mail para el Admin (aunque sea carga manual, solicitó aviso)
+    $to = "burosearg@gmail.com";
+    $subject = "DENUNCIA MANUAL CARGADA (ADMIN) - BuroSE";
+    $body = "Se ha cargado una deuda validada directamente desde el panel admin.\n\nDeudor: $nombre_denunciado ($cuit_denunciado)\nMonto: $monto\nFecha: " . date('Y-m-d H:i:s');
+    @mail($to, $subject, $body, "From: info@burose.com.ar\r\nReply-To: no-reply@burose.com.ar");
+
     echo json_encode(["status" => "success", "message" => "Informe de deuda cargado y validado correctamente"]);
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);

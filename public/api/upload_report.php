@@ -93,13 +93,24 @@ try {
         date('Y-m-d')
     ]);
 
-    /* Notificación por mail deshabilitada por spam
+    // --- AUTOMATIZACIÓN DE NOTIFICACIONES ---
     $to = "burosearg@gmail.com";
     $subject = "NUEVO REPORTE CARGADO - BuroSE";
     $body = "Socio: $member_name\nDeudor: $debtor_name ($debtor_cuit)\nMonto: $debt_amount\nArchivos: " . count($uploadedPaths) . "\nLinks:\n" . implode("\n", array_map(function ($p) {
-        return "https://burose.com.ar/" . $p; }, $uploadedPaths));
-    @mail($to, $subject, $body, "From: no-reply@burose.com.ar");
-    */
+        return "https://burose.com.ar/" . $p;
+    }, $uploadedPaths));
+
+    // Enviar Email
+    @mail($to, $subject, $body, "From: info@burose.com.ar\r\nReply-To: no-reply@burose.com.ar");
+
+    // Insertar como Lead (contact_submissions) para visibilidad inmediata
+    try {
+        $leadMsg = "[SISTEMA - NUEVA DENUNCIA] Se ha cargado un reporte contra: $debtor_name (CUIT: $debtor_cuit) por un monto de $$debt_amount. Por favor revisar pestaña Informes para su validación.";
+        $stmtLead = $conn->prepare("INSERT INTO contact_submissions (nombre, email, mensaje, created_at) VALUES (?, ?, ?, NOW())");
+        $stmtLead->execute(["Nvo Reporte: $member_name", "info@burose.com.ar", $leadMsg]);
+    } catch (Exception $e_lead) {
+        // Silencioso si falla el lead para no bloquear la subida
+    }
 
     echo json_encode(["status" => "success", "message" => "Reporte cargado correctamente para revisión (" . count($uploadedPaths) . " archivos)"]);
 } catch (PDOException $e) {
