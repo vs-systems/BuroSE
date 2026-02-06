@@ -219,6 +219,7 @@ const AccessForm = ({ theme, defaultPlan = 'business', title = 'Denunciantes / A
                                 className="mt-1 w-5 h-5 rounded border-2 border-brand-secondary bg-transparent checked:bg-brand-neon transition-all"
                             />
                             <span className={`text-[10px] font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-muted group-hover:text-white' : 'text-slate-500'}`}>
+                                Acepto el <a href="/#/nda" className="text-brand-neon hover:underline">Acuerdo de Confidencialidad (NDA)</a> para el uso de la base de datos colaborativa.
                             </span>
                         </label>
                         <label className="flex items-start gap-4 cursor-pointer group">

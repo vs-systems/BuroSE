@@ -192,13 +192,15 @@ const RankingManager = ({ theme }) => {
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <span className={`text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest ${r.is_forced ? 'bg-brand-neon/10 text-brand-neon' : 'bg-white/5 text-slate-500'
+                            <span className={`text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest ${r.is_forced ? 'bg-brand-neon/10 text-brand-neon' : (r.is_automatic ? 'bg-blue-500/10 text-blue-500' : 'bg-white/5 text-slate-500')
                                 }`}>
-                                {r.is_forced ? 'Override Manual' : 'Estado Manual'}
+                                {r.is_forced ? 'Override Manual' : (r.is_automatic ? 'Ranking Automático' : 'Estado Manual')}
                             </span>
-                            <button onClick={() => handleDelete(r.id)} className="p-2 rounded-lg text-brand-alert hover:bg-brand-alert/10 transition-all">
-                                <Trash2 size={18} />
-                            </button>
+                            {!r.is_automatic && (
+                                <button onClick={() => handleDelete(r.id)} className="p-2 rounded-lg text-brand-alert hover:bg-brand-alert/10 transition-all">
+                                    <Trash2 size={18} />
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}
