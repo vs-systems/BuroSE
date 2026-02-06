@@ -200,63 +200,29 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
         $is_authenticated = true;
         $user_plan = $dbUser['plan'];
 
-        // --- LOGICA DE CREDITOS ---
-        $can_search = false;
-        $consumption_type = null;
-
-        if ($user_plan === 'free') {
-            // Límite Gratuito: 1 por semana
-            // Verificamos consultas en los últimos 7 días
-            $countLastWeek = 99; // Default restrictiva si falla la tabla
-            try {
-                $stmtCheckFree = $conn->prepare("SELECT COUNT(*) FROM search_logs WHERE user_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)");
-                $stmtCheckFree->execute([$user_id]);
-                $countLastWeek = $stmtCheckFree->fetchColumn();
-            } catch (Exception $e_check_free) {
-                // Si falla la tabla de logs, dejamos pasar si tiene créditos de paquete
-            }
-
-            if ($countLastWeek < 1) {
-                // Verificar Anti-Abuso (IP/Fingerprint)
-                $ip = $_SERVER['REMOTE_ADDR'];
-                $stmtCheckAbuse = $conn->prepare("SELECT id FROM membership_companies WHERE (fingerprint = ? OR last_ip = ?) AND id != ? AND plan = 'free' LIMIT 1");
-                $stmtCheckAbuse->execute([$dbUser['fingerprint'], $ip, $user_id]);
-                if ($stmtCheckAbuse->fetch()) {
-                    echo json_encode(["status" => "error", "message" => "Detección de múltiples cuentas. Su acceso ha sido restringido."]);
-                    exit();
-                }
-                $can_search = true;
-                $consumption_type = 'weekly_free';
-            } elseif ($dbUser['creds_package'] > 0) {
-                // Usar créditos obtenidos por informes o comprados
+        // Validar créditos (Socio BuroSE / Business / API / Free)
+        // 1. Mensuales (Prioridad 1)
+        if ($dbUser['creds_monthly'] > 0) {
+            $can_search = true;
+            $consumption_type = 'monthly';
+        }
+        // 2. Paquetes (Prioridad 2)
+        elseif ($dbUser['creds_package'] > 0) {
+            // Verificar vencimiento de paquete si existe
+            $expiry = $dbUser['creds_package_expiry'];
+            if (!$expiry || $expiry >= date('Y-m-d')) {
                 $can_search = true;
                 $consumption_type = 'package';
             } else {
-                echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Límite semanal alcanzado (1/1). Suba un informe de deuda validado para obtener créditos extra o adquiera un paquete."]);
+                echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Sus créditos adicionales han vencido. Por favor, renueve su saldo."]);
                 exit();
             }
         } else {
-            // Socio BuroSE / Business / API
-            // 1. Mensuales (Prioridad 1)
-            if ($dbUser['creds_monthly'] > 0) {
-                $can_search = true;
-                $consumption_type = 'monthly';
-            }
-            // 2. Paquetes (Prioridad 2)
-            elseif ($dbUser['creds_package'] > 0) {
-                // Verificar vencimiento
-                $expiry = $dbUser['creds_package_expiry'];
-                if (!$expiry || $expiry >= date('Y-m-d')) {
-                    $can_search = true;
-                    $consumption_type = 'package';
-                } else {
-                    echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Sus créditos adicionales han vencido. Por favor, renueve su saldo."]);
-                    exit();
-                }
-            } else {
-                echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Sin créditos disponibles. Suscripción agotada."]);
-                exit();
-            }
+            $msg = ($user_plan === 'free') 
+                ? "Sin créditos disponibles. Suba un informe de deuda validado para obtener créditos de recompensa o adquiera un paquete."
+                : "Sin créditos disponibles. Suscripción agotada.";
+            echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => $msg]);
+            exit();
         }
 
         if ($can_search) {

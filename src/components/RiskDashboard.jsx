@@ -451,25 +451,60 @@ const RiskDashboard = ({ theme, setTheme }) => {
                                 </div>
                             )}
 
-                            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
-                                <input
-                                    type="text"
-                                    value={cuit}
-                                    onChange={(e) => setCuit(e.target.value.replace(/[^0-9]/g, ''))}
-                                    placeholder="Ingrese CUIT (Solo Números)..."
-                                    className={`w-full border-2 rounded-full py-6 px-10 text-xl transition-all shadow-2xl focus:outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white placeholder:text-brand-muted/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400'
-                                        }`}
-                                />
-                                <button
-                                    type="submit"
-                                    className="absolute right-4 top-4 bg-brand-neon text-brand-darker p-4 rounded-full hover:scale-105 transition-transform shadow-lg shadow-brand-neon/20"
-                                >
-                                    <Search size={24} />
-                                </button>
-                            </form>
-                            <p className={`mt-6 text-xs font-bold uppercase tracking-widest transition-opacity ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                                Sugerencia: <span className="text-brand-neon">20333333334</span> (CONSULTA EXCLUSIVA POR CUIT)
-                            </p>
+                            {/* Lógica de bloqueo por falta de créditos */}
+                            {(user?.is_vip != 1 && (parseInt(user?.creds_monthly || 0) + parseInt(user?.creds_package || 0)) <= 0) ? (
+                                <div className={`max-w-2xl mx-auto p-10 rounded-3xl border-2 border-dashed animate-in fade-in zoom-in duration-500 ${theme === 'dark' ? 'bg-brand-card/30 border-brand-alert/30' : 'bg-red-50 border-red-100 shadow-xl'}`}>
+                                    <div className="bg-brand-alert/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Wallet className="text-brand-alert" size={40} />
+                                    </div>
+                                    <h3 className={`text-2xl font-black uppercase mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Sin Créditos Disponibles</h3>
+                                    <p className={`text-sm font-medium mb-8 leading-relaxed ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                                        Has agotado tus consultas disponibles. Para seguir utilizando el buscador de riesgo, elige una de las siguientes opciones:
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                        <button
+                                            onClick={() => setShowPurchase(true)}
+                                            className="bg-brand-neon text-brand-darker font-black py-4 px-8 rounded-xl uppercase text-xs tracking-widest hover:brightness-110 transition-all shadow-lg shadow-brand-neon/20 flex items-center justify-center gap-2"
+                                        >
+                                            <CreditCard size={16} /> Comprar Créditos
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const uploadSec = document.getElementById('report-upload');
+                                                if (uploadSec) uploadSec.scrollIntoView({ behavior: 'smooth' });
+                                            }}
+                                            className={`font-black py-4 px-8 rounded-xl uppercase text-xs tracking-widest transition-all border flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-white/5 text-white border-white/10 hover:bg-white/10' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'}`}
+                                        >
+                                            <ShieldAlert size={16} /> Cargar Informes (Gratis)
+                                        </button>
+                                    </div>
+                                    <p className="mt-6 text-[10px] font-bold text-brand-muted uppercase tracking-widest italic">
+                                        * Al cargar informes de deuda que sean validados por el sistema, recibirás créditos de recompensa automáticamente.
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
+                                        <input
+                                            type="text"
+                                            value={cuit}
+                                            onChange={(e) => setCuit(e.target.value.replace(/[^0-9]/g, ''))}
+                                            placeholder="Ingrese CUIT (Solo Números)..."
+                                            className={`w-full border-2 rounded-full py-6 px-10 text-xl transition-all shadow-2xl focus:outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-card border-brand-secondary text-white placeholder:text-brand-muted/50' : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400'
+                                                }`}
+                                        />
+                                        <button
+                                            type="submit"
+                                            className="absolute right-4 top-4 bg-brand-neon text-brand-darker p-4 rounded-full hover:scale-105 transition-transform shadow-lg shadow-brand-neon/20"
+                                        >
+                                            <Search size={24} />
+                                        </button>
+                                    </form>
+                                    <p className={`mt-6 text-xs font-bold uppercase tracking-widest transition-opacity ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
+                                        Sugerencia: <span className="text-brand-neon">20333333334</span> (CONSULTA EXCLUSIVA POR CUIT)
+                                    </p>
+                                </>
+                            )}
 
                             {/* Debtor Ranking Section (Sólo para Socios) */}
                             {!loading && !result && (
