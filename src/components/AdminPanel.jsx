@@ -310,21 +310,21 @@ const ManualReportForm = ({ theme, onComplete }) => {
 
 const SocioActionButtons = ({ s, handlePlanChange, handleUserAction, theme }) => (
     <div className="flex flex-wrap gap-2">
+        {s.is_vip != 1 && (
+            <button
+                onClick={() => { if (confirm('¿Convertir a este socio en VIP? Tendrá acceso ilimitado de por vida.')) handleUserAction(s.cuit, 'make_vip'); }}
+                className="bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+                Hacer VIP
+            </button>
+        )}
         {s.plan === 'free' && (
-            <>
-                <button
-                    onClick={() => handlePlanChange(s.cuit, 'business')}
-                    className="bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-                >
-                    Pasar a Socio
-                </button>
-                <button
-                    onClick={() => { if (confirm('¿Hacerlo VIP?')) handleUserAction(s.cuit, 'make_vip'); }}
-                    className="bg-brand-neon/10 text-brand-neon hover:bg-brand-neon hover:text-brand-darker px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-                >
-                    Hacer VIP
-                </button>
-            </>
+            <button
+                onClick={() => handlePlanChange(s.cuit, 'business')}
+                className="bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+                Pasar a Socio
+            </button>
         )}
         {s.plan !== 'free' && s.is_vip != 1 && (
             <button
@@ -334,6 +334,26 @@ const SocioActionButtons = ({ s, handlePlanChange, handleUserAction, theme }) =>
                 Pasar a Gratis
             </button>
         )}
+        <button
+            onClick={() => {
+                const newRazon = prompt("Nueva Razón Social:", s.razon_social);
+                const newEmail = prompt("Nuevo Email:", s.email);
+                const newCuit = prompt("Nuevo CUIT (solo números):", s.cuit);
+                const newGremio = prompt("Nuevo Gremio:", s.gremio || '');
+
+                if (newRazon && newEmail && newCuit) {
+                    handleUserAction(s.cuit, 'edit_socio', {
+                        razon_social: newRazon,
+                        email: newEmail,
+                        new_cuit: newCuit.replace(/\D/g, ''),
+                        gremio: newGremio
+                    });
+                }
+            }}
+            className={`px-3 py-1.5 border rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:border-blue-500' : 'bg-slate-50 border-slate-200 hover:border-blue-500'}`}
+        >
+            Editar
+        </button>
         <button
             onClick={() => {
                 const newCredits = prompt("Ajustar Créditos Extra (Bonus):", s.creds_package || 0);
