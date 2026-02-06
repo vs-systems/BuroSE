@@ -153,7 +153,9 @@ const RiskDashboard = ({ theme, setTheme }) => {
             const response = await fetch(`api/mp_checkout.php?type=${type}`, { credentials: 'include' });
             const data = await response.json();
             if (data.init_point) {
-                window.location.href = data.init_point;
+                // Abrir en nueva pestaña para que no pierdan el dashboard
+                window.open(data.init_point, '_blank');
+                setShowPurchase(false);
             } else {
                 alert("Error al generar el link de pago. Intente más tarde.");
             }
@@ -368,47 +370,70 @@ const RiskDashboard = ({ theme, setTheme }) => {
 
                     {isAuthenticated ? (
                         <>
-                            <div className={`max-w-2xl mx-auto mb-4 flex flex-col md:flex-row justify-center gap-4`}>
-                                <div className={`flex border p-1 rounded-xl transition-all ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200 shadow-sm'}`}>
-                                    <select
-                                        value={cuitPrefix}
-                                        onChange={(e) => {
-                                            const newPrefix = e.target.value;
-                                            setCuitPrefix(newPrefix);
-                                            if (dniInput.length === 8) {
-                                                import('../utils/argentinaUtils').then(u => {
-                                                    const base = newPrefix + dniInput;
-                                                    const digit = u.calculateCUITDigit(base);
-                                                    setCuit(base + digit);
-                                                });
-                                            }
-                                        }}
-                                        className={`px-3 py-2 text-[10px] font-black uppercase outline-none ${theme === 'dark' ? 'bg-brand-card text-white' : 'bg-white text-slate-900'} border-r border-brand-secondary/30 custom-select`}
-                                    >
-                                        <option value="20" className={theme === 'dark' ? 'bg-brand-card text-white' : 'bg-white text-slate-900'}>Masc (20)</option>
-                                        <option value="27" className={theme === 'dark' ? 'bg-brand-card text-white' : 'bg-white text-slate-900'}>Fem (27)</option>
-                                        <option value="30" className={theme === 'dark' ? 'bg-brand-card text-white' : 'bg-white text-slate-900'}>Emp (30)</option>
-                                        <option value="23" className={theme === 'dark' ? 'bg-brand-card text-white' : 'bg-white text-slate-900'}>Var (23)</option>
-                                    </select>
-                                    <input
-                                        type="text"
-                                        placeholder="DNI p/ Calcular"
-                                        maxLength="8"
-                                        value={dniInput}
-                                        className={`bg-transparent px-4 py-2 text-xs font-black uppercase outline-none w-32 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
-                                        onChange={(e) => {
-                                            const dni = e.target.value.replace(/\D/g, '');
-                                            setDniInput(dni);
-                                            if (dni.length === 8) {
-                                                import('../utils/argentinaUtils').then(u => {
-                                                    const base = cuitPrefix + dni;
-                                                    const digit = u.calculateCUITDigit(base);
-                                                    setCuit(base + digit);
-                                                });
-                                            }
-                                        }}
-                                    />
-                                    <div className="bg-brand-neon/10 px-3 py-2 rounded-lg text-[10px] font-black text-brand-neon uppercase flex items-center">Calc CUIT</div>
+                            <div className={`max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-top-4 duration-500`}>
+                                <div className={`relative p-1 rounded-2xl border-2 transition-all group ${theme === 'dark' ? 'bg-brand-card/50 border-brand-neon/20 hover:border-brand-neon/40' : 'bg-white border-blue-100 hover:border-blue-200 shadow-xl shadow-blue-500/5'}`}>
+                                    {/* Decoración llamativa */}
+                                    <div className="absolute -left-3 -top-3 bg-brand-neon text-brand-darker p-1.5 rounded-lg shadow-lg rotate-12 group-hover:rotate-0 transition-transform">
+                                        <TrendingUp size={16} />
+                                    </div>
+                                    <div className="absolute -right-3 -bottom-3 bg-blue-600 text-white p-1.5 rounded-lg shadow-lg -rotate-12 group-hover:rotate-0 transition-transform">
+                                        <ShieldCheck size={16} />
+                                    </div>
+
+                                    <div className="flex flex-col md:flex-row items-center">
+                                        <div className="p-4 flex-1 text-center md:text-left">
+                                            <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>
+                                                ✨ No tengo el CUIT
+                                            </p>
+                                            <p className={`text-[9px] font-bold leading-tight ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
+                                                Ingresa el DNI, elige el sexo/condición y calcularemos el CUIT por ti.
+                                            </p>
+                                        </div>
+
+                                        <div className={`flex items-center p-1 m-1 rounded-xl ${theme === 'dark' ? 'bg-brand-dark/50' : 'bg-slate-50'}`}>
+                                            <select
+                                                value={cuitPrefix}
+                                                onChange={(e) => {
+                                                    const newPrefix = e.target.value;
+                                                    setCuitPrefix(newPrefix);
+                                                    if (dniInput.length === 8) {
+                                                        import('../utils/argentinaUtils').then(u => {
+                                                            const base = newPrefix + dniInput;
+                                                            const digit = u.calculateCUITDigit(base);
+                                                            setCuit(base + digit);
+                                                        });
+                                                    }
+                                                }}
+                                                className={`px-3 py-2 text-[10px] font-black uppercase outline-none ${theme === 'dark' ? 'bg-transparent text-white' : 'bg-transparent text-slate-900'} border-r border-brand-secondary/30 custom-select cursor-pointer`}
+                                            >
+                                                <option value="20">Masc (20)</option>
+                                                <option value="27">Fem (27)</option>
+                                                <option value="30">Emp (30)</option>
+                                                <option value="23">Var (23)</option>
+                                            </select>
+                                            <input
+                                                type="text"
+                                                placeholder="Solo DNI"
+                                                maxLength="8"
+                                                value={dniInput}
+                                                className={`bg-transparent px-4 py-2 text-sm font-black uppercase outline-none w-32 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
+                                                onChange={(e) => {
+                                                    const dni = e.target.value.replace(/\D/g, '');
+                                                    setDniInput(dni);
+                                                    if (dni.length === 8) {
+                                                        import('../utils/argentinaUtils').then(u => {
+                                                            const base = cuitPrefix + dni;
+                                                            const digit = u.calculateCUITDigit(base);
+                                                            setCuit(base + digit);
+                                                        });
+                                                    }
+                                                }}
+                                            />
+                                            <div className="bg-brand-neon text-brand-darker px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center shadow-lg shadow-brand-neon/20">
+                                                Auto CUIT <TrendingUp size={12} className="ml-2 animate-bounce" />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
