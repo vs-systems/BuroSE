@@ -1248,8 +1248,26 @@ const AdminPanel = () => {
                                         </div>
                                     </div>
                                     <div>
+                                        <label className="block text-xs font-black uppercase mb-2 text-brand-muted tracking-widest">Versión del Sistema</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={data.settings?.system_version || ''}
+                                                onChange={(e) => setData({ ...data, settings: { ...data.settings, system_version: e.target.value } })}
+                                                className={`flex-1 px-4 py-3 rounded-xl border-2 outline-none focus:border-brand-neon ${theme === 'dark' ? 'bg-brand-dark border-brand-secondary text-white' : 'bg-slate-50 border-slate-100'}`}
+                                                placeholder="Ej: 2026_02_06_V8"
+                                            />
+                                            <button
+                                                onClick={() => handleUserAction('system', 'system_config', { key: 'system_version', value: data.settings.system_version })}
+                                                className="bg-brand-neon text-brand-darker font-black px-6 py-2 rounded-xl uppercase text-[10px]"
+                                            >
+                                                Guardar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
                                         <label className="block text-xs font-black uppercase mb-2 text-brand-muted tracking-widest">Gestión del Sitio</label>
-                                        <p className="text-[10px] text-brand-muted italic mt-4">Los módulos de gestión de asociados y ranking de deudores se encuentran habilitados a continuación.</p>
+                                        <p className="text-[10px] text-brand-muted italic mt-2">Personaliza la fecha de actualización y la versión visible en el pie de página de la web pública.</p>
                                     </div>
                                 </div>
                             </div>

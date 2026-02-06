@@ -26,7 +26,7 @@ const RegistrationPage = ({ theme, setTheme }) => {
                                     <Gift size={12} /> Beneficio Exclusivo
                                 </div>
                                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none">
-                                    Alta de Cuenta <span className="text-brand-neon italic">Free</span>
+                                    Alta de <span className="text-brand-neon italic">Cliente</span>
                                 </h1>
                                 <p className={`text-lg font-medium leading-relaxed ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-500'}`}>
                                     Accede a la inteligencia financiera colaborativa de BuroSE sin costo. Válido para consultas básicas y reportes limitados.

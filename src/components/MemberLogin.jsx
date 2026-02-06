@@ -97,6 +97,11 @@ const MemberLogin = ({ theme, setTheme }) => {
                         ¿Olvidaste tu contraseña o necesitas una cuenta?<br />
                         <a href="mailto:somos@burose.com.ar" className={`mt-2 inline-block font-black underline decoration-2 underline-offset-4 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}>Contactar soporte</a>
                     </p>
+                    <div className="mt-6">
+                        <a href="/#/" className={`text-[10px] font-black uppercase tracking-[0.2em] transition-colors ${theme === 'dark' ? 'text-brand-muted hover:text-white' : 'text-slate-400 hover:text-slate-900'}`}>
+                            &larr; Regresar al Inicio
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

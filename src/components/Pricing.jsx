@@ -71,8 +71,8 @@ const Pricing = ({ theme }) => {
         try {
             const response = await fetch(`api/mp_checkout.php?type=${type}`, { credentials: 'include' });
             if (response.status === 403) {
-                alert("Para realizar compras debe iniciar sesión.");
-                window.location.hash = '/login';
+                // Redirigir al formulario de alta en lugar del login para nuevos clientes
+                window.location.hash = '/registro-gratis';
                 return;
             }
             const data = await response.json();
@@ -142,6 +142,7 @@ const Pricing = ({ theme }) => {
                             <button
                                 onClick={() => {
                                     if (plan.name === "Socio BuroSE") handlePayment('subscription');
+                                    else if (plan.name === "Consulta Individual") window.location.hash = '/registro-gratis';
                                     else window.location.hash = '/risk-dashboard';
                                 }}
                                 className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${plan.popular || plan.name === 'Empresa & API'

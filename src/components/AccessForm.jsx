@@ -12,7 +12,8 @@ const AccessForm = ({ theme, defaultPlan = 'business', title = 'Denunciantes / A
         sector: 'Seguridad',
         city: '',
         acceptTerms: false,
-        acceptNDA: false
+        acceptNDA: false,
+        isFreeAccount: defaultPlan === 'free'
     });
 
     const handleChange = (e) => {
@@ -45,7 +46,7 @@ const AccessForm = ({ theme, defaultPlan = 'business', title = 'Denunciantes / A
             cuit: formData.cuit.replace(/\D/g, ''),
             whatsapp: formData.whatsapp.replace(/\D/g, ''),
             fingerprint: getDeviceFingerprint(),
-            plan: defaultPlan,
+            plan: formData.isFreeAccount ? 'free' : defaultPlan,
             type: 'contact'
         };
 
@@ -85,7 +86,8 @@ const AccessForm = ({ theme, defaultPlan = 'business', title = 'Denunciantes / A
                         sector: 'Seguridad',
                         city: '',
                         acceptTerms: false,
-                        acceptNDA: false
+                        acceptNDA: false,
+                        isFreeAccount: defaultPlan === 'free'
                     });
                 }
             } else {
@@ -217,9 +219,26 @@ const AccessForm = ({ theme, defaultPlan = 'business', title = 'Denunciantes / A
                                 className="mt-1 w-5 h-5 rounded border-2 border-brand-secondary bg-transparent checked:bg-brand-neon transition-all"
                             />
                             <span className={`text-[10px] font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-muted group-hover:text-white' : 'text-slate-500'}`}>
-                                Acepto el <a href="/#/nda" className="text-brand-neon hover:underline">Acuerdo de Confidencialidad (NDA)</a> para el uso de la base de datos colaborativa.
                             </span>
                         </label>
+                        <label className="flex items-start gap-4 cursor-pointer group">
+                            <input
+                                type="checkbox" name="isFreeAccount"
+                                checked={formData.isFreeAccount} onChange={handleChange}
+                                className="mt-1 w-5 h-5 rounded border-2 border-brand-secondary bg-transparent checked:bg-brand-neon transition-all"
+                            />
+                            <span className={`text-[10px] font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-muted group-hover:text-white' : 'text-slate-500'}`}>
+                                Quiero una cuenta gratuita (Plan Free).
+                            </span>
+                        </label>
+
+                        {formData.isFreeAccount && (
+                            <div className={`p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 duration-300 ${theme === 'dark' ? 'bg-brand-neon/5 border-brand-neon/20' : 'bg-blue-50 border-blue-200'}`}>
+                                <p className={`text-[10px] font-bold leading-relaxed ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-700'}`}>
+                                    Esta es una cuenta limitada en sus informes. A medida que cargues denuncias y sean aprobadas, el sistema te habilitará más consultas de forma automática. ¡Evita el costo de membresía colaborando con la red!
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <button

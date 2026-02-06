@@ -115,6 +115,12 @@ const Header = ({ theme, setTheme, openContact }) => {
                             >
                                 Consultar Riesgo
                             </button>
+                            <a href="/#/legal-services"
+                                className={`px-4 py-3 text-left font-bold uppercase tracking-wide rounded-xl transition-colors ${theme === 'dark' ? 'text-red-400 hover:bg-red-400/5' : 'text-red-600 hover:bg-red-50'}`}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Gestión de Cobranzas
+                            </a>
                             <a href="/#/login" className="px-4 py-3 text-blue-500 font-bold hover:bg-blue-50 rounded-xl transition-colors" onClick={() => setIsOpen(false)}>Acceso Socios</a>
                             <button onClick={() => { setIsOpen(false); document.getElementById('legal').scrollIntoView({ behavior: 'smooth' }); }} className={`px-4 py-3 text-left rounded-xl transition-colors ${theme === 'dark' ? 'text-brand-muted hover:text-white hover:bg-white/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}>Legal</button>
                             <button onClick={() => { setIsOpen(false); document.getElementById('replica').scrollIntoView({ behavior: 'smooth' }); }} className="px-4 py-3 text-left text-brand-alert hover:text-red-400 hover:bg-white/5 rounded-xl transition-colors">Derecho a Réplica</button>
