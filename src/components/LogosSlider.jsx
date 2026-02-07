@@ -31,7 +31,8 @@ const LogosSlider = ({ theme }) => {
                         Empresas que confían en <span className="text-brand-neon">BuroSE</span>
                     </h3>
                     <p className={`mt-2 text-sm font-bold ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>
-                        Nuestra red colaborativa crece día a día para proteger el crédito comercial.
+                        Nuestra red colaborativa crece día a día para proteger el crédito comercial.<br />
+                        <span className="text-brand-neon">Solicitá tu cuenta gratuita para probar el funcionamiento e impulsá el crecimiento de tu empresa con nosotros.</span>
                     </p>
                 </div>
             </div>

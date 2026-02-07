@@ -9,9 +9,9 @@ const Manuals = ({ theme }) => {
             title: "Manual del Visitante (Gratuita)",
             icon: <User className="text-blue-400" />,
             content: [
-                { h: "Acceso Básico", p: "Cualquier persona puede consultar el Score BuroSE introduciendo un DNI o CUIT válido." },
-                { h: "Alcance", p: "La consulta gratuita muestra el nivel de riesgo unificado (Verde, Amarillo, Rojo) basado en datos del BCRA." },
-                { h: "Limitaciones", p: "No es posible visualizar deudas internas de empresas asociadas ni detalles de acreedores sin una cuenta de Socio." }
+                { h: "Acceso Básico", p: "Cualquier persona puede consultar el Score BuroSE introduciendo un CUIT válido (Empresas y Autónomos)." },
+                { h: "Alcance", p: "Podrás consultar toda la base de BuroSE con tus créditos disponibles." },
+                { h: "Créditos", p: "Por cada informe validado que cargues al sistema, generarás 2 créditos para nuevas consultas. Los informes más completos están reservados para cuentas de membresía." }
             ]
         },
         socio: {
@@ -88,7 +88,7 @@ const Manuals = ({ theme }) => {
 
                         <div className={`mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-6 ${theme === 'dark' ? 'border-brand-secondary/50' : 'border-slate-100'
                             }`}>
-                            <p className={`text-[10px] uppercase font-black tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>BuroSE | Framework de Riesgo 2.2</p>
+                            <p className={`text-[10px] uppercase font-black tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>BuroSE | Framework de Riesgo 2026_01_29_V7</p>
                             <div className="flex items-center gap-6">
                                 <button
                                     onClick={() => {
@@ -98,22 +98,6 @@ const Manuals = ({ theme }) => {
                                     className={`flex items-center text-xs font-black uppercase tracking-widest transition-all hover:scale-105 ${theme === 'dark' ? 'text-brand-muted hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
                                 >
                                     WhatsApp
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        const subject = encodeURIComponent(`Manual BuroSE: ${manuals[activeManual].title}`);
-                                        const body = encodeURIComponent(`Detalle del ${manuals[activeManual].title}:\n\n` + manuals[activeManual].content.map(c => `${c.h}: ${c.p}`).join('\n\n'));
-                                        window.location.href = `mailto:?subject=${subject}&body=${body}`;
-                                    }}
-                                    className={`flex items-center text-xs font-black uppercase tracking-widest transition-all hover:scale-105 ${theme === 'dark' ? 'text-brand-muted hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
-                                >
-                                    Email
-                                </button>
-                                <button
-                                    onClick={() => window.print()}
-                                    className={`flex items-center text-xs font-black uppercase tracking-widest transition-all hover:scale-105 ${theme === 'dark' ? 'text-brand-neon' : 'text-blue-600'}`}
-                                >
-                                    Descargar PDF <Download size={14} className="ml-2" />
                                 </button>
                             </div>
                         </div>

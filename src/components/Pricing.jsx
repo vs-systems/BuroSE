@@ -62,7 +62,7 @@ const Pricing = ({ theme }) => {
                 "50% Off en Legales y Recupero",
                 "Consultas Ilimitadas"
             ],
-            cta: "Ver Docs",
+            cta: "Unirse Ahora pago mensual",
             color: "border-blue-500"
         }
     ];
@@ -139,19 +139,44 @@ const Pricing = ({ theme }) => {
                                 ))}
                             </ul>
 
-                            <button
-                                onClick={() => {
-                                    if (plan.name === "Socio BuroSE") handlePayment('subscription');
-                                    else if (plan.name === "Consulta Individual") window.location.hash = '/registro-gratis';
-                                    else window.location.hash = '/risk-dashboard';
-                                }}
-                                className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${plan.popular || plan.name === 'Empresa & API'
-                                    ? 'bg-brand-neon text-brand-darker hover:brightness-110 shadow-lg shadow-brand-neon/20'
-                                    : (theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200')
-                                    }`}
-                            >
-                                {plan.cta}
-                            </button>
+                            {plan.name === "Empresa & API" || plan.name === "Socio BuroSE" ? (
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => {
+                                            const links = {
+                                                "Socio BuroSE": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=3685812ee2b04e0aab1c985c958dffad",
+                                                "Empresa & API": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=25ed52d5974347d5a4b0551c04b02956"
+                                            };
+                                            window.open(links[plan.name], '_blank');
+                                        }}
+                                        className="w-full py-4 bg-brand-neon text-brand-darker font-black rounded-xl hover:brightness-110 shadow-lg shadow-brand-neon/20 active:scale-95 transition-all"
+                                    >
+                                        Unirse Ahora (Mensual)
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const links = {
+                                                "Socio BuroSE": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=1f3871de75e347139987de2f2bcf455c",
+                                                "Empresa & API": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=aba60263c0304c41b0c32dc0084f7b2e"
+                                            };
+                                            window.open(links[plan.name], '_blank');
+                                        }}
+                                        className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest border-2 transition-all hover:scale-105 active:scale-95 ${theme === 'dark' ? 'border-brand-neon/30 text-brand-neon hover:bg-brand-neon/5' : 'border-brand-neon text-brand-darker hover:bg-brand-neon/5'}`}
+                                    >
+                                        {plan.name === "Socio BuroSE" ? "Pago Anual (1 mes FREE)" : "Pago Anual (2 meses FREE)"}
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        if (plan.name === "Consulta Individual") window.location.hash = '/registro-gratis';
+                                        else window.location.hash = '/risk-dashboard';
+                                    }}
+                                    className={`w-full py-4 rounded-xl font-black transition-all transform active:scale-95 ${theme === 'dark' ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' : 'bg-slate-100 text-slate-900 hover:bg-slate-200'}`}
+                                >
+                                    {plan.cta}
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -179,7 +204,7 @@ const Pricing = ({ theme }) => {
                                     </div>
                                 ))}
                             </div>
-                            <p className="mt-4 text-[10px] text-brand-muted opacity-60">* Vencimiento 60 días corridos.</p>
+                            <p className="mt-4 text-[10px] text-brand-muted opacity-60">* Vencimiento 40 días corridos.</p>
                         </div>
                         {/* Gratuitos */}
                         <div className={`p-8 rounded-3xl border ${theme === 'dark' ? 'bg-brand-card border-brand-secondary' : 'bg-white border-slate-200'}`}>
@@ -200,7 +225,7 @@ const Pricing = ({ theme }) => {
                                     </div>
                                 ))}
                             </div>
-                            <p className="mt-4 text-[10px] text-brand-muted opacity-60">* Vencimiento 60 días corridos.</p>
+                            <p className="mt-4 text-[10px] text-brand-muted opacity-60">* Vencimiento 40 días corridos.</p>
                         </div>
                     </div>
                 </div>
@@ -219,7 +244,7 @@ const Pricing = ({ theme }) => {
                             </p>
                         </div>
                         <button
-                            onClick={() => window.location.href = 'mailto:somos@burose.com.ar?subject=Interés API BuroSE'}
+                            onClick={() => openContact('api_interest')}
                             className="w-full md:w-auto px-8 py-5 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-600/20 whitespace-nowrap"
                         >
                             Solicitar API

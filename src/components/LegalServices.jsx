@@ -52,10 +52,10 @@ const LegalServices = ({ theme, setTheme }) => {
                                     <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Honorarios</p>
                                     <p className={`text-2xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Consultar</p>
                                 </div>
-                                <a href="mailto:legales@burose.com.ar?subject=Solicitud%20de%20Intimación%20-%20Nuevo%20Caso"
+                                <button onClick={() => openContact('legal_intimacion')}
                                     className="px-6 py-3 bg-brand-neon text-brand-darker font-black rounded-xl uppercase text-xs tracking-widest hover:brightness-110 shadow-lg shadow-brand-neon/20 flex items-center">
                                     Solicitar Intimación <ArrowRight size={16} className="ml-2" />
-                                </a>
+                                </button>
                             </div>
                         </div>
 
@@ -74,10 +74,10 @@ const LegalServices = ({ theme, setTheme }) => {
                                     <p className={`text-xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>% A Convenir</p>
                                     <p className="text-[10px] opacity-60">Sobre lo recuperado</p>
                                 </div>
-                                <a href="mailto:legales@burose.com.ar?subject=Consulta%20por%20Mediación%20Oficial"
+                                <button onClick={() => openContact('legal_mediacion')}
                                     className="px-6 py-3 bg-blue-600 text-white font-black rounded-xl uppercase text-xs tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-600/20 flex items-center">
                                     Consultar Caso <Gavel size={16} className="ml-2" />
-                                </a>
+                                </button>
                             </div>
                         </div>
 

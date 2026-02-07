@@ -108,19 +108,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "message" => $message,
                 "payment_url" => $prefUrl
             ]);
-        } elseif ($data['type'] === 'general_contact') {
-            // Nuevo Formulario de Contacto (General)
+        } elseif ($data['type'] === 'general_contact' || $data['type'] === 'legal_intimacion' || $data['type'] === 'legal_mediacion') {
+            // Nuevo Formulario de Contacto (General o Legal)
             $to = "legales@burose.com.ar";
-            $subject = "Consulta Web BuroSE [" . $data['motivo'] . "] - " . $data['name'];
+            $isLegal = strpos($data['type'], 'legal_') === 0;
+            $subject = ($isLegal ? "Gestión Cobranza - " : "Consulta Web BuroSE [") . $data['motivo'] . ($isLegal ? "" : "]") . " - " . $data['name'];
             $body = "De: " . $data['name'] . "\n" .
                 "Celular: " . $data['celular'] . "\n" .
                 "Motivo: " . $data['motivo'] . "\n\n" .
-                "Consulta:\n" . $data['consulta'];
+                "Consulta / Caso:\n" . $data['consulta'];
             $headers = "From: web@burose.com.ar\r\n";
             $headers .= "Bcc: burosearg@gmail.com\r\n";
             mail($to, $subject, $body, $headers);
 
             echo json_encode(["status" => "success", "message" => "Consulta enviada correctamente. Nos contactaremos a la brevedad."]);
+        } elseif ($data['type'] === 'api_interest') {
+            // Formulario de interés en API
+            $to = "burosearg@gmail.com";
+            $subject = "Interés API BuroSE - " . ($data['razon_social'] ?? $data['name']);
+            $body = "Nombre y Apellido: " . $data['name'] . "\n" .
+                "Razón Social: " . ($data['razon_social'] ?? 'N/A') . "\n" .
+                "CUIT: " . ($data['cuit'] ?? 'N/A') . "\n" .
+                "Celular: " . $data['celular'] . "\n" .
+                "Sistema ERP/CRM: " . ($data['sistema_erp'] ?? 'N/A') . "\n" .
+                "Conoce Implementación: " . ($data['conoce_implementacion'] ?? 'No') . "\n\n" .
+                "Requerimientos / Observaciones:\n" . $data['consulta'];
+            $headers = "From: api-internal@burose.com.ar\r\n";
+            mail($to, $subject, $body, $headers);
+
+            echo json_encode(["status" => "success", "message" => "Solicitud de API enviada. El equipo técnico lo contactará pronto."]);
         } elseif ($data['type'] === 'replica') {
             // Procesar derecho a réplica
             $stmt = $conn->prepare("INSERT INTO replica_requests (nombre_sujeto, cuit_dni, email, descargo) VALUES (?, ?, ?, ?)");

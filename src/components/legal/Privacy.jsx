@@ -62,7 +62,7 @@ const Privacy = ({ theme, setTheme }) => {
 
                 <section>
                     <h4 className="font-black text-brand-neon uppercase tracking-widest text-sm mb-2">9. INFORMACIÓN DE CONTACTO</h4>
-                    <p>Envío de correo electrónico a: <a href="mailto:somos@burose.com.ar" className="text-brand-neon hover:underline font-bold">somos@burose.com.ar</a></p>
+                    <p>Envío de correo electrónico a: <a href="mailto:sistemas@vecinoseguro.com" className="text-brand-neon hover:underline font-bold">sistemas@vecinoseguro.com</a></p>
                 </section>
             </div>
         </LegalLayout>

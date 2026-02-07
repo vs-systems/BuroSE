@@ -80,10 +80,10 @@ const ProblemChart = ({ theme }) => {
                             {/* Bar 1: Traditional */}
                             <div className="flex flex-col items-center w-24 group">
                                 <div className="mb-2 text-center transition-opacity duration-700 delay-1000" style={{ opacity: isVisible ? 1 : 0 }}>
-                                    <span className={`text-2xl font-black ${theme === 'dark' ? 'text-brand-muted' : 'text-slate-400'}`}>20%</span>
+                                    <span className={`text-2xl font-black ${theme === 'dark' ? 'text-red-500' : 'text-red-600'}`}>20%</span>
                                 </div>
                                 <div
-                                    className={`w-full rounded-t-xl relative transition-all duration-1000 ease-out ${theme === 'dark' ? 'bg-brand-muted/30' : 'bg-slate-200'
+                                    className={`w-full rounded-t-xl relative transition-all duration-1000 ease-out ${theme === 'dark' ? 'bg-red-600/30' : 'bg-red-100'
                                         }`}
                                     style={{ height: isVisible ? '20%' : '0%' }}
                                 >
@@ -97,10 +97,10 @@ const ProblemChart = ({ theme }) => {
                             {/* Bar 2: BuroSE */}
                             <div className="flex flex-col items-center w-24 group">
                                 <div className="mb-2 text-center transition-opacity duration-700 delay-1000" style={{ opacity: isVisible ? 1 : 0 }}>
-                                    <span className="text-2xl font-black text-brand-neon">80%</span>
+                                    <span className="text-2xl font-black text-green-500">80%</span>
                                 </div>
                                 <div
-                                    className="w-full bg-gradient-to-t from-brand-neon/20 to-brand-neon rounded-t-xl relative shadow-[0_0_40px_rgba(0,255,157,0.3)] transition-all duration-1000 ease-out delay-300"
+                                    className="w-full bg-gradient-to-t from-green-500/20 to-green-500 rounded-t-xl relative shadow-[0_0_40px_rgba(34,197,94,0.3)] transition-all duration-1000 ease-out delay-300"
                                     style={{ height: isVisible ? '80%' : '0%' }}
                                 >
                                     <div className="absolute top-0 left-0 w-full h-1 bg-white/50"></div>
@@ -120,8 +120,8 @@ const ProblemChart = ({ theme }) => {
 
                         {/* Background Grid */}
                         <div className={`absolute inset-0 z-0 opacity-30 ${theme === 'dark'
-                                ? 'bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)]'
-                                : 'bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)]'
+                            ? 'bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)]'
+                            : 'bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)]'
                             } bg-[size:40px_40px]`}></div>
                     </div>
 

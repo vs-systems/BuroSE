@@ -17,7 +17,7 @@ const Footer = ({ theme, openContact, settings }) => {
                         </p>
                         <div className="mt-6">
                             <a
-                                href="https://wa.me/5492235772165"
+                                href="https://wa.me/5491138891414"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg shadow-green-600/20"
