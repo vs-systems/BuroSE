@@ -80,7 +80,7 @@ try {
 
             log_activity($conn, 0, 'Admin', 'MAKE_VIP', "Socio $cuit convertido a VIP");
 
-            // Enviar Mail de Notificación
+            /* Enviar Mail de Notificación deshabilitado por spam
             $to = $member['email'];
             $subject = "¡Premio VIP BuroSE - Acceso de por vida!";
             $body = "Hola " . $member['razon_social'] . ",\n\n";
@@ -93,8 +93,9 @@ try {
             $headers .= "X-Mailer: PHP/" . phpversion();
 
             @mail($to, $subject, $body, $headers);
+            */
 
-            echo json_encode(["status" => "success", "message" => "Socio convertido a VIP and notificado por email correctamente."]);
+            echo json_encode(["status" => "success", "message" => "Socio convertido a VIP correctamente."]);
         } else {
             echo json_encode(["status" => "error", "message" => "Socio no encontrado"]);
         }
@@ -117,18 +118,22 @@ try {
         $stmt = $conn->prepare("UPDATE reports SET estado = 'validado' WHERE id = ?");
         $stmt->execute([$id]);
 
-        // 2. Acreditar Premio (1 Consulta Extra)
-        $stmtReporter = $conn->prepare("SELECT reporter_id FROM reports WHERE id = ?");
+        // 2. Acreditar Premio (Gratis +2, Socio +4)
+        $stmtReporter = $conn->prepare("SELECT r.reporter_id, mc.plan FROM reports r LEFT JOIN membership_companies mc ON r.reporter_id = mc.id WHERE r.id = ?");
         $stmtReporter->execute([$id]);
-        $reporter_id = $stmtReporter->fetchColumn();
+        $reporter = $stmtReporter->fetch(PDO::FETCH_ASSOC);
 
-        if ($reporter_id) {
-            // Sumamos 1 crédito al paquete (los créditos de paquete no se resetean semanalmente como los free)
-            $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + 1, reports_submitted_count = reports_submitted_count + 1 WHERE id = ?")->execute([$reporter_id]);
+        if ($reporter && $reporter['reporter_id']) {
+            $bonus = ($reporter['plan'] === 'free') ? 2 : 4;
+            // Sumamos los créditos al paquete (creds_package)
+            $conn->prepare("UPDATE membership_companies SET creds_package = creds_package + ?, reports_submitted_count = reports_submitted_count + 1 WHERE id = ?")
+                ->execute([$bonus, $reporter['reporter_id']]);
+
+            log_activity($conn, 0, 'Admin', 'APPROVE_REPORT', "ID Reporte: $id, acreditado $bonus créditos a ID: " . $reporter['reporter_id']);
+            echo json_encode(["status" => "success", "message" => "Reporte validado y $bonus créditos acreditados al Miembro"]);
+        } else {
+            echo json_encode(["status" => "success", "message" => "Reporte validado (Reportero no encontrado)"]);
         }
-
-        log_activity($conn, 0, 'Admin', 'APPROVE_REPORT', "ID Reporte: $id, acreditado a ID: $reporter_id");
-        echo json_encode(["status" => "success", "message" => "Reporte validado y 1 crédito acreditado al Miembro"]);
     } elseif ($action === 'update_credits') {
         // Fix para recibir 'credits' y 'type' del frontend, o 'creds_monthly'/'creds_package'
         $creditsValue = intval($data['credits'] ?? 0);
@@ -193,6 +198,23 @@ try {
         $stmt = $conn->prepare("DELETE FROM reports WHERE id = ?");
         $stmt->execute([$id]);
         echo json_encode(["status" => "success", "message" => "Reporte y archivos eliminados"]);
+    } elseif ($action === 'update_report') {
+        $id = $data['id'] ?? null;
+        $cuit = preg_replace('/\D/', '', $data['cuit_denunciado'] ?? '');
+        $nombre = $data['nombre_denunciado'] ?? '';
+        $monto = $data['monto'] ?? 0;
+        $descripcion = $data['descripcion'] ?? '';
+
+        if (!$id || empty($cuit) || empty($nombre)) {
+            echo json_encode(["status" => "error", "message" => "Faltan parámetros requeridos"]);
+            exit();
+        }
+
+        $stmt = $conn->prepare("UPDATE reports SET cuit_denunciado = ?, nombre_denunciado = ?, monto = ?, descripcion = ? WHERE id = ?");
+        $stmt->execute([$cuit, $nombre, $monto, $descripcion, $id]);
+
+        log_activity($conn, 0, 'Admin', 'UPDATE_REPORT', "Reporte ID: $id actualizado");
+        echo json_encode(["status" => "success", "message" => "Reporte actualizado correctamente"]);
     } elseif ($action === 'disable_api') {
         $stmt = $conn->prepare("UPDATE membership_companies SET api_token = NULL WHERE cuit = ?");
         $stmt->execute([$cuit]);

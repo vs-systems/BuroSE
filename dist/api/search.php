@@ -2,6 +2,17 @@
 // search.php - Motor de Inteligencia Comercial BuroSE
 require_once 'config.php';
 
+// Global error handler for JSON responses
+set_exception_handler(function ($e) {
+    @file_put_contents('critical_errors.log', date('[Y-m-d H:i:s] ') . $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL, FILE_APPEND);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Error interno del servidor",
+        "debug" => $e->getMessage()
+    ]);
+    exit();
+});
+
 if (!isset($_GET['cuit'])) {
     echo json_encode(["status" => "error", "message" => "Falta el CUIT/DNI"]);
     exit();
@@ -43,10 +54,9 @@ function consultar_bcra($cuit)
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    // Siguiendo parámetros de bcra/index.php (sin UA, sin FollowLocation redundante)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 25); // Aumentado por lentitud de la API oficial
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
@@ -60,8 +70,13 @@ function consultar_bcra($cuit)
         ];
     }
 
-    // Log BCRA error for admin review
-    @file_put_contents('bcra_errors.log', date('[Y-m-d H:i:s] ') . "CUIT: $cuit, Code: $httpCode, Error: $error" . PHP_EOL, FILE_APPEND);
+    if ($httpCode == 404) {
+        return [
+            "success" => true,
+            "data" => "SIN_DEUDAS", // Standarizado con bcra/index.php
+            "not_found" => true
+        ];
+    }
 
     return [
         "success" => false,
@@ -91,6 +106,17 @@ $stmt = $conn->prepare("SELECT r.*, mc.razon_social as reporter_name
 $stmt->execute([$cuit]);
 $internal_reports = $stmt->fetchAll();
 
+// Mejorar identificación del sujeto: Si no hay nombre de socio/scraper, buscar en reportes internos
+if (empty($scraped_name) && !empty($internal_reports)) {
+    // Tomar el nombre del reporte más reciente que lo tenga
+    foreach ($internal_reports as $rep) {
+        if (!empty($rep['nombre_denunciado'])) {
+            $scraped_name = strtoupper($rep['nombre_denunciado']);
+            break;
+        }
+    }
+}
+
 $total_internal_debt = 0;
 foreach ($internal_reports as $report) {
     $total_internal_debt += $report['monto'];
@@ -107,16 +133,17 @@ $bcra_normalized = [
     "message" => $bcra_response['message'] ?? null
 ];
 
-if ($bcra_response['success'] && $bcra_response['data']) {
+if ($bcra_response['success'] && is_array($bcra_response['data'])) {
     $bcra_results = $bcra_response['data'];
     $bcra_normalized["found"] = true;
 
-    // El API puede devolver periodos directamente si venimos de results
-    $periodos = $bcra_results['periodos'] ?? (isset($bcra_results[0]['periodo']) ? $bcra_results : null);
+    // Estructura BCRA: results contiene un objeto con la llave 'periodos'
+    $periodos = $bcra_results['periodos'] ?? [];
 
-    if ($periodos) {
+    if (is_array($periodos) && count($periodos) > 0) {
+        // Tomamos el periodo más reciente (con mayor robustez)
         $ultimo = reset($periodos);
-        if (isset($ultimo['entidades'])) {
+        if (isset($ultimo['entidades']) && is_array($ultimo['entidades'])) {
             foreach ($ultimo['entidades'] as $b) {
                 $bcra_normalized["entidades"][] = [
                     "entidad" => $b['denominacion'],
@@ -131,17 +158,30 @@ if ($bcra_response['success'] && $bcra_response['data']) {
             }
         }
     }
+} elseif ($bcra_response['data'] === "SIN_DEUDAS") {
+    $bcra_normalized["found"] = true;
 }
 
-// 4. Determinar Nivel de Riesgo
-// RED si tiene deudas internas o SIT > 1 en BCRA o Deuda Total > 0 (según el requerimiento del usuario de reportar deudas)
+// 4. Contador de Consultas Recientes (Contador de Socios interesados)
+$recent_consultants = 0;
+try {
+    $stmtCount = $conn->prepare("SELECT COUNT(DISTINCT user_id) FROM search_logs WHERE cuit_searched = ? AND created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)");
+    $stmtCount->execute([$cuit]);
+    $recent_consultants = $stmtCount->fetchColumn();
+} catch (Exception $e_logs) {
+    $recent_consultants = 0;
+}
+
+// 5. Determinar Nivel de Riesgo
 $has_internal_risk = ($total_internal_debt > 0);
 $has_bcra_risk = ($bcra_normalized["max_situacion"] > 1);
 $has_bcra_debt = ($bcra_normalized["deuda_total"] > 0);
 
 $alert_level = "GREEN";
-if ($has_internal_risk || $has_bcra_risk || $has_bcra_debt) {
+if ($has_internal_risk || $has_bcra_risk) {
     $alert_level = "RED";
+} elseif ($has_bcra_debt) {
+    $alert_level = "YELLOW";
 }
 
 // 5. Verificar sesión y Créditos
@@ -160,58 +200,29 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
         $is_authenticated = true;
         $user_plan = $dbUser['plan'];
 
-        // --- LOGICA DE CREDITOS ---
-        $can_search = false;
-        $consumption_type = null;
-
-        if ($user_plan === 'free') {
-            // Límite Gratuito: 1 por semana
-            // Verificamos consultas en los últimos 7 días
-            $stmtCheckFree = $conn->prepare("SELECT COUNT(*) FROM search_logs WHERE user_id = ? AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)");
-            $stmtCheckFree->execute([$user_id]);
-            $countLastWeek = $stmtCheckFree->fetchColumn();
-
-            if ($countLastWeek < 1) {
-                // Verificar Anti-Abuso (IP/Fingerprint)
-                $ip = $_SERVER['REMOTE_ADDR'];
-                $stmtCheckAbuse = $conn->prepare("SELECT id FROM membership_companies WHERE (fingerprint = ? OR last_ip = ?) AND id != ? AND plan = 'free' LIMIT 1");
-                $stmtCheckAbuse->execute([$dbUser['fingerprint'], $ip, $user_id]);
-                if ($stmtCheckAbuse->fetch()) {
-                    echo json_encode(["status" => "error", "message" => "Detección de múltiples cuentas. Su acceso ha sido restringido."]);
-                    exit();
-                }
-                $can_search = true;
-                $consumption_type = 'weekly_free';
-            } elseif ($dbUser['creds_package'] > 0) {
-                // Usar créditos obtenidos por informes o comprados
+        // Validar créditos (Socio BuroSE / Business / API / Free)
+        // 1. Mensuales (Prioridad 1)
+        if ($dbUser['creds_monthly'] > 0) {
+            $can_search = true;
+            $consumption_type = 'monthly';
+        }
+        // 2. Paquetes (Prioridad 2)
+        elseif ($dbUser['creds_package'] > 0) {
+            // Verificar vencimiento de paquete si existe
+            $expiry = $dbUser['creds_package_expiry'];
+            if (!$expiry || $expiry >= date('Y-m-d')) {
                 $can_search = true;
                 $consumption_type = 'package';
             } else {
-                echo json_encode(["status" => "error", "message" => "Límite semanal alcanzado (1/1). Suba un informe de deuda validado para obtener créditos extra o adquiera un paquete."]);
+                echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => "Sus créditos adicionales han vencido. Por favor, renueve su saldo."]);
                 exit();
             }
         } else {
-            // Socio BuroSE / Business / API
-            // 1. Mensuales (Prioridad 1)
-            if ($dbUser['creds_monthly'] > 0) {
-                $can_search = true;
-                $consumption_type = 'monthly';
-            }
-            // 2. Paquetes (Prioridad 2)
-            elseif ($dbUser['creds_package'] > 0) {
-                // Verificar vencimiento
-                $expiry = $dbUser['creds_package_expiry'];
-                if (!$expiry || $expiry >= date('Y-m-d')) {
-                    $can_search = true;
-                    $consumption_type = 'package';
-                } else {
-                    echo json_encode(["status" => "error", "message" => "Sus créditos adicionales han vencido. Por favor, renueve su saldo."]);
-                    exit();
-                }
-            } else {
-                echo json_encode(["status" => "error", "message" => "Sin créditos disponibles. Suscripción agotada."]);
-                exit();
-            }
+            $msg = ($user_plan === 'free') 
+                ? "Sin créditos disponibles. Suba un informe de deuda validado para obtener créditos de recompensa o adquiera un paquete."
+                : "Sin créditos disponibles. Suscripción agotada.";
+            echo json_encode(["status" => "error", "err_code" => "OUT_OF_CREDITS", "message" => $msg]);
+            exit();
         }
 
         if ($can_search) {
@@ -223,8 +234,12 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
             }
 
             // Log de búsqueda
-            $stmtLog = $conn->prepare("INSERT INTO search_logs (user_id, cuit_searched, consumption_type, ip_address) VALUES (?, ?, ?, ?)");
-            $stmtLog->execute([$user_id, $cuit, $consumption_type, $_SERVER['REMOTE_ADDR']]);
+            try {
+                $stmtLog = $conn->prepare("INSERT INTO search_logs (user_id, cuit_searched, consumption_type, ip_address) VALUES (?, ?, ?, ?)");
+                $stmtLog->execute([$user_id, $cuit, $consumption_type, $_SERVER['REMOTE_ADDR']]);
+            } catch (Exception $e_log_search) {
+                // Silencioso
+            }
 
             // Actualizar IP
             $conn->prepare("UPDATE membership_companies SET last_ip = ? WHERE id = ?")->execute([$_SERVER['REMOTE_ADDR'], $user_id]);
@@ -236,20 +251,18 @@ if (isset($_SESSION['is_member']) && $_SESSION['is_member'] === true && $user_id
 }
 
 if (!$is_authenticated) {
-    // Notificar por mail (burosearg@gmail.com)
+    /* Notificación de búsqueda Guest deshabilitada por volumen de spam
     $to = "burosearg@gmail.com";
     $subject = "CONSULTA GUEST - BuroSE";
     $body = "Invitado buscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level\nFecha: " . date('Y-m-d H:i:s');
     @mail($to, $subject, $body, "From: info@burose.com.ar");
+    */
 
     echo json_encode([
-        "status" => "success",
+        "status" => "error",
         "authenticated" => false,
-        "cuit" => $cuit,
-        "name" => $scraped_name ?: null,
-        "alert_level" => $alert_level,
-        "has_risk" => ($has_internal_risk || $has_bcra_risk),
-        "message" => "Regístrese para ver el detalle de los reportes y montos."
+        "err_code" => "AUTH_REQUIRED",
+        "message" => "Acceso restringido. Por favor, inicie sesión o regístrese para realizar consultas."
     ]);
 } else {
     // Limpiar reportes internos para cumplir con políticas de privacidad
@@ -262,19 +275,25 @@ if (!$is_authenticated) {
         ];
     }, $internal_reports);
 
-    // Notificación por mail (burosearg@gmail.com)
+    /* Notificación de búsqueda Socio deshabilitada por volumen de spam
     $to = "burosearg@gmail.com";
     $subject = "CONSULTA SOCIO - " . $user_name;
     $body = "Socio: " . $user_name . " (" . ($_SESSION['member_cuit'] ?? 'N/A') . ")\nBuscó: $cuit\nNombre: " . ($scraped_name ?: "No identificado") . "\nAlerta: $alert_level";
     @mail($to, $subject, $body, "From: info@burose.com.ar");
+    */
 
-    log_activity($conn, $user_id, $user_name, 'SEARCH_SOCIO', "Buscó: $cuit ($scraped_name), Alerta: $alert_level");
+    try {
+        log_activity($conn, $user_id, $user_name, 'SEARCH_SOCIO', "Buscó: $cuit ($scraped_name), Alerta: $alert_level");
+    } catch (Exception $e_final_log) {
+        // Silencioso
+    }
 
     echo json_encode([
         "status" => "success",
         "authenticated" => true,
         "cuit" => $cuit,
         "name" => $scraped_name ?: null,
+        "recent_consultants" => $recent_consultants,
         "internal" => [
             "count" => count($internal_reports),
             "total_debt" => $total_internal_debt,

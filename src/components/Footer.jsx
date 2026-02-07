@@ -79,8 +79,8 @@ const Footer = ({ theme, openContact, settings }) => {
                         <a href="mailto:legales@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
                             Legales: legales@burose.com.ar
                         </a>
-                        <a href="mailto:sistemas@burose.com.ar" className="hover:text-brand-neon transition-colors flex items-center">
-                            Soporte: sistemas@burose.com.ar
+                        <a href="mailto:sistemas@vecinoseguro.com" className="hover:text-brand-neon transition-colors flex items-center">
+                            Soporte: sistemas@vecinoseguro.com
                         </a>
                     </div>
                     <p className="flex items-center">

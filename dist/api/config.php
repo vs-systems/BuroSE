@@ -124,7 +124,7 @@ try {
         // Restaurar VIPs (DESHABILITADO: Para permitir borrar duplicados)
         $vips = [
             ['Biosegur', '20111111111', 'info@biosegur.com.ar'],
-            ['Javier Gozzi', '20255621867', 'sistemas@burose.com.ar'], // CUIT Corregido
+            ['Javier Gozzi', '20255621867', 'sistemas@vecinoseguro.com'], // CUIT Corregido
             ['DyR Sistemas', '30333333333', 'info@dyrsistemas.com.ar'],
             ['Block Seguridad', '30444444444', 'info@block.com.ar']
         ];
