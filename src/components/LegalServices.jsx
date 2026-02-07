@@ -3,7 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { ShieldAlert, Gavel, Scale, Mail, ArrowRight, ArrowLeft } from 'lucide-react';
 
-const LegalServices = ({ theme, setTheme }) => {
+const LegalServices = ({ theme, setTheme, settings }) => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -93,7 +93,7 @@ const LegalServices = ({ theme, setTheme }) => {
                 </div>
             </main>
 
-            <Footer theme={theme} openContact={openContact} />
+            <Footer theme={theme} openContact={openContact} settings={settings} />
         </div>
     );
 };

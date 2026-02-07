@@ -4,7 +4,7 @@ import Footer from './Footer';
 import AccessForm from './AccessForm';
 import { ArrowLeft, Gift, ShieldCheck, Zap } from 'lucide-react';
 
-const RegistrationPage = ({ theme, setTheme }) => {
+const RegistrationPage = ({ theme, setTheme, settings }) => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -71,7 +71,7 @@ const RegistrationPage = ({ theme, setTheme }) => {
                 </div>
             </main>
 
-            <Footer theme={theme} />
+            <Footer theme={theme} settings={settings} />
         </div>
     );
 };

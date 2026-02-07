@@ -15,6 +15,16 @@ import RegistrationPage from './components/RegistrationPage';
 
 function App() {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+    const [settings, setSettings] = useState({});
+
+    useEffect(() => {
+        fetch('api/public_settings.php')
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === 'success') setSettings(res.data);
+            })
+            .catch(e => console.error("Error fetching settings:", e));
+    }, []);
 
     useEffect(() => {
         const applyTheme = (themeMode) => {
@@ -71,9 +81,9 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Landing theme={theme} setTheme={setTheme} />} />
+                <Route path="/" element={<Landing theme={theme} setTheme={setTheme} settings={settings} />} />
                 <Route path="/risk-dashboard" element={<RiskDashboard theme={theme} setTheme={setTheme} />} />
-                <Route path="/registro-gratis" element={<RegistrationPage theme={theme} setTheme={setTheme} />} />
+                <Route path="/registro-gratis" element={<RegistrationPage theme={theme} setTheme={setTheme} settings={settings} />} />
                 <Route path="/admin" element={<AdminPanel theme={theme} setTheme={setTheme} />} />
                 <Route path="/config" element={<AdminPanel theme={theme} setTheme={setTheme} />} />
                 <Route path="/login" element={<MemberLogin theme={theme} setTheme={setTheme} />} />
@@ -83,8 +93,8 @@ function App() {
                 <Route path="/replica" element={<Replica theme={theme} setTheme={setTheme} />} />
                 <Route path="/manual" element={<Manual theme={theme} setTheme={setTheme} />} />
                 <Route path="/legal-recovery" element={<LegalRecovery theme={theme} setTheme={setTheme} />} />
-                <Route path="/legal-services" element={<LegalServices theme={theme} setTheme={setTheme} />} />
-                <Route path="/pricing" element={<Landing theme={theme} setTheme={setTheme} initialSection="pricing" />} />
+                <Route path="/legal-services" element={<LegalServices theme={theme} setTheme={setTheme} settings={settings} />} />
+                <Route path="/pricing" element={<Landing theme={theme} setTheme={setTheme} initialSection="pricing" settings={settings} />} />
             </Routes>
         </Router>
     );

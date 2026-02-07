@@ -14,18 +14,10 @@ import Footer from './Footer';
 import ContactModal from './ContactModal';
 import RiskMockup from './RiskMockup';
 
-const Landing = ({ theme, setTheme, initialSection }) => {
+const Landing = ({ theme, setTheme, initialSection, settings }) => {
     const [isContactOpen, setIsContactOpen] = useState(false);
-    const [settings, setSettings] = useState({});
 
     useEffect(() => {
-        fetch('api/public_settings.php')
-            .then(r => r.json())
-            .then(res => {
-                if (res.status === 'success') setSettings(res.data);
-            })
-            .catch(e => console.error("Error fetching settings:", e));
-
         if (initialSection === 'pricing') {
             setTimeout(() => {
                 document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
@@ -41,8 +33,8 @@ const Landing = ({ theme, setTheme, initialSection }) => {
                 <RiskMockup theme={theme} />
                 <ProblemChart theme={theme} />
                 <HowItWorks theme={theme} />
-                <Pricing theme={theme} />
-                <Manuals theme={theme} />
+                <Pricing theme={theme} openContact={(type) => setIsContactOpen(type || true)} />
+                <Manuals theme={theme} settings={settings} />
                 <Legal theme={theme} />
                 <div id="contact" className={`container mx-auto px-4 py-20 grid md:grid-cols-2 gap-12 transition-colors ${theme === 'dark' ? 'bg-transparent' : 'bg-slate-50'}`}>
                     <AccessForm theme={theme} />

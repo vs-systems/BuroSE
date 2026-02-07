@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, ShieldCheck, User, Scale, ArrowRight, Download } from 'lucide-react';
 
-const Manuals = ({ theme }) => {
+const Manuals = ({ theme, settings }) => {
     const [activeManual, setActiveManual] = useState('free');
 
     const manuals = {
@@ -88,7 +88,7 @@ const Manuals = ({ theme }) => {
 
                         <div className={`mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-6 ${theme === 'dark' ? 'border-brand-secondary/50' : 'border-slate-100'
                             }`}>
-                            <p className={`text-[10px] uppercase font-black tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>BuroSE | Framework de Riesgo 2026_01_29_V7</p>
+                            <p className={`text-[10px] uppercase font-black tracking-widest ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>BuroSE | Framework de Riesgo {settings?.system_version || '2026_02_07_V8'}</p>
                             <div className="flex items-center gap-6">
                                 <button
                                     onClick={() => {
